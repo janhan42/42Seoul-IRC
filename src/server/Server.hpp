@@ -12,13 +12,12 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-#include <sys/_types/_sa_family_t.h>
 #define SERVER_VERSION "v0.1"
 #define CRLF "\r\n"
 
+#include <sys/_types/_sa_family_t.h>
 #include "../../common.hpp"
-
-class User;
+#include "../Irc/User.hpp"
 class Channel;
 class Command;
 
@@ -50,7 +49,7 @@ class Server
 		struct	sockaddr_in					mUserAddr;
 		socklen_t							mUserAddrSize;
 		std::map<int, User>					mUsers;
-		std::map<std::string, Channel *>	mChannels;
+		std::map<std::string, Channel *>	mChannels;	// 서버에 있는 채널
 		std::string							mMessage[BUFFER_SIZE];
 		int									mStrLen;
 		Command*							mCommand;

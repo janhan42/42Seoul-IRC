@@ -1,3 +1,15 @@
+/**
+ * @file User.cpp
+ * @author jang hun han (janhan@student.42Seoul.kr)
+ * @brief User클래서의 정의 파일
+ * @version 0.1
+ * @date 2024-10-13
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
+
 #include "User.hpp"
 
 User::User(int Userfd)

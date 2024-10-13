@@ -19,8 +19,6 @@
 #include <sys/socket.h>
 #include <map>
 
-#include "./src/Irc/User.hpp"
-#include "./src/server/Server.hpp"
 #include "./src/utils/IsInt.hpp"
 
 #define BUFFER_SIZE 1024

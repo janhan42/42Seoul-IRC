@@ -33,8 +33,18 @@ bool Server::Init()
 		std::cerr << "ERROR: Init Failed" << std::endl;
 		return (EXIT_FAILURE);
 	}
-
+	mbRunning = true;	// Init 성공시 Running 가능
+	return (EXIT_SUCCESS);
 }
+
+void Server::Run()
+{
+	while(mbRunning)
+	{
+
+	}
+}
+
 
 /**
  * @brief

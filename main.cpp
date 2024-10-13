@@ -1,6 +1,3 @@
-#include "common.hpp"
-#include <cstdlib>
-
 /**
  * @file main.cpp
  * @author jang hun han (janhan@student.42Seoul.kr)
@@ -11,6 +8,9 @@
  * @copyright Copyright (c) 2024
  *
  */
+
+#include "common.hpp"
+#include "./src/server/Server.hpp"
 
 /**
  * @brief
