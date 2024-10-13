@@ -9,6 +9,7 @@
  *
  */
 
+#include <cstdlib>
 #include "common.hpp"
 #include "./src/server/Server.hpp"
 
@@ -34,10 +35,11 @@ int main(const int argc, const char** argv)
 	const int port = std::atoi(argv[1]);
 	const std::string password(argv[2]);
 
-	{
-		Server server(port, password);
-		server.Init();
-		server.Run();
-	}
+	Server server(port, password);
+
+	if (server.Init() != EXIT_SUCCESS)
+		return EXIT_FAILURE;
+	server.Run();
+
 	return EXIT_SUCCESS;
 }

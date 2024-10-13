@@ -9,7 +9,6 @@
 #include <poll.h>
 
 /* TEST CLASS */
-#include "Core.hpp"
 
 // TODO: 서버 Core Class 작성
 // TODO: 접속한 유저의 데이터 및 정보를 저장해둘 User Class 작성
@@ -25,7 +24,6 @@ int main(int ac, char **av)
 		std::cerr << "ERROR: Usage: ./irc-serv [PORT] [PASS]" << std::endl;
 		return 1;
 	}
-	Core	Core(av[1], av[2]);
 	int	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	int opt = 1;
 	setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -40,7 +38,7 @@ int main(int ac, char **av)
 	struct sockaddr_in server_addr; 			// 이제 이게 전화번호가 될꺼에요
 	server_addr.sin_family = AF_INET;			// IPv4 주소 체계 사용
 	server_addr.sin_addr.s_addr = INADDR_ANY;	// 모든 가능한 IP 주소
-	server_addr.sin_port = htons(1599); // 호스트 바이트 순서 -> 네트워크 바이트 순서
+	server_addr.sin_port = htons(6667); // 호스트 바이트 순서 -> 네트워크 바이트 순서
 	// 이 서버에 접속할때 로컬 IP에서 1577 포트에 접근한다.
 	if (bind(server_fd, reinterpret_cast<struct sockaddr *>(&server_addr), sizeof(server_addr)) == -1)
 	{
@@ -77,7 +75,7 @@ int main(int ac, char **av)
 		}
 		// CAP LS 응답을 한 번만 보내기
 		if (flag == 0) {
-			std::string response = ":server_name CAP * LS :multi-prefix userhost-in-names\r\n";
+			std::string response = ":server_name CAP * NAK :multi-prefix userhost-in-names\r\n";
 			send(client_fd, response.c_str(), response.size(), 0);
 			flag = 1;  // CAP 응답 이후 플래그 설정
 		}
