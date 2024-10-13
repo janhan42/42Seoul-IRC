@@ -13,6 +13,8 @@
 #include <cstdlib>
 #include <sys/fcntl.h>
 #include <sys/socket.h>
+#include <sys/event.h>
+#include <unistd.h>
 
 Server::Server(const int port, const std::string& password)
 : mPort(port)
@@ -39,9 +41,23 @@ bool Server::Init()
 
 void Server::Run()
 {
+	int kq = kqueue();
+	if (kq < 0)
+	{
+		std::cerr << "ERROR: kqueue creation Failed" << std::endl;
+		close(mServerSock);
+		return;
+	}
+
+    struct kevent evSet;
+    EV_SET(&evSet, mServerSock, EVFILT_READ, EV_ADD, 0, 0, NULL);
+    kevent(kq, &evSet, 1, NULL, 0, NULL);
+
+	std::cout << "Server: Waiting for clinet's connection..." << std::endl;
+
 	while(mbRunning)
 	{
-
+	
 	}
 }
 
@@ -53,7 +69,7 @@ void Server::Run()
 bool Server::SetSocket()
 {
 	int	opt = 1;
-	mServerSock = socket(PF_INET, SOCK_STREAM, 0);
+	mServerSock = socket(AF_INET, SOCK_STREAM, 0);
 	setsockopt(mServerSock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	if (mServerSock == -1)
 	{
@@ -83,7 +99,7 @@ bool Server::SetAddr()
 
 bool Server::SetListen()
 {
-	if (listen(mServerSock, 15) == -1)
+	if (listen(mServerSock, SOMAXCONN) < 0)
 	{
 		std::cerr << "ERROR: listen() error" << std::endl;
 		return (EXIT_FAILURE);
