@@ -19,11 +19,6 @@
 
 int main(int ac, char **av)
 {
-	if (ac != 3)
-	{
-		std::cerr << "ERROR: Usage: ./irc-serv [PORT] [PASS]" << std::endl;
-		return 1;
-	}
 	int	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	int opt = 1;
 	setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -75,7 +70,7 @@ int main(int ac, char **av)
 		}
 		// CAP LS 응답을 한 번만 보내기
 		if (flag == 0) {
-			std::string response = ":server_name CAP * NAK :multi-prefix userhost-in-names\r\n";
+			std::string response = ":server_name CAP * LS\r\n";
 			send(client_fd, response.c_str(), response.size(), 0);
 			flag = 1;  // CAP 응답 이후 플래그 설정
 		}

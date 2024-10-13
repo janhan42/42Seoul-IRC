@@ -57,6 +57,7 @@ class User
 		std::vector<std::string>::iterator	FindChannel(std::string);
 
 	private: // variables
+		int									mUserFd;
 		std::string							mNickName;
 		std::string							mUserName;
 		std::string							mHostName;
@@ -69,7 +70,6 @@ class User
 
 		std::string							mUserRecvBuf;
 		std::vector<std::string>			mChannels;
-		int									mUserFd;
 
 	private: // delete OCCF
 		User(const User& rhs);

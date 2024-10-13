@@ -13,11 +13,11 @@
 #include "User.hpp"
 
 User::User(int Userfd)
-: mUserName("User")
+: mUserFd(Userfd)
+, mUserName("User")
 , mbRegistPass(false)
 , mbRegistNick(false)
 , mbRegistUser(false)
-, mUserFd(Userfd)
 {}
 
 User::~User()
