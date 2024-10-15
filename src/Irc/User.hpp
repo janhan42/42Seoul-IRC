@@ -12,7 +12,7 @@
  *
  */
 
-#include "../../common.hpp"
+#include "../server/Server.hpp"
 
 class User
 {

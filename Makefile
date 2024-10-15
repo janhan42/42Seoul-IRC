@@ -6,7 +6,7 @@
 #    By: janhan <janhan@student.42seoul.kr>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/24 15:49:02 by janhan            #+#    #+#              #
-#    Updated: 2024/10/13 10:35:02 by janhan           ###   ########.fr        #
+#    Updated: 2024/10/14 15:01:12 by janhan           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ CXXFLAGS		=		-Wall -Wextra -Werror -std=c++98
 SRCS		=	main.cpp				\
 				src/Irc/User.cpp		\
 				src/server/Server.cpp	\
-				src/utils/IsInt.cpp
+				src/utils/IsInt.cp
 OBJS		=	$(SRCS:.cpp=.o)
 
 all : $(NAME)

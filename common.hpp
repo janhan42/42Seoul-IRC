@@ -19,6 +19,12 @@
 #include <sys/socket.h>
 #include <map>
 #include <vector>
+#include <fcntl.h>
+#include <fcntl.h>
+#include <poll.h>
+#include <unistd.h>
+#include <algorithm>
+#include <sys/socket.h>
 
 #include "./src/utils/IsInt.hpp"
 
