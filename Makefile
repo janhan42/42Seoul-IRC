@@ -6,19 +6,16 @@
 #    By: janhan <janhan@student.42seoul.kr>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/24 15:49:02 by janhan            #+#    #+#              #
-#    Updated: 2024/10/13 10:35:02 by janhan           ###   ########.fr        #
+#    Updated: 2024/10/15 18:12:42 by sangshin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME			=		irc-serv
+NAME			=		ircserv
 
 CXX				=		c++
 CXXFLAGS		=		-Wall -Wextra -Werror -std=c++98
 
 SRCS		=	main.cpp				\
-				src/Irc/User.cpp		\
-				src/server/Server.cpp	\
-				src/utils/IsInt.cpp
 OBJS		=	$(SRCS:.cpp=.o)
 
 all : $(NAME)
