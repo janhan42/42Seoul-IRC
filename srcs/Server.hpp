@@ -10,12 +10,16 @@ class Server
   public:  // 멤버 함수
 	int init();
 	int run();
-	int return_cerr(const std::string& error_message);
+
+  private:	// private member fuction
+	int return_cerr(const std::string &error_message);
+
+	int init_kq();
 
   private:	// delete OCCF
 	Server();
-	Server(Server&);
-	Server& operator=(Server&);
+	Server(Server &);
+	Server &operator=(Server &);
 
   private:	// 멤버 변수
 	int				   server_fd;

@@ -1,7 +1,6 @@
 #include "Server.hpp"
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <cstdlib>
+#include <fcntl.h>	// for fcntl()
+#include <sys/
 #include <iostream>
 
 Server::Server(int port, std::string passwd) :
@@ -22,7 +21,7 @@ int Server::init()
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 	server_addr.sin_port = htons(port);
 
-	if (bind(server_fd, reinterpret_cast<struct sockaddr*>(&server_addr),
+	if (bind(server_fd, reinterpret_cast<struct sockaddr *>(&server_addr),
 			 sizeof(server_addr)) == -1)
 		return (return_cerr("server bind failed!"));
 
@@ -34,10 +33,14 @@ int Server::run()
 	if (listen(server_fd, SOMAXCONN) == -1)
 		return (return_cerr("listen() failed"));
 	std::cout << "Server: Waiting for clinet's connection..." << std::endl;
-	// sdfsdf
-}
+	fcntl(server_fd, F_SETFL, O_NONBLOCK);
+	// F_SETFL:		re-set file fd flag with arg
+	// O_NONBLOCK:	set fd NONBLOCK
 
-int return_cerr(const std::string& err_msg)
+	int kq = kqueue();
+	if (kq < 0) }
+
+int return_cerr(const std::string &err_msg)
 {
 	std::cerr << err_msg << std::endl;
 	return (EXIT_FAILURE);
