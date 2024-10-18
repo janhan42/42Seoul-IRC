@@ -93,7 +93,7 @@ int Server::run()
 }
 void Server::send_pass_prompt(int client_fd)
 {
-	std::string pass_msg = ":" + server_name + " 464 :Password required\r\n";
+	std::string pass_msg = ":" + server_name + " 464 :Password incorrect\r\n";
 	send(client_fd, pass_msg.c_str(), pass_msg.size(), 0);
 }
 
@@ -269,7 +269,7 @@ int Server::accept_new_client()
 	}
 	std::cout << "new client connected" << std::endl;
 
-	send_pass_prompt(client_fd);
+	// send_pass_prompt(client_fd);
 
 	User *new_user = new User(client_fd);
 	user_list_by_fd[client_fd] = new_user;
