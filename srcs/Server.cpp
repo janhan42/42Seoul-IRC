@@ -46,7 +46,7 @@ int Server::run()
 	// F_SETFL:		re-set file fd flag with arg
 	// O_NONBLOCK:	set fd NONBLOCK
 
-	int kq = kqueue();
+	kq = kqueue();
 	if (kq < 0) return (return_cerr("kqueue init failed"));
 
 	struct kevent evSet;  // 이벤트 등록하는데 쓰는 구조체
@@ -78,15 +78,36 @@ int Server::run()
 		for (int i = 0; i < event_count; i++)
 		{
 			if (static_cast<int>(evList[i].ident) == server_fd)
+			{
 				// 해당 이벤트의 fd 가 서버 fd면
 				// -> 클라이언트 새로 연결된거
-				accept_new_client(kq, &evSet);
-			else if (evList[i].filter == EVFILT_READ)
-			{
-				read_client_message(evList[i].ident);
+				accept_new_client();
+				continue;
 			}
+			if (evList[i].filter & EVFILT_READ)	 // 클라이언트 읽기 가능
+				read_client_message(evList[i].ident);
+			if (evList[i].filter & EVFILT_WRITE)  // 클라이언트 쓰기 가능
+				send_client_message(evList[i].ident);
 		}
 	}
+}
+
+void Server::send_client_message(int client_fd)
+{
+	if (send_buffer[client_fd].empty())	 // 버퍼가 비어있으면 넘어감
+		return;
+
+	std::string &message = send_buffer[client_fd];
+	int bytes_sent = send(client_fd, message.c_str(), message.size(), 0);
+
+	if (bytes_sent < 0)
+	{
+		std::cerr << "Error send() to client" << std::endl;
+		delete_client(client_fd);
+		return;
+	}
+
+	message.erase(0, bytes_sent);  // 보낸만큼 제거
 }
 
 void Server::read_client_message(int client_fd)
@@ -96,66 +117,142 @@ void Server::read_client_message(int client_fd)
 	memset(readbuffer, 0, BUFFER_MAX);
 	int bytes_read = recv(client_fd, readbuffer, BUFFER_MAX, 0);
 	if (bytes_read > 0)
-	{
 		handle_message(client_fd, readbuffer);
-	}
+	else if (bytes_read <= 0)  // 클라이언트 연결 종료
+		delete_client(client_fd);
+}
+
+void Server::delete_client(int client_fd)
+{
+	struct kevent evSet;
+
+	std::cout << "User [" << user_list_by_fd[client_fd]->nickname
+			  << "] disconnected" << std::endl;
+
+	// 이벤트 삭제
+	EV_SET(&evSet, client_fd, EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0,
+		   NULL);
+	kevent(kq, &evSet, 1, NULL, 0, NULL);
+
+	// 유저 리스트에서 해당 클라이언트 삭제
+	// read write 둘다 삭제
+	user_list_by_nick.erase(user_list_by_fd[client_fd]->nickname);
+	delete user_list_by_fd[client_fd];
+	user_list_by_fd.erase(client_fd);
+	send_buffer.erase(client_fd);
 }
 
 void Server::handle_message(int client_fd, std::string message)
 {
-	std::cout << "MY NAME: " << user_list[client_fd]->nickname << std::endl;
-	buffer += message;
+	buffer_tmp += message;
 
-	std::vector<std::string> messages = split_message(buffer);
+	std::vector<std::string> messages = split_message(buffer_tmp);
 
-	if (buffer.back() != '\n')
+	if (buffer_tmp.back() != '\n')
 	{
-		buffer = messages.back();
+		buffer_tmp = messages.back();
 		messages.pop_back();
 		// 불완전한 메세지는 버퍼에 저장해두고
 		// 다음에 처리
 	}
 	else
-		buffer.clear();	 // 불완전한 메세지 없으면 저장용 버퍼는 초기화
+		buffer_tmp.clear();	 // 불완전한 메세지 없으면 저장용 버퍼는 초기화
 
 	std::vector<std::string>::iterator it;
 
 	for (it = messages.begin(); it != messages.end(); it++)
 	{
+		std::cout << *it << std::endl;
 		if (it->size() >= 4 && it->substr(0, 4) == "NICK")
 		{
 			handle_nick(client_fd, *it);
-			if (it->size() == 4)
-			{
-				// NICK 뒤에 파라미터 안온경우ERR_NONICKNAMEGIVEN(431)
-			}
-			std::string name = it->substr(5);
-			name.erase(name.find_last_not_of("\r\n") + 1);
-			user_list[client_fd]->set_nickname(name);
 		}
 		else if (it->size() >= 4 && it->substr(0, 4) == "USER")
-			std::cout << *it << std::endl;
+		{
+			// handle user
+		}
 		else if (it->size() >= 4 && it->substr(0, 4) == "JOIN")
-			std::cout << *it << std::endl;
+		{
+			// handle join
+		}
 		else if (it->size() >= 7 && it->substr(0, 7) == "PRIVMSG")
-			std::cout << *it << std::endl;
+		{
+			// handle privmsg
+		}
 	}
 	client_fd++;
 }
 
 void Server::handle_nick(int client_fd, std::string &command)
 {
+	std::string prev_nick = user_list_by_fd[client_fd]->nickname;
 	if (command.size() == 4)  // "NICK" 딸랑 이렇게만 왔을 때
 	{
-		std::string err_msg = ":" + server_name + " 431 " +
-							  user_list[client_fd]->nickname +
-							  " :No nickname given\r\n";
+		std::string err_msg =
+			":" + server_name + " 431 " + prev_nick + " :No nickname given\r\n";
+		// send(client_fd, err_msg.c_str(), err_msg.size(), 0);
+		send_buffer[client_fd] += err_msg;
+		return;
 	}
+	std::string name = command.substr(5);
+	name.erase(name.find_last_not_of("\r\n") + 1);
+
+	// 닉네임이 중복되면 ERR_NICKNAMEINUSE(433) 보내고 무시하기 -> 처리완료
+	// 닉네임에 이상한 글자(#으로 시작, :으로 시작, 스페이스 등)가 오면
+	// ERR_ERRONEUSNICKNAME(432) 보내고 명령어 무시
+	// 이긴 한데 걍 응답안하고 무시해도 작동하긴 함
+	// 닉네임 안에 .!@ 들어오면 무시해야함
+	// 키위에서는 닉네임에 스페이스 오면 걍 앞 단어만 보내주네
+	if (is_nickname_invalid(name))
+	{
+		std::string err_msg = ":" + server_name + " 432 " + prev_nick +
+							  " :Nickname '" + name + "' is invalid!\r\n";
+		// send(client_fd, err_msg.c_str(), err_msg.size(), 0);
+		send_buffer[client_fd] += err_msg;
+		return;
+	}
+	if (is_nickname_taken(name))
+	{
+		std::string err_msg =
+			":" + server_name + " 433 " + prev_nick + " " + name + "\r\n";
+		// send(client_fd, err_msg.c_str(), err_msg.size(), 0);
+		send_buffer[client_fd] += err_msg;
+		return;
+	}
+	user_list_by_fd[client_fd]->set_nickname(name);
+	user_list_by_nick.erase(prev_nick);
+	user_list_by_nick[name] = user_list_by_fd[client_fd];
+
+	std::string msg = ":" + prev_nick + " NICK " + name + "\r\n";
+	// send(client_fd, msg.c_str(), msg.size(), 0);
+	send_buffer[client_fd] += msg;
+	// 같은 채널에 있는 다른 유저에게도 전달해야함 ㅠ
 }
 
-int Server::accept_new_client(int kq, struct kevent *evSet)
-// 함수 내부에서 kevent 에 클라이언트 추가하기 위해
-// 매개변수로 kq랑 evSet 주소 가져옴
+bool Server::is_nickname_invalid(const std::string &name)
+// 금지된 문자 있는지 확인
+// 처음에는 이름 길이 넘어도 만들어지긴함;;
+{
+	if (name.empty() || name.size() > 9) return (true);
+
+	if (name.front() == '#' || name.front() == ':') return (true);
+
+	if (name.front() >= '0' && name.front() <= '9') return (true);
+
+	std::string invalid_char = ".!@";
+	if (name.find_first_of(invalid_char) != std::string::npos) return (true);
+
+	if (name.find(' ') != std::string::npos) return (true);
+
+	return (false);
+}
+
+bool Server::is_nickname_taken(const std::string &name)
+{
+	return (user_list_by_nick.count(name) > 0);
+}
+
+int Server::accept_new_client()
 {
 	int client_fd = accept(server_fd, NULL, NULL);
 	// 클라이언트 주소 정보를 기록할 필요가 딱히 없기 때문에
@@ -167,11 +264,17 @@ int Server::accept_new_client(int kq, struct kevent *evSet)
 	}
 	std::cout << "new client connected" << std::endl;
 	User *new_user = new User(client_fd);
-	user_list[client_fd] = new_user;
-	send_welcome_message(*new_user);
+	user_list_by_fd[client_fd] = new_user;
+	user_list_by_nick[new_user->nickname] = new_user;
 
-	EV_SET(evSet, client_fd, EVFILT_READ, EV_ADD, 0, 0, new_user);
-	kevent(kq, evSet, 1, NULL, 0, NULL);
+	send_buffer[client_fd] = "";  // 이 클라이언트의 send_buffer 생성
+	send_welcome_message(*new_user);
+	fcntl(client_fd, F_SETFL, O_NONBLOCK);	// 클라이언트도 비동기 처리
+
+	struct kevent evSet;
+	EV_SET(&evSet, client_fd, EVFILT_READ | EVFILT_WRITE, EV_ADD, 0, 0,
+		   new_user);
+	kevent(kq, &evSet, 1, NULL, 0, NULL);
 	return (0);
 }
 
@@ -180,12 +283,13 @@ void Server::send_welcome_message(User &new_user)
 	std::string welcome_msg =
 		":sirc 001 " + new_user.nickname + " :Welcome to the IRC server!\r\n";
 	send(new_user.fd, welcome_msg.c_str(), welcome_msg.size(), 0);
-	// 001: 클라이언트가 성공적으로 연결되었음을 알림
-	// 002: 서버의 호스트 네임과 버전 정보 알림
-	// 003: 서버 생성 날짜와 시간 알림
-	// 375: MOTD 메세지 시작
-	// 376: MOTD 메세지 종료
-	// --> 001 말고는 선택사항
+	// send_buffer[new_user.fd] += welcome_msg;
+	//  001: 클라이언트가 성공적으로 연결되었음을 알림
+	//  002: 서버의 호스트 네임과 버전 정보 알림
+	//  003: 서버 생성 날짜와 시간 알림
+	//  375: MOTD 메세지 시작
+	//  376: MOTD 메세지 종료
+	//  --> 001 말고는 선택사항
 }
 
 int Server::return_cerr(const std::string &err_msg)
