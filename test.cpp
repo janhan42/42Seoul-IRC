@@ -61,6 +61,7 @@ int main(int ac, char **av)
 	int	 flag = 0;
 	while (1)
 	{
+		memset(readbuffer, 0, 1024);
 		int length = recv(client_fd, readbuffer, sizeof(readbuffer), 0);
 		// readbuffer[length] = 0;
 		std::cout << "-- Client Message --" << std::endl;

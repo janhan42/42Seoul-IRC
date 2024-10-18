@@ -6,14 +6,18 @@ class User
 	User(int client_fd);
 	~User();
 
-  public:	// member func
+  public:  // member func
+	void set_nickname(std::string &name);
+
+  public:  // member var
+	int			fd;
+	std::string nickname;
+
   private:	// unused OCCF
 	User();
 	User(User &);
 	User &operator=(User &);
 
-  private:	// member var
-	std::string nickname;
-	std::string current_channel;
-	int			fd;
+  private:						  // member var
+	std::string current_channel;  // 수정 필요
 };

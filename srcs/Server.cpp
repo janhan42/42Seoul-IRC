@@ -4,6 +4,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <iostream>
+#include <sstream>
+#include <vector>
+#include "User.hpp"
 
 #define MAX_EVENT 10
 
@@ -35,7 +38,9 @@ int Server::init()
 int Server::run()
 {
 	if (listen(server_fd, SOMAXCONN) == -1)
+	{
 		return (return_cerr("listen() failed"));
+	}
 	std::cout << "Server: Waiting for clinet's connection..." << std::endl;
 	fcntl(server_fd, F_SETFL, O_NONBLOCK);
 	// F_SETFL:		re-set file fd flag with arg
@@ -72,27 +77,139 @@ int Server::run()
 
 		for (int i = 0; i < event_count; i++)
 		{
-			if (evList[i].ident == server_fd)  // 해당 이벤트의 fd 가 서버 fd면
-											   // -> 클라이언트 새로 연결된거
+			if (static_cast<int>(evList[i].ident) == server_fd)
+				// 해당 이벤트의 fd 가 서버 fd면
+				// -> 클라이언트 새로 연결된거
+				accept_new_client(kq, &evSet);
+			else if (evList[i].filter == EVFILT_READ)
 			{
-				int client_fd = accept(server_fd, NULL, NULL);
-				// 클라이언트 주소 정보를 기록할 필요가 딱히 없기 때문에
-				// sockadd_in 구조체를 사용하지 않음
-				if (client_fd < 0)
-				{
-					std::cerr << "client accept failed" << std::endl;
-					continue;
-				}
-
-				std::cout << "new client connected" << std::endl;
-				user_list.push_back(new User(client_fd));
+				read_client_message(evList[i].ident);
 			}
 		}
 	}
 }
 
-int return_cerr(const std::string &err_msg)
+void Server::read_client_message(int client_fd)
+{
+	char readbuffer[1024];
+
+	memset(readbuffer, 0, BUFFER_MAX);
+	int bytes_read = recv(client_fd, readbuffer, BUFFER_MAX, 0);
+	if (bytes_read > 0)
+	{
+		handle_message(client_fd, readbuffer);
+	}
+}
+
+void Server::handle_message(int client_fd, std::string message)
+{
+	std::cout << "MY NAME: " << user_list[client_fd]->nickname << std::endl;
+	buffer += message;
+
+	std::vector<std::string> messages = split_message(buffer);
+
+	if (buffer.back() != '\n')
+	{
+		buffer = messages.back();
+		messages.pop_back();
+		// 불완전한 메세지는 버퍼에 저장해두고
+		// 다음에 처리
+	}
+	else
+		buffer.clear();	 // 불완전한 메세지 없으면 저장용 버퍼는 초기화
+
+	std::vector<std::string>::iterator it;
+
+	for (it = messages.begin(); it != messages.end(); it++)
+	{
+		if (it->size() >= 4 && it->substr(0, 4) == "NICK")
+		{
+			handle_nick(client_fd, *it);
+			if (it->size() == 4)
+			{
+				// NICK 뒤에 파라미터 안온경우ERR_NONICKNAMEGIVEN(431)
+			}
+			std::string name = it->substr(5);
+			name.erase(name.find_last_not_of("\r\n") + 1);
+			user_list[client_fd]->set_nickname(name);
+		}
+		else if (it->size() >= 4 && it->substr(0, 4) == "USER")
+			std::cout << *it << std::endl;
+		else if (it->size() >= 4 && it->substr(0, 4) == "JOIN")
+			std::cout << *it << std::endl;
+		else if (it->size() >= 7 && it->substr(0, 7) == "PRIVMSG")
+			std::cout << *it << std::endl;
+	}
+	client_fd++;
+}
+
+void Server::handle_nick(int client_fd, std::string &command)
+{
+	if (command.size() == 4)  // "NICK" 딸랑 이렇게만 왔을 때
+	{
+		std::string err_msg = ":" + server_name + " 431 " +
+							  user_list[client_fd]->nickname +
+							  " :No nickname given\r\n";
+	}
+}
+
+int Server::accept_new_client(int kq, struct kevent *evSet)
+// 함수 내부에서 kevent 에 클라이언트 추가하기 위해
+// 매개변수로 kq랑 evSet 주소 가져옴
+{
+	int client_fd = accept(server_fd, NULL, NULL);
+	// 클라이언트 주소 정보를 기록할 필요가 딱히 없기 때문에
+	// sockadd_in 구조체를 사용하지 않음
+	if (client_fd < 0)
+	{
+		std::cerr << "client accept failed" << std::endl;
+		return (0);	 // 클라이언트 연결 실패해도 계속 돌긴 해야될것같음
+	}
+	std::cout << "new client connected" << std::endl;
+	User *new_user = new User(client_fd);
+	user_list[client_fd] = new_user;
+	send_welcome_message(*new_user);
+
+	EV_SET(evSet, client_fd, EVFILT_READ, EV_ADD, 0, 0, new_user);
+	kevent(kq, evSet, 1, NULL, 0, NULL);
+	return (0);
+}
+
+void Server::send_welcome_message(User &new_user)
+{
+	std::string welcome_msg =
+		":sirc 001 " + new_user.nickname + " :Welcome to the IRC server!\r\n";
+	send(new_user.fd, welcome_msg.c_str(), welcome_msg.size(), 0);
+	// 001: 클라이언트가 성공적으로 연결되었음을 알림
+	// 002: 서버의 호스트 네임과 버전 정보 알림
+	// 003: 서버 생성 날짜와 시간 알림
+	// 375: MOTD 메세지 시작
+	// 376: MOTD 메세지 종료
+	// --> 001 말고는 선택사항
+}
+
+int Server::return_cerr(const std::string &err_msg)
 {
 	std::cerr << err_msg << std::endl;
 	return (EXIT_FAILURE);
+}
+
+Server::~Server() {}
+
+std::vector<std::string> Server::split_message(std::string buffer)
+// \r\n으로 쭉 연결된 메세지를 스플릿 때려줌
+{
+	std::vector<std::string> tmp;
+	std::istringstream		 stream(buffer);
+	std::string				 line;
+
+	while (std::getline(stream, line))
+	{
+		if (line.size() >= 2 && line.substr(line.size() - 2) == "\r\n")
+			line = line.substr(0, line.size() - 2);
+		else if (line.size() >= 1 && line.substr(line.size() - 1) == "\r")
+			line = line.substr(0, line.size() - 1);
+		tmp.push_back(line);
+	}
+	return (tmp);
 }

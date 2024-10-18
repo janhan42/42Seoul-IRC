@@ -11,7 +11,7 @@ int main(void)
 	// input_check(port, passwd);
 
 	Server server(port, passwd);
-	server.run();
+	if (server.init() == 0) server.run();
 
 	return (0);
 }
