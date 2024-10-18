@@ -9,9 +9,8 @@
  *
  */
 
-#include <cstdlib>
-#include "common.hpp"
-#include "src/server/Server.hpp"
+#include "Common.hpp"
+#include "./srcs/Server.hpp"
 
 /**
  * @brief

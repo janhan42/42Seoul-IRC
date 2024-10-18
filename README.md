@@ -10,4 +10,3 @@ ___
 1. KICK - Eject a clinet from the channel
 
 기반 클라이언트: irssi
-

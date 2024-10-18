@@ -6,7 +6,7 @@
 #    By: janhan <janhan@student.42seoul.kr>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/24 15:49:02 by janhan            #+#    #+#              #
-#    Updated: 2024/10/14 15:01:12 by janhan           ###   ########.fr        #
+#    Updated: 2024/10/17 15:04:15 by janhan           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,10 +15,13 @@ NAME			=		irc-serv
 CXX				=		c++
 CXXFLAGS		=		-Wall -Wextra -Werror -std=c++98
 
-SRCS		=	main.cpp				\
-				src/Irc/User.cpp		\
-				src/server/Server.cpp	\
-				src/utils/IsInt.cp
+SRCS		=	main.cpp						\
+				./src/irc/Bot.cpp				\
+				./src/irc/Channel.cpp			\
+				./src/irc/Command.cpp			\
+				./src/irc/User.cpp				\
+				./src/server/Server.cpp			\
+				./src/utils/IsInt.cpp
 OBJS		=	$(SRCS:.cpp=.o)
 
 all : $(NAME)

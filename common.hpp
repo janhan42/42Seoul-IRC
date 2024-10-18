@@ -1,33 +1,20 @@
 #ifndef COMMON_HPP
 # define COMMON_HPP
 
-/**
- * @file common.hpp
- * @author jang hun han (janhan@student.42Seoul.kr)
- * @brief 전체 파일들에서 사용할 헤더들을 정의 해둔다.
- * @version 0.1
- * @date 2024-10-10
- *
- * @copyright Copyright (c) 2024
- *
- */
-
-#include <string>
-#include <iostream>
+#include <algorithm>
+#include <unistd.h>
 #include <poll.h>
-#include <arpa/inet.h>
+#include <fcntl.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <map>
 #include <vector>
-#include <fcntl.h>
-#include <fcntl.h>
-#include <poll.h>
-#include <unistd.h>
-#include <algorithm>
-#include <sys/socket.h>
+#include <utility>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <sys/event.h>
 
-#include "./src/utils/IsInt.hpp"
-
-#define BUFFER_SIZE 1024
+#define BUF_SIZE 1024
 
 #endif
