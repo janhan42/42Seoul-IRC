@@ -33,6 +33,7 @@ class Server
 	void handle_nick(int client_fd, std::string &command);
 	bool is_nickname_taken(const std::string &name);
 	bool is_nickname_invalid(const std::string &name);
+	void send_pass_prompt(int client_fd);
 
   private:	// delete OCCF
 	Server();

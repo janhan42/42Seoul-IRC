@@ -17,6 +17,7 @@ User::User(int client_fd)
 		std::vector<std::string>::iterator it;
 		for (it = message_list.begin(); it != message_list.end(); it++)
 		{
+			std::cout << *it << std::endl;
 			if (it->size() >= 4 && it->substr(0, 4) == "NICK")
 			{
 				nickname = it->substr(5);

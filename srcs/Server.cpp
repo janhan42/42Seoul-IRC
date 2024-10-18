@@ -91,6 +91,11 @@ int Server::run()
 		}
 	}
 }
+void Server::send_pass_prompt(int client_fd)
+{
+	std::string pass_msg = ":" + server_name + " 464 :Password required\r\n";
+	send(client_fd, pass_msg.c_str(), pass_msg.size(), 0);
+}
 
 void Server::send_client_message(int client_fd)
 {
@@ -263,13 +268,16 @@ int Server::accept_new_client()
 		return (0);	 // 클라이언트 연결 실패해도 계속 돌긴 해야될것같음
 	}
 	std::cout << "new client connected" << std::endl;
+
+	send_pass_prompt(client_fd);
+
 	User *new_user = new User(client_fd);
 	user_list_by_fd[client_fd] = new_user;
 	user_list_by_nick[new_user->nickname] = new_user;
 
-	send_buffer[client_fd] = "";  // 이 클라이언트의 send_buffer 생성
 	send_welcome_message(*new_user);
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);	// 클라이언트도 비동기 처리
+	send_buffer[client_fd] = "";  // 이 클라이언트의 send_buffer 생성
 
 	struct kevent evSet;
 	EV_SET(&evSet, client_fd, EVFILT_READ | EVFILT_WRITE, EV_ADD, 0, 0,
@@ -283,13 +291,14 @@ void Server::send_welcome_message(User &new_user)
 	std::string welcome_msg =
 		":sirc 001 " + new_user.nickname + " :Welcome to the IRC server!\r\n";
 	send(new_user.fd, welcome_msg.c_str(), welcome_msg.size(), 0);
-	// send_buffer[new_user.fd] += welcome_msg;
 	//  001: 클라이언트가 성공적으로 연결되었음을 알림
 	//  002: 서버의 호스트 네임과 버전 정보 알림
 	//  003: 서버 생성 날짜와 시간 알림
+	//  004: RPL_MYINFO
+	//  005: RPL_ISUPPORT
 	//  375: MOTD 메세지 시작
 	//  376: MOTD 메세지 종료
-	//  --> 001 말고는 선택사항
+	//  --> 005 까지는 필수사항
 }
 
 int Server::return_cerr(const std::string &err_msg)
