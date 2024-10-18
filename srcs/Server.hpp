@@ -1,5 +1,7 @@
 #include <netinet/in.h>
 #include <string>
+#include <vector>
+#include "User.hpp"
 
 class Server
 {
@@ -22,9 +24,10 @@ class Server
 	Server &operator=(Server &);
 
   private:	// 멤버 변수
-	int				   server_fd;
-	const int		   port;
-	const std::string  passwd;
-	struct sockaddr_in server_addr;
-	const std::string  server_name;
+	int					server_fd;
+	const int			port;
+	const std::string	passwd;
+	struct sockaddr_in	server_addr;
+	const std::string	server_name;
+	std::vector<User *> user_list;
 };
