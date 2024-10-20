@@ -1,4 +1,6 @@
 #include "Server.hpp"
+#include <cerrno>
+#include <cstdlib>
 #include <fcntl.h>	// for fcntl()
 #include <sys/event.h>
 #include <sys/socket.h>
@@ -10,39 +12,65 @@
 
 #define MAX_EVENT 10
 
-Server::Server(int port, std::string passwd) :
-	port(port), passwd(passwd), server_name("sirc")
+Server::Server(int port, const std::string& password)
+: port(port)
+, passwd(password)
+, server_name("sirc")
+{
+}
+
+Server::~Server()
 {
 }
 
 int Server::init()
 {
-	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (server_fd == -1) return (return_cerr("socket() failed!"));
+	if (SetServerSock()
+	||	SetServerAddr()
+	||	SetServerBind())
+	{
+		std::cerr << "Server Init Fail" << std::endl;
+		return (EXIT_FAILURE);
+	}
+	return (0);
+}
+
+bool Server::SetServerSock()
+{
+	serverSock = socket(AF_INET, SOCK_STREAM, 0);
+	if (serverSock == -1)
+		return (return_cerr("SetServerSock socket() fail"));
 
 	int opt = 1;
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) != 0)
-		return (return_cerr("setsockopt"));
+	if (setsockopt(serverSock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) != 0)
+		return (return_cerr("SetServerSock setsockopt() fail"));
+	return (EXIT_SUCCESS);
+}
 
+bool Server::SetServerAddr()
+{
+	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 	server_addr.sin_port = htons(port);
+	return (EXIT_SUCCESS);
+}
 
-	if (bind(server_fd, reinterpret_cast<struct sockaddr *>(&server_addr),
-			 sizeof(server_addr)) == -1)
+bool Server::SetServerBind()
+{
+	if (bind(serverSock, reinterpret_cast<struct sockaddr *>(&server_addr),	sizeof(server_addr)) == -1)
 		return (return_cerr("server bind failed!"));
-
-	return (0);
+	return (EXIT_SUCCESS);
 }
 
 int Server::run()
 {
-	if (listen(server_fd, SOMAXCONN) == -1)
+	if (listen(serverSock, SOMAXCONN) == -1)
 	{
 		return (return_cerr("listen() failed"));
 	}
 	std::cout << "Server: Waiting for clinet's connection..." << std::endl;
-	fcntl(server_fd, F_SETFL, O_NONBLOCK);
+	fcntl(serverSock, F_SETFL, O_NONBLOCK);
 	// F_SETFL:		re-set file fd flag with arg
 	// O_NONBLOCK:	set fd NONBLOCK
 
@@ -50,7 +78,7 @@ int Server::run()
 	if (kq < 0) return (return_cerr("kqueue init failed"));
 
 	struct kevent evSet;  // 이벤트 등록하는데 쓰는 구조체
-	EV_SET(&evSet, server_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	EV_SET(&evSet, serverSock, EVFILT_READ, EV_ADD, 0, 0, NULL);
 	// 	첫 번째 인자: 이벤트 구조체(evSet)의 포인터
 	// ident: 감시할 소켓, 파일 디스크립터, 시그널 번호 등
 	// filter: 감지할 이벤트 종류 (예: 읽기 이벤트, 쓰기 이벤트)
@@ -69,15 +97,18 @@ int Server::run()
 	while (true)
 	{
 		struct kevent evList[MAX_EVENT];
+		/**
+		 * @brief
+		 * kq에서 변화사항이 생긴거를 evList 배열에 넣을거고 배열 크기는 MAX_EVENT.
+		 * 이벤트가 하나라도 생길때까지 기다린다는(타임아웃이 없다)
+		 */
 		int event_count = kevent(kq, NULL, 0, evList, MAX_EVENT, NULL);
-		// kq에서 변화사항이 생긴거를 evList 배열에 넣을거고 배열 크기는
-		// MAX_EVENT. 이벤트가 하나라도 생길때까지 기다린다는(타임아웃이 없다)
-
-		if (event_count < 0) return (return_cerr("kevent() failed!"));
+		if (event_count < 0)
+			return (return_cerr("kevent() failed!"));
 
 		for (int i = 0; i < event_count; i++)
 		{
-			if (static_cast<int>(evList[i].ident) == server_fd)
+			if (static_cast<int>(evList[i].ident) == serverSock)
 			{
 				// 해당 이벤트의 fd 가 서버 fd면
 				// -> 클라이언트 새로 연결된거
@@ -259,7 +290,7 @@ bool Server::is_nickname_taken(const std::string &name)
 
 int Server::accept_new_client()
 {
-	int client_fd = accept(server_fd, NULL, NULL);
+	int client_fd = accept(serverSock, NULL, NULL);
 	// 클라이언트 주소 정보를 기록할 필요가 딱히 없기 때문에
 	// sockadd_in 구조체를 사용하지 않음
 	if (client_fd < 0)
@@ -271,7 +302,7 @@ int Server::accept_new_client()
 
 	// send_pass_prompt(client_fd);
 
-	User *new_user = new User(client_fd);
+	User *new_user = new User(client_fd);		// Comment: 굳이 new 로 할당해서 만들어야 하는 이유
 	user_list_by_fd[client_fd] = new_user;
 	user_list_by_nick[new_user->nickname] = new_user;
 
@@ -307,7 +338,6 @@ int Server::return_cerr(const std::string &err_msg)
 	return (EXIT_FAILURE);
 }
 
-Server::~Server() {}
 
 std::vector<std::string> Server::split_message(std::string buffer)
 // \r\n으로 쭉 연결된 메세지를 스플릿 때려줌
