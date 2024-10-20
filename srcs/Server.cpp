@@ -148,7 +148,7 @@ void Server::send_client_message(int client_fd)
 
 void Server::read_client_message(int client_fd)
 {
-	char readbuffer[1024];
+	char readbuffer[BUFFER_MAX];
 
 	memset(readbuffer, 0, BUFFER_MAX);
 	int bytes_read = recv(client_fd, readbuffer, BUFFER_MAX, 0);
@@ -180,7 +180,7 @@ void Server::delete_client(int client_fd)
 
 void Server::handle_message(int client_fd, std::string message)
 {
-	buffer_tmp += message;
+	buffer_tmp += message; // 요것도 유저별로 하나씩 가지게
 
 	std::vector<std::string> messages = split_message(buffer_tmp);
 
