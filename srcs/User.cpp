@@ -25,9 +25,11 @@ User::User(int client_fd)
 			}
 		}
 	}
-	if (nickname == "") nickname = "ycho2";
+	if (nickname == "") nickname = "Default_user";
 }
 
 User::~User() {}
 
 void User::set_nickname(std::string& name) { nickname = name; }
+
+void User::join_channel(Channel* channel) { joined_channel.insert(channel); }

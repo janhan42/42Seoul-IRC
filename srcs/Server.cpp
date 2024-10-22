@@ -1,33 +1,26 @@
 #include "Server.hpp"
-#include <cerrno>
-#include <cstdlib>
 #include <fcntl.h>	// for fcntl()
 #include <sys/event.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <cerrno>
+#include <cstdlib>
 #include <iostream>
-#include <sstream>
-#include <vector>
+#include <sstream> #include <vector>
 #include "User.hpp"
 
 #define MAX_EVENT 10
 
-Server::Server(int port, const std::string& password)
-: port(port)
-, passwd(password)
-, server_name("sirc")
+Server::Server(int port, const std::string &password) :
+	port(port), passwd(password), server_name("sirc")
 {
 }
 
-Server::~Server()
-{
-}
+Server::~Server() {}
 
 int Server::init()
 {
-	if (SetServerSock()
-	||	SetServerAddr()
-	||	SetServerBind())
+	if (SetServerSock() || SetServerAddr() || SetServerBind())
 	{
 		std::cerr << "Server Init Fail" << std::endl;
 		return (EXIT_FAILURE);
@@ -38,11 +31,11 @@ int Server::init()
 bool Server::SetServerSock()
 {
 	serverSock = socket(AF_INET, SOCK_STREAM, 0);
-	if (serverSock == -1)
-		return (return_cerr("SetServerSock socket() fail"));
+	if (serverSock == -1) return (return_cerr("SetServerSock socket() fail"));
 
 	int opt = 1;
-	if (setsockopt(serverSock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) != 0)
+	if (setsockopt(serverSock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) !=
+		0)
 		return (return_cerr("SetServerSock setsockopt() fail"));
 	return (EXIT_SUCCESS);
 }
@@ -58,7 +51,8 @@ bool Server::SetServerAddr()
 
 bool Server::SetServerBind()
 {
-	if (bind(serverSock, reinterpret_cast<struct sockaddr *>(&server_addr),	sizeof(server_addr)) == -1)
+	if (bind(serverSock, reinterpret_cast<struct sockaddr *>(&server_addr),
+			 sizeof(server_addr)) == -1)
 		return (return_cerr("server bind failed!"));
 	return (EXIT_SUCCESS);
 }
@@ -99,12 +93,11 @@ int Server::run()
 		struct kevent evList[MAX_EVENT];
 		/**
 		 * @brief
-		 * kq에서 변화사항이 생긴거를 evList 배열에 넣을거고 배열 크기는 MAX_EVENT.
-		 * 이벤트가 하나라도 생길때까지 기다린다는(타임아웃이 없다)
+		 * kq에서 변화사항이 생긴거를 evList 배열에 넣을거고 배열 크기는
+		 * MAX_EVENT. 이벤트가 하나라도 생길때까지 기다린다는(타임아웃이 없다)
 		 */
 		int event_count = kevent(kq, NULL, 0, evList, MAX_EVENT, NULL);
-		if (event_count < 0)
-			return (return_cerr("kevent() failed!"));
+		if (event_count < 0) return (return_cerr("kevent() failed!"));
 
 		for (int i = 0; i < event_count; i++)
 		{
@@ -180,7 +173,7 @@ void Server::delete_client(int client_fd)
 
 void Server::handle_message(int client_fd, std::string message)
 {
-	buffer_tmp += message; // 요것도 유저별로 하나씩 가지게
+	buffer_tmp += message;	// 요것도 유저별로 하나씩 가지게
 
 	std::vector<std::string> messages = split_message(buffer_tmp);
 
@@ -302,7 +295,8 @@ int Server::accept_new_client()
 
 	// send_pass_prompt(client_fd);
 
-	User *new_user = new User(client_fd);		// Comment: 굳이 new 로 할당해서 만들어야 하는 이유
+	User *new_user = new User(
+		client_fd);	 // Comment: 굳이 new 로 할당해서 만들어야 하는 이유
 	user_list_by_fd[client_fd] = new_user;
 	user_list_by_nick[new_user->nickname] = new_user;
 
@@ -337,7 +331,6 @@ int Server::return_cerr(const std::string &err_msg)
 	std::cerr << err_msg << std::endl;
 	return (EXIT_FAILURE);
 }
-
 
 std::vector<std::string> Server::split_message(std::string buffer)
 // \r\n으로 쭉 연결된 메세지를 스플릿 때려줌

@@ -1,4 +1,7 @@
+#include <set>
 #include <string>
+
+class Channel;
 
 class User
 {
@@ -8,6 +11,7 @@ class User
 
   public:  // member func
 	void set_nickname(std::string &name);
+	void join_channel(Channel *);
 
   public:  // member var
 	int			fd;
@@ -18,6 +22,6 @@ class User
 	User(User &);
 	User &operator=(User &);
 
-  private:						  // member var
-	std::string current_channel;  // 수정 필요
+  private:	// member var
+	std::set<Channel *> joined_channel;
 };
