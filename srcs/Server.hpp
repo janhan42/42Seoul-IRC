@@ -1,12 +1,14 @@
 #include <netinet/in.h>
 #include <sys/event.h>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
 #define BUFFER_MAX 1024
 
 class User;
+class Channel;
 
 class Server
 {
@@ -20,6 +22,8 @@ class Server
 	void handle_message(int client_fd, std::string buffer);
 
 	static std::vector<std::string> split_message(std::string buffer);
+	static std::string				get_params(const std::string &one_line,
+											   const std::string &command);
 
   private:	// init Function
 	bool SetServerSock(void);
@@ -40,6 +44,8 @@ class Server
 	bool is_nickname_invalid(const std::string &name);
 	void send_pass_prompt(int client_fd);
 
+	void handle_join(int client_fd, const std::string &command);
+
   private:	// 멤버 변수
 	const int		   port;
 	const std::string  passwd;
@@ -47,10 +53,15 @@ class Server
 	int				   serverSock;
 	struct sockaddr_in server_addr;
 	int				   kq;
+
+	// 유저 목록과 버퍼
 	std::map<int, User *> user_list_by_fd;	// 둘다 서버 종료될 때 delete 필요
 	std::map<std::string, User *> user_list_by_nick;
 	std::string					  buffer_tmp;
 	std::map<int, std::string>	  send_buffer;
+
+	// 채널 관련
+	std::set<Channel *> channel_set;
 
   private:	// delete OCCF
 	Server();

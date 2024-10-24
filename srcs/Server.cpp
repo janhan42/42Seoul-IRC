@@ -6,7 +6,8 @@
 #include <cerrno>
 #include <cstdlib>
 #include <iostream>
-#include <sstream> #include <vector>
+#include <sstream>
+#include <vector>
 #include "User.hpp"
 
 #define MAX_EVENT 10
@@ -187,6 +188,7 @@ void Server::handle_message(int client_fd, std::string message)
 	else
 		buffer_tmp.clear();	 // 불완전한 메세지 없으면 저장용 버퍼는 초기화
 
+	// TODO:여기 함수 분리 하기
 	std::vector<std::string>::iterator it;
 
 	for (it = messages.begin(); it != messages.end(); it++)
@@ -202,7 +204,7 @@ void Server::handle_message(int client_fd, std::string message)
 		}
 		else if (it->size() >= 4 && it->substr(0, 4) == "JOIN")
 		{
-			// handle join
+			handle_join(client_fd, *it);
 		}
 		else if (it->size() >= 7 && it->substr(0, 7) == "PRIVMSG")
 		{
@@ -210,6 +212,21 @@ void Server::handle_message(int client_fd, std::string message)
 		}
 	}
 	client_fd++;
+}
+
+void Server::handle_join(int client_fd, const std::string &command)
+// 열려있는 채널이 있으면 해당 채널로 접속
+// invite only 인지도 체크해야됨
+// 패스워드 맞는지도 체크해야됨
+// 없으면 채널 만들고 접속 + 오퍼레이터 권한까지 주기
+{
+}
+
+std::string Server::get_params(const std::string &one_line,
+							   const std::string &command)
+{
+	if (one_line.size() >= command.size())
+		return (one_line.substr(command.size() + 1));
 }
 
 void Server::handle_nick(int client_fd, std::string &command)
