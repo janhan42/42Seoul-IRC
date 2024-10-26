@@ -9,7 +9,6 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 {
 	/* JOIN <channel> (<options>) */
 	/* TESTOUTPUT */
-	std::cout << "JOIN TEST OUT PUT1 " << std::endl;
 	if (commandVec.size() < 2)
 	{
 		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second);
@@ -20,7 +19,6 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 	std::vector<std::string> joinKey;
 	std::vector<std::string>::iterator keyIt;
 	/* TESTOUTPUT */
-	std::cout << "JOIN TEST OUT PUT2 " << std::endl;
 	if (commandVec.size() > 2)
 	{
 		joinKey = split(commandVec[2], ',');
@@ -29,7 +27,6 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 	std::map<int, class User*>& userList = mServer.GetUserList();
 	class User*& user = userList.find(fd)->second;
 	/* TESTOUTPUT */
-	std::cout << "JOIN TEST OUT PUT3 " << std::endl;
 	while(iter != joinChannel.end())
 	{
 		if ((*iter)[0] != '#' && (*iter)[0] != '&')
@@ -41,7 +38,6 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 			continue;
 		}
 		/* TESTOUTPUT */
-		std::cout << "JOIN TEST OUT PUT4 " << std::endl;
 		std::map<std::string, Channel*>& channelList = mServer.GetChannelList();
 		std::map<std::string, Channel*>::iterator channelIt = channelList.find(*iter);
 		if (channelIt != channelList.end()) // channel exists
@@ -96,12 +92,10 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 		else // channel not exicsts (new channel)
 		{
 			/* TESTOUTPUT */
-			std::cout << "JOIN TEST OUT PUT5 " << std::endl;
 			std::cout << "Join New Channel : " << *iter << std::endl;
 			mServer.AppendNewChannel(*iter, fd);			// create new channel
 			mServer.FindChannel(*iter)->AppendInviteFdList(-1);
 			/* TESTOUTPUT */
-			std::cout << "JOIN TEST OUT PUT6 " << std::endl;
 			mServer.FindChannel(*iter)->AppendUserFdList(fd); // join user to channel
 			user->AppendChannelList(*iter);
 			MsgToAllChannel(fd, *iter, "JOIN", "");

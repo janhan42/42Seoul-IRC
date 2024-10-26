@@ -8,7 +8,7 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 {
 	/* PART <channel> <nickname> (<reasons, ...>) */
 	std::map<int, class User*> userList = mServer.GetUserList();
-	std::map<int, class User*>::iterator userIt = userList.begin();
+	std::map<int, class User*>::iterator userIt = userList.find(fd);
 	if (commandVec.size() < 2)
 	{
 		mErrManager.ErrorNeedMoreParams461(*userIt->second);
@@ -22,6 +22,7 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 	std::vector<std::string>::iterator vecIt = vec.begin();
 	for (; vecIt != vec.end(); vecIt++)
 	{
+		std::cout << "상현!!!: " << *vecIt << std::endl;
 		std::vector<std::string>::iterator channelIt = userIt->second->FindChannel(*vecIt);
 		/* TESTOUTPUT */
 		std::vector<std::string>::iterator it = userIt->second->GetChannelList().begin();
