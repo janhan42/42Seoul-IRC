@@ -22,16 +22,7 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 	std::vector<std::string>::iterator vecIt = vec.begin();
 	for (; vecIt != vec.end(); vecIt++)
 	{
-		std::cout << "상현!!!: " << *vecIt << std::endl;
 		std::vector<std::string>::iterator channelIt = userIt->second->FindChannel(*vecIt);
-		/* TESTOUTPUT */
-		std::vector<std::string>::iterator it = userIt->second->GetChannelList().begin();
-		for (; it != userIt->second->GetChannelList().end(); it++)
-		{
-			std::cout << "user channel list : " << *it << std::endl;
-		}
-		/* */
-
 		if (channelIt != userIt->second->GetChannelList().end())
 		{
 			Channel* channel = mServer.FindChannel(*channelIt);
@@ -39,8 +30,9 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 			channel->RemoveUserFdList(fd);
 			channel->RemoveOperatorFd(fd);
 			userIt->second->RemoveChannel(*channelIt);
-			if (channel->GetUserFdList().size() == 1) // if last-user in channel: remove channel
+			if (channel->GetUserFdList().size() < 1) // if last-user in channel: remove channel
 			{
+				std::cout << "채널에 fd 갯수 : " << channel->GetUserFdList().size() << std::endl;
 				mServer.RemoveChannel(channel->GetChannelName());
 				delete channel;
 			}
