@@ -6,19 +6,49 @@
 #    By: janhan <janhan@student.42seoul.kr>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/24 15:49:02 by janhan            #+#    #+#              #
-#    Updated: 2024/10/19 01:51:41 by sangshin         ###   ########.fr        #
+#    Updated: 2024/10/26 12:53:59 by janhan           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			=		ircserv
 
 CXX				=		c++
-CXXFLAGS		=		-g -Wall -Wextra -Werror -std=c++98
+CXXFLAGS		=		-Wall -Wextra -Werror -std=c++98
 
-SRCS		=	main.cpp				\
-				srcs/Server.cpp				\
-				srcs/User.cpp
-OBJS		=	$(SRCS:.cpp=.o)
+SRCS_DIR	= ./srcs/
+SRCS		=	User.cpp					\
+				Server.cpp					\
+				main.cpp					\
+				Command.cpp					\
+				Channel.cpp					\
+				Bot.cpp
+OBJS_SRCS	=	$(addprefix $(SRCS_DIR), $(SRCS:.cpp=.o))
+
+UTILS_DIR	=	./srcs/Utils/
+UTILS		=	IsSpecial.cpp				\
+				Split.cpp
+OBJS_UTILS	=	$(addprefix $(UTILS_DIR), $(UTILS:.cpp=.o))
+
+ERROR_DIR	=	./srcs/ErrorUtils/
+ERRORS		=	ErrorManager.cpp
+OBJS_ERROR	=	$(addprefix $(ERROR_DIR), $(ERRORS:.cpp=.o))
+
+CMDS_DIR	=	./srcs/Commands/
+CMDS		=	Invite.cpp					\
+				Join.cpp					\
+				Kick.cpp					\
+				Mode.cpp					\
+				Nick.cpp					\
+				Part.cpp					\
+				Pass.cpp					\
+				Ping.cpp					\
+				Privmsg.cpp					\
+				Quit.cpp					\
+				Topic.cpp					\
+				User.cpp
+OBJS_CMDS	=	$(addprefix $(CMDS_DIR), $(CMDS:.cpp=.o))
+OBJS		=	$(OBJS_SRCS) $(OBJS_UTILS) $(OBJS_CMDS) $(OBJS_ERROR)
+# OBJS		=	$(SRCS:.cpp=.o)
 
 all : $(NAME)
 

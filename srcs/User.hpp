@@ -1,23 +1,70 @@
+#ifndef USER_HPP
+# define USER_HPP
+
+# include "Server.hpp"
 #include <string>
 
 class User
 {
-  public:  // 생성자, 소멸자
-	User(int client_fd);
-	~User();
+	public:
+		/* OCCF */
+		User(int fd);
+		~User();
 
-  public:  // member func
-	void set_nickname(std::string &name);
+		// Getter
+		std::string							GetNickName(void);
+		std::string							GetUserName(void);
+		std::string							GetHostName(void);
+		std::string							GetServerName(void);
+		std::string							GetRealName(void);
+		bool								GetIsRegist(void);
+		bool								GetPassRegist(void);
+		bool								GetNickRegist(void);
+		bool								GetUserRegist(void);
+		bool								GetCapEnd(void);
+		int									GetUserFd(void);
+		std::string							GetUserRecvBuf(void);
+		std::vector<std::string>&			GetChannelList(void);
 
-  public:  // member var
-	int			fd;
-	std::string nickname;
+		// Setter
+		void								SetNickName(std::string name);
+		void								SetUser(std::string userName, std::string hostName, std::string serverName, std::string realName);
+		void								SetPassRegist(bool state);
+		void								SetNickRegist(bool state);
+		void								SetUserRegist(bool state);
+		void								SetRegist(bool state);
+		void								SetCapEnd(bool state);
+		// Append
+		void								AppendUserRecvBuf(std::string userRecvBuffer);
+		void								AppendChannelList(std::string channelName);
 
-  private:	// unused OCCF
-	User();
-	User(User &);
-	User &operator=(User &);
+		// clear
+		void								ClearUserRecvBuf(void);
+		void								ClearChannelList(void);
+		void								ClearUser(void);
 
-  private:						  // member var
-	std::string current_channel;  // 수정 필요
+		// others
+		void								MakeUserToBot(void);
+		void								RemoveChannel(std::string channelName);
+		std::vector<std::string>::iterator	FindChannel(std::string channelName);
+	private:
+		// User Infomations
+		std::string							mNickName;
+		std::string							mUserName;
+		std::string							mHostName;
+		std::string							mServerName;
+		std::string							mRealName;
+		// regits flags
+		bool								mbIsRegistPass;
+		bool								mbIsRegistNick;
+		bool								mbIsRegistUser;
+		bool								mbIsCapEnd;
+		// others
+		std::string							mUserRecvBuf;
+		std::vector<std::string>			mChannelList;
+		int									mUserFd;
+	private: // delete OCCF
+		User& operator=(const User& rhs);
 };
+
+#endif
