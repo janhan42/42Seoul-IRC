@@ -34,6 +34,7 @@ class Server
 		std::string									GetPassWord(void);
 		std::string									GetMessage(int fd);
 		std::map<std::string, Channel *>&			GetChannelList(void);
+		int											GetKqFd(void);
 		//Ohters
 		Channel*									FindChannel(std::string channelName);
 		std::map<int, User*>::iterator				FindUser(std::string userName);

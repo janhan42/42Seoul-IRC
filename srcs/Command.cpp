@@ -30,10 +30,10 @@ void Command::Run(int fd)
 	}
 	if (iter != userList.end() && !iter->second->GetIsRegist())
 	{
-		std::cout << "들어오나?: " << commandVec[0] << std::endl;
-		std::vector<std::string>::iterator it = commandVec.begin();
-		for (; it != commandVec.end(); it++)
-			std::cout << "commandVector:" << *it << std::endl;
+		// std::cout << "들어오나?: " << commandVec[0] << std::endl;
+		// std::vector<std::string>::iterator it = commandVec.begin();
+		// for (; it != commandVec.end(); it++)
+		// 	std::cout << "commandVector:" << *it << std::endl;
 		if (commandVec[0] == "PASS")
 		{
 			Pass(fd, commandVec);

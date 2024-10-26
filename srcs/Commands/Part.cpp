@@ -1,11 +1,12 @@
 #include <sstream>
+#include <iostream>
 #include "../Command.hpp"
 #include "../Server.hpp"
 #include "../User.hpp"
 
 void Command::Part(int fd, std::vector<std::string> commandVec)
 {
-	/* PARt <channel> <nickname> (<reasons, ...>) */
+	/* PART <channel> <nickname> (<reasons, ...>) */
 	std::map<int, class User*> userList = mServer.GetUserList();
 	std::map<int, class User*>::iterator userIt = userList.begin();
 	if (commandVec.size() < 2)
@@ -16,12 +17,20 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 	std::istringstream iss(commandVec[1]);
 	std::string buffer;
 	std::vector<std::string> vec;
-	while (getline(iss, buffer, ','))
+	while (getline(iss, buffer, ',')) // 기존 , 였음
 		vec.push_back(buffer);
 	std::vector<std::string>::iterator vecIt = vec.begin();
 	for (; vecIt != vec.end(); vecIt++)
 	{
 		std::vector<std::string>::iterator channelIt = userIt->second->FindChannel(*vecIt);
+		/* TESTOUTPUT */
+		std::vector<std::string>::iterator it = userIt->second->GetChannelList().begin();
+		for (; it != userIt->second->GetChannelList().end(); it++)
+		{
+			std::cout << "user channel list : " << *it << std::endl;
+		}
+		/* */
+
 		if (channelIt != userIt->second->GetChannelList().end())
 		{
 			Channel* channel = mServer.FindChannel(*channelIt);

@@ -69,7 +69,10 @@ void Server::Run()
 			else
 			{
 				if (mUserEventList[i].filter & EVFILT_READ)
+				{
 					mStrLen = RecvMessage(mUserEventList[i].ident);
+					std::cout << "User Sned: " << mMessage[mUserEventList[i].ident] << std::endl;
+				}
 				if (mStrLen <= 0) // from outside signal(ctrl+C, ...)
 				{
 					std::cout << "fd [" << mUserEventList[i].ident << "is quit connet" << std::endl;
@@ -77,14 +80,14 @@ void Server::Run()
 					if (userIt != mUserList.end()) // 접속 해제 유저 처리
 					{
 						struct kevent evSet;
-
-						EV_SET(&evSet, userIt->second->GetUserFd(), EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0,
-		   NULL);
-	kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
+						EV_SET(&evSet, userIt->second->GetUserFd(), EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0,NULL);
+						kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
+						mMessage[userIt->first].clear();
 						userIt->second->ClearUser();
 						delete userIt->second;
 						mUserList.erase(mUserEventList[i].ident);
 						close(mUserEventList[i].ident);
+						std::cout << "User Delete [" << mUserEventList[i].ident << "]" << std::endl;
 					}
 				}
 				else
@@ -135,6 +138,10 @@ std::map<std::string, Channel *>&	Server::GetChannelList()
 	return (mChannelList);
 }
 
+int	Server::GetKqFd()
+{
+	return (mKqFd);
+}
 
 Channel*	Server::FindChannel(std::string channelName)
 {
@@ -290,5 +297,6 @@ bool	Server::CheckMessageEnds(int fd)
 
 void Server::DoCommand(int fd)
 {
+	std::cout << "Docommand  FD : "<< fd << std::endl;
 	mCommand->Run(fd);
 }

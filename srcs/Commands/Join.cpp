@@ -97,6 +97,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 		{
 			/* TESTOUTPUT */
 			std::cout << "JOIN TEST OUT PUT5 " << std::endl;
+			std::cout << "Join New Channel : " << *iter << std::endl;
 			mServer.AppendNewChannel(*iter, fd);			// create new channel
 			mServer.FindChannel(*iter)->AppendInviteFdList(-1);
 			/* TESTOUTPUT */
@@ -105,6 +106,12 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 			user->AppendChannelList(*iter);
 			MsgToAllChannel(fd, *iter, "JOIN", "");
 			mServer.FindChannel(*iter)->AddOperatorFd(fd);
+			std::vector<int> newChannelUserList = mServer.FindChannel(*iter)->GetUserFdList();
+			std::vector<int>::iterator it = newChannelUserList.begin();
+			for(; it != newChannelUserList.end(); it++)
+			{
+				std::cout << "User Fd : " << *it << std::endl;
+			}
 		}
 		NameListMsg(fd, *iter);
 		MsgToAllChannel(-1, *iter, "PRIVMSG", mServer.FindChannel(*iter)->GetBot()->Introduce());

@@ -158,6 +158,7 @@ void	User::ClearUser()
 	ClearChannelList();
 	ClearUserRecvBuf();
 	SetRegist(false);
+	mbIsCapEnd = false;
 }
 
 void	User::MakeUserToBot()

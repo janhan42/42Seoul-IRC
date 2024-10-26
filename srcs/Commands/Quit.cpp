@@ -24,7 +24,12 @@ void Command::Quit(int fd, std::vector<std::string> commandVec)
 			delete channel;
 		}
 	}
+	struct kevent evSet;
+	EV_SET(&evSet, userIt->second->GetUserFd(), EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0,NULL);
+	kevent(mServer.GetKqFd(), &evSet, 1, NULL, 0, NULL);
 	userIt->second->ClearUser();
+	mServer.GetMessage(userIt->first) = "";
+	delete userIt->second;
 	userList.erase(fd);
 	close(fd);
 }
