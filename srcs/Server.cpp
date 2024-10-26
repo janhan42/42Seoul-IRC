@@ -73,10 +73,16 @@ void Server::Run()
 				if (mStrLen <= 0) // from outside signal(ctrl+C, ...)
 				{
 					std::cout << "fd [" << mUserEventList[i].ident << "is quit connet" << std::endl;
-					std::map<int, User*>::iterator userIt = mUserList.find(mUserEventList[i].ident);
+					std::map<int, User*>::iterator userIt = mUserList.find(mUserEventList[i].ident); // find 안해도될듯
 					if (userIt != mUserList.end()) // 접속 해제 유저 처리
 					{
+						struct kevent evSet;
+
+						EV_SET(&evSet, userIt->second->GetUserFd(), EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0,
+		   NULL);
+	kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
 						userIt->second->ClearUser();
+						delete userIt->second;
 						mUserList.erase(mUserEventList[i].ident);
 						close(mUserEventList[i].ident);
 					}
