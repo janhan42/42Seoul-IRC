@@ -48,6 +48,7 @@ void Server::Init()
 	SetServerBind();
 	SetServerListen();
 	SetServerKqueue();
+	SetBot();
 	mbRunning = true;
 }
 
@@ -227,6 +228,13 @@ void Server::SetServerKqueue()
 		throw std::logic_error("ERROR:: kqueue() error");
 	EV_SET(&mServerEvent, mServerSock, EVFILT_READ, EV_ADD, 0, 0, NULL);
 	kevent(mKqFd, &mServerEvent, 1, NULL, 0, NULL);
+}
+
+void Server::SetBot()
+{
+	mBot = new User(-1);
+	mBot->MakeUserToBot();
+	mUserList.insert(std::make_pair(-1, mBot));
 }
 
 int Server::RecvMessage(int fd)
