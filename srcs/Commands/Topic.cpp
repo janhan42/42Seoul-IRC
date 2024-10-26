@@ -61,6 +61,7 @@ void Command::Topic(int fd, std::vector<std::string> commandVec)
 			{
 				topic += " " + commandVec[i];
 			}
+			channel->SetTopic(topic);
 		}
 		MsgToAllChannel(fd, commandVec[1], "TOPIC", channel->GetTopic());
 	}
