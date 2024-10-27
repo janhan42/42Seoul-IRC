@@ -151,12 +151,33 @@ Channel*	Server::FindChannel(std::string channelName)
 	return (It->second);
 }
 
+bool containsWordWithoutAnsi(const std::string& input, const std::string& word)
+{
+	std::string cleaned;
+	bool in_ansi = false;
+
+	for (size_t i = 0; i < input.length(); ++i)
+	{
+		if (input[i] == '\033' && input[i + 1] == '[') {
+			in_ansi = true;
+		}
+		if (!in_ansi) {
+			cleaned += input[i];
+		}
+		if (in_ansi && input[i] == 'm')
+		{
+			in_ansi = false;
+		}
+	}
+	return cleaned.find(word) != std::string::npos;
+}
+
 std::map<int, User*>::iterator	Server::FindUser(std::string userName)
 {
 	std::map<int, User*>::iterator it = mUserList.begin();
 	for (; it != mUserList.end(); it++)
 	{
-		if (it->second->GetNickName() == userName)
+		if (containsWordWithoutAnsi(it->second->GetNickName(), userName))
 			return (it);
 	}
 	return (it);

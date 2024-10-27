@@ -30,10 +30,6 @@ void Command::Run(int fd)
 	}
 	if (iter != userList.end() && !iter->second->GetIsRegist())
 	{
-		// std::cout << "들어오나?: " << commandVec[0] << std::endl;
-		// std::vector<std::string>::iterator it = commandVec.begin();
-		// for (; it != commandVec.end(); it++)
-		// 	std::cout << "commandVector:" << *it << std::endl;
 		if (commandVec[0] == "PASS")
 		{
 			Pass(fd, commandVec);
@@ -45,16 +41,6 @@ void Command::Run(int fd)
 		else if (commandVec[0] == "USER")
 		{
 			User(fd, commandVec);
-		}
-		else if (commandVec[0] == "CAP")
-		{
-			std::vector<std::string>::iterator it = commandVec.begin();
-			for (; it != commandVec.end(); it++)
-				std::cout << "commandVector:" << *it << std::endl;
-			// iter->second->AppendUserRecvBuf(":IRC CAP * LS:");
-			iter->second->AppendUserRecvBuf(":IRC 001 " + iter->second->GetNickName() + " : Welcome to the Smoking Relay Chat " + iter->second->GetNickName() + "!" + iter->second->GetUserName() + "@" + iter->second->GetHostName() + "\r\n");
-			iter->second->SetCapEnd(true);
-			iter->second->SetRegist(true);
 		}
 		else
 		{
@@ -71,7 +57,15 @@ void Command::Run(int fd)
 		if (iter != userList.end())
 		{
 			if (iter->second->GetIsRegist())
-				iter->second->AppendUserRecvBuf(":IRC 001 " + iter->second->GetNickName() + " : Welcome to the Smoking Relay Chat " + iter->second->GetNickName() + "!" + iter->second->GetUserName() + "@" + iter->second->GetHostName() + "\r\n");
+			{
+				iter->second->AppendUserRecvBuf(":SIRC 001 " + iter->second->GetNickName() + " :Welcome to the Smoking Relay Chat " + iter->second->GetNickName() + "!" + iter->second->GetUserName() + "@" + iter->second->GetHostName() + "\r\n");
+				iter->second->AppendUserRecvBuf(":SIRC 002 : Your host is SIRC, running version v1.0.0\r\n");
+				iter->second->AppendUserRecvBuf(":SIRC 003 : This server was created 10m 26d 10pm 34m\r\n");
+				iter->second->AppendUserRecvBuf(":SIRC 004 : SRIC v1.0.0\r\n");
+				iter->second->AppendUserRecvBuf(":SIRC 005 : NICKLEN=9 CASEMAPPING=ascii :are supported by this server\r\n");
+				iter->second->AppendUserRecvBuf(":SIRC 442 : MOTD File is missing\r\n");
+			}
+
 		}
 	}
 	else
@@ -149,7 +143,7 @@ void Command::NameListMsg(int fd, std::string channelName)
 			message += "@";
 		message += user->GetNickName();
 		if (iter != userFdList.end() - 1)
-			message += " ";
+			message += "";
 		iter++;
 	}
 	class User*& user = mServer.GetUserList().find(fd)->second;
