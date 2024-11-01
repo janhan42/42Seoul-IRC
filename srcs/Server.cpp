@@ -71,11 +71,11 @@ void Server::Run()
 				if (mUserEventList[i].filter & EVFILT_READ)
 				{
 					mStrLen = RecvMessage(mUserEventList[i].ident);
-					std::cout << "User Sned: " << mMessage[mUserEventList[i].ident] << std::endl;
+					std::cout << "User Send: " << mMessage[mUserEventList[i].ident] << std::endl;
 				}
 				if (mStrLen <= 0) // from outside signal(ctrl+C, ...)
 				{
-					std::cout << "fd [" << mUserEventList[i].ident << "is quit connet" << std::endl;
+					std::cout << "fd [" << mUserEventList[i].ident << "]is quit connet" << std::endl;
 					std::map<int, User*>::iterator userIt = mUserList.find(mUserEventList[i].ident); // find 안해도될듯
 					if (userIt != mUserList.end()) // 접속 해제 유저 처리
 					{
@@ -94,12 +94,12 @@ void Server::Run()
 				{
 					if (CheckMessageEnds(mUserEventList[i].ident))
 					{
-						std::cout << "recv fd [" << mUserEventList[i].ident << "]:" << mMessage[mUserEventList[i].ident] << std::endl;
+						std::cout << "sever sent message to fd [" << mUserEventList[i].ident << "]:" << mMessage[mUserEventList[i].ident] << std::endl;
 						// 명령어 실행 분기
 						DoCommand(mUserEventList[i].ident);
 						// User Fd 메시지 버퍼 초기화
 						mMessage[mUserEventList[i].ident] = "";
-						std::cout << "User read buffer claer after: " << mMessage[mUserEventList[i].ident] << std::endl;
+						std::cout << "User read buffer clear after: " << mMessage[mUserEventList[i].ident] << std::endl;
 					}
 				}
 			}
