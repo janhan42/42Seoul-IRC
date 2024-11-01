@@ -67,7 +67,7 @@ void Command::Nick(int fd, std::vector<std::string> commadVec)
 	{
 		Channel* channel = mServer.FindChannel(*channelIt);
 		if (channel)
-			MsgToAllChannel(fd, channel->GetChannelName(), "NICK", oldNickName + " " + commadVec[1]);
+			NickMsgToAllChannel(fd, channel->GetChannelName(),  oldNickName, commadVec[1]);
 	}
 	it->second->SetNickName(commadVec[1]); // TEST NICKNAME COLOR
 	it->second->AppendUserSendBuf(":" + oldNickName + " NICK " + it->second->GetNickName() + "\r\n");

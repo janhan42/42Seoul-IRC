@@ -47,7 +47,8 @@ class Command
 		std::string	ChannelMessage(int fd, std::vector<std::string> commandVec);
 		void		ChannelPrivmsg(std::string, class User&, Channel*);
 		void		ChannelPART(int fd, std::string cannelName, std::vector<std::string> commandVec);
-		void		MsgToAllChannel(int, std::string, std::string, std::string);
+		void		MsgToAllChannel(int target, std::string channelName, std::string command, std::string msg);
+		void		NickMsgToAllChannel(int target, std::string channelName, std::string command, std::string msg);
 		std::string	MakeFullName(int fd);
 		void		NameListMsg(int fd, std::string);
 

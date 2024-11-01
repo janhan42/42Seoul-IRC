@@ -66,7 +66,6 @@ void Command::Run(int fd)
 				iter->second->AppendUserSendBuf(":SIRC 005 : NICKLEN=9 CASEMAPPING=ascii :are supported by this server\r\n");
 				iter->second->AppendUserSendBuf(":SIRC 442 : Have a nice day!\r\n");
 			}
-
 		}
 	}
 	else
@@ -115,6 +114,27 @@ void Command::MsgToAllChannel(int target, std::string channelName, std::string c
 			continue;
 		}
 		user->AppendUserSendBuf(MakeFullName(target) + " " + command + " " + channelName + " " + msg + "\r\n");
+		iter++;
+	}
+}
+
+void Command::NickMsgToAllChannel(int target, std::string channelName, std::string oldNickName, std::string NewNick)
+{
+	std::map<std::string, Channel*>& channelList = mServer.GetChannelList();
+	if (channelList.find(channelName) == channelList.end())
+		return;
+	Channel* channel = channelList.find(channelName)->second;
+	std::vector<int> userFdList = channel->GetUserFdList();
+	std::vector<int>::iterator iter = userFdList.begin();
+	while (iter != userFdList.end())
+	{
+		class User*& user = mServer.GetUserList().find(*iter)->second;
+		if (target == *iter)
+		{
+			iter++;
+			continue;
+		}
+		user->AppendUserSendBuf(":" + oldNickName + " NICK " + NewNick + "\r\n");
 		iter++;
 	}
 }

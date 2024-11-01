@@ -184,13 +184,24 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 				MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
 				return;
 			}
+			// logic
+
+			// changeWhoSHot
+			bot->SetWhoShot(true);
+			std::cout << "FirstPlayer Shot After Who Shot : " << bot->GetWhoShot() << std::endl;
 		}
-		else if (bot->GetWhoShot() == true) // true 면 두번째 유저 턴
+
+		if (bot->GetWhoShot() == true) // true 면 두번째 유저 턴
 		{
 			if (fd == bot->GetFirstUser()->GetUserFd())
 			{
 				std::string response = "현재 [" + bot->GetSecondUser()->GetNickName() + "]의 턴입니디.";
 			}
+			// logic
+
+			// changeWhoShot
+			bot->SetWhoShot(false);
+			std::cout << "SecondPlayer Shot After Who Shot : " << bot->GetWhoShot() << std::endl;
 		}
 	}
 	else
