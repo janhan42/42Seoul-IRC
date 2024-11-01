@@ -65,14 +65,14 @@ void Server::Run()
 		{
 			// New User Connection
 			if (static_cast<int>(mUserEventList[i].ident) == mServerSock)
-				AcceptUser();
-			else
 			{
-				if (mUserEventList[i].filter & EVFILT_READ)
-				{
-					mStrLen = RecvMessage(mUserEventList[i].ident);
-					std::cout << "User Send: " << mMessage[mUserEventList[i].ident] << std::endl;
-				}
+				AcceptUser();
+				continue;
+			}
+
+			else if (mUserEventList[i].filter & EVFILT_READ)
+			{
+				mStrLen = RecvMessage(mUserEventList[i].ident);
 				if (mStrLen <= 0) // from outside signal(ctrl+C, ...)
 				{
 					std::cout << "fd [" << mUserEventList[i].ident << "]is quit connet" << std::endl;
@@ -91,30 +91,47 @@ void Server::Run()
 					}
 				}
 				else
+					std::cout << "User Send: " << mMessage[mUserEventList[i].ident] << std::endl;
+				if (CheckMessageEnds(mUserEventList[i].ident))
 				{
-					if (CheckMessageEnds(mUserEventList[i].ident))
-					{
-						std::cout << "sever sent message to fd [" << mUserEventList[i].ident << "]:" << mMessage[mUserEventList[i].ident] << std::endl;
-						// 명령어 실행 분기
-						DoCommand(mUserEventList[i].ident);
-						// User Fd 메시지 버퍼 초기화
-						mMessage[mUserEventList[i].ident] = "";
-						std::cout << "User read buffer clear after: " << mMessage[mUserEventList[i].ident] << std::endl;
-					}
+					std::cout << "fd [" << mUserEventList[i].ident << "] command exec:" << mMessage[mUserEventList[i].ident] << std::endl;
+					// 명령어 실행 분기
+					DoCommand(mUserEventList[i].ident);
+					// User Fd 메시지 버퍼 초기화
+					mMessage[mUserEventList[i].ident] = "";
+					std::cout << "User read buffer clear after: " << mMessage[mUserEventList[i].ident] << std::endl;
+					// TODO: 이거 전부 초기화 하면 안됨
+					// 명령어 짤렸을 수도 있으니까 제대로 들어온데까지만 실행하고 나머지는 저장해야함
 				}
 			}
-		}
 
+			// send 하는 부분
 		std::map<int, User*>::iterator It = mUserList.begin();
 		for (; It != mUserList.end(); It++)
 		{
-			if (It->second->GetUserSendBuf().length() > 0)
+			User* usr = It->second;
+			if (!usr->GetUserSendBuf().empty() && usr->GetUserFd() != -1)
 			{
-				std::cout << "Server Send fd[" << It->second->GetUserFd() << "]: "<< It->second->GetUserSendBuf() << std::endl;
-				send(It->first, It->second->GetUserSendBuf().c_str(), It->second->GetUserSendBuf().length(), 0);
-				It->second->ClearUserSendBuf();
+				int sent_byte = send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(), usr->GetUserSendBuf().length(), 0);
+
+				if (sent_byte > 0) // 전송 성공하면
+					usr->ClearUserSendBuf(sent_byte);
+				else
+	   				std::cout << "send error on fd [" << usr->GetUserFd() << "]" << std::endl;
 			}
 		}
+		}
+
+		// std::map<int, User*>::iterator It = mUserList.begin();
+		// for (; It != mUserList.end(); It++)
+		// {
+		// 	if (It->second->GetUserSendBuf().length() > 0)
+		// 	{
+		// 		std::cout << "Server Send fd[" << It->second->GetUserFd() << "]: "<< It->second->GetUserSendBuf() << std::endl;
+		// 		send(It->first, It->second->GetUserSendBuf().c_str(), It->second->GetUserSendBuf().length(), 0);
+		// 		It->second->ClearUserSendBuf();
+		// 	}
+		// }
 	}
 }
 

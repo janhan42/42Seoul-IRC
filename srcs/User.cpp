@@ -142,6 +142,11 @@ void	User::ClearUserSendBuf()
 	mUserSendBuf.clear();
 }
 
+void User::ClearUserSendBuf(int len)
+{
+	mUserSendBuf = mUserSendBuf.substr(len);
+}
+
 void	User::ClearChannelList()
 {
 	mChannelList.clear();

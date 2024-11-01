@@ -40,6 +40,7 @@ class User
 
 		// clear
 		void								ClearUserSendBuf(void);
+		void								ClearUserSendBuf(int len);
 		void								ClearChannelList(void);
 		void								ClearUser(void);
 

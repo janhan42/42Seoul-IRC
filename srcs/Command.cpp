@@ -22,6 +22,7 @@ void Command::Run(int fd)
 	std::string			buffer;
 	std::map<int, class User*>& userList = mServer.GetUserList();
 	std::map<int, class User*>::iterator iter = userList.find(fd);
+	// user = userList[fd]
 	std::vector<std::string> commandVec;
 	while (getline(iss, buffer, ' '))
 	{
@@ -43,6 +44,7 @@ void Command::Run(int fd)
 			User(fd, commandVec);
 			if (!iter->second->GetIsRegist())
 			{
+				std::cout << "haha" << std::endl;
 				iter->second->AppendUserSendBuf(iter->second->GetNickName() + ":");
 				iter->second->AppendUserSendBuf(ERR_NOTREGISTERED);
 				send(fd, iter->second->GetUserSendBuf().c_str(), iter->second->GetUserSendBuf().length(), 0);
@@ -59,10 +61,10 @@ void Command::Run(int fd)
 			{
 				iter->second->AppendUserSendBuf(":SIRC 001 " + iter->second->GetNickName() + " :Welcome to the Smoking Relay Chat " + iter->second->GetNickName() + "!" + iter->second->GetUserName() + "@" + iter->second->GetHostName() + "\r\n");
 				iter->second->AppendUserSendBuf(":SIRC 002 : Your host is SIRC, running version v1.0.0\r\n");
-				iter->second->AppendUserSendBuf(":SIRC 003 : This server was created 10m 26d 10pm 34m\r\n");
+				iter->second->AppendUserSendBuf(":SIRC 003 : This server was created at 24/10/26\r\n");
 				iter->second->AppendUserSendBuf(":SIRC 004 : SRIC v1.0.0\r\n");
 				iter->second->AppendUserSendBuf(":SIRC 005 : NICKLEN=9 CASEMAPPING=ascii :are supported by this server\r\n");
-				iter->second->AppendUserSendBuf(":SIRC 442 : MOTD File is missing\r\n");
+				iter->second->AppendUserSendBuf(":SIRC 442 : Have a nice day!\r\n");
 			}
 
 		}
