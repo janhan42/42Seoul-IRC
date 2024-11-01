@@ -23,7 +23,7 @@ void Command::Pass(int fd, std::vector<std::string> commandVec)
 	if (strcmp(commandVec[1].c_str(), password.c_str()) != 0)
 	{
 		mErrManager.ErrorPasswdMisMatch464(*it->second);
-		send(fd, it->second->GetUserRecvBuf().c_str(), it->second->GetUserRecvBuf().length(), 0);
+		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
 		it->second->ClearUser();
 		userList.erase(fd);
 		close(fd);

@@ -16,8 +16,8 @@ void Command::User(int fd, std::vector<std::string> commandVec)
 	if (!it->second->GetPassRegist())
 	{
 		mErrManager.ErrorNotRegistered451(*it->second);
-		it->second->AppendUserRecvBuf("\r\n");
-		send(fd, it->second->GetUserRecvBuf().c_str(), it->second->GetUserRecvBuf().length(), 0);
+		it->second->AppendUserSendBuf("\r\n");
+		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
 		it->second->ClearUser();
 		userList.erase(fd);
 		close(fd);
@@ -26,7 +26,7 @@ void Command::User(int fd, std::vector<std::string> commandVec)
 	if (commandVec.size() < 5 || !CheckRealName(commandVec[4]))
 	{
 		mErrManager.ErrorNeedMoreParams461(*it->second);
-		it->second->AppendUserRecvBuf("/USER <username> <hostname> <servername> <:realname>\r\n");
+		it->second->AppendUserSendBuf("/USER <username> <hostname> <servername> <:realname>\r\n");
 		return ;
 	}
 	std::string realname;

@@ -45,10 +45,10 @@ void Command::Topic(int fd, std::vector<std::string> commandVec)
 		}
 		if (channel->GetTopic().length() == 0)
 		{
-			mServer.GetUserList().find(fd)->second->AppendUserRecvBuf("331 " + mServer.GetUserList().find(fd)->second->GetNickName() + "  " + commandVec[1] + " :" + RPL_NOTOPIC);
+			mServer.GetUserList().find(fd)->second->AppendUserSendBuf("331 " + mServer.GetUserList().find(fd)->second->GetNickName() + "  " + commandVec[1] + " :" + RPL_NOTOPIC);
 			return;
 		}
-		mServer.GetUserList().find(fd)->second->AppendUserRecvBuf("332 " + mServer.GetUserList().find(fd)->second->GetNickName() + " " + commandVec[1] + " :" + channel->GetTopic() + "\r\n");
+		mServer.GetUserList().find(fd)->second->AppendUserSendBuf("332 " + mServer.GetUserList().find(fd)->second->GetNickName() + " " + commandVec[1] + " :" + channel->GetTopic() + "\r\n");
 	}
 	else
 	{

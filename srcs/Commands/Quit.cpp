@@ -6,7 +6,7 @@
 void Command::Quit(int fd, std::vector<std::string> commandVec)
 {
 	/* QUIT */
-	std::map<int, class User*> userList = mServer.GetUserList();
+	std::map<int, class User*> &userList = mServer.GetUserList();
 	std::map<int, class User*>::iterator userIt = userList.find(fd);
 	std::vector<std::string> channelList = userIt->second->GetChannelList();
 	std::vector<std::string>::iterator channelIt = channelList.begin();

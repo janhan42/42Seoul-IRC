@@ -51,7 +51,7 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 			{
 				std::string messages = ChannelMessage(2, commandVec);
 				std::cout << "PRIVMSG USER NICK : " << userIt->second->GetNickName() << std::endl;
-				user->second->AppendUserRecvBuf(":" + userIt->second->GetNickName() + " PRIVMSG " + user->second->GetNickName() + " :" + messages + "\r\n");
+				user->second->AppendUserSendBuf(":" + userIt->second->GetNickName() + " PRIVMSG " + user->second->GetNickName() + " :" + messages + "\r\n");
 			}
 			else
 			{

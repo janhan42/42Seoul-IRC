@@ -38,7 +38,7 @@ void Command::Invite(int fd, std::vector<std::string> commandVec)
 		mErrManager.ErrorUserOnChannel443(*user, commandVec[1], commandVec[2]);
 		return;
 	}
-	target->second->AppendUserRecvBuf(":" + user->GetNickName() + " INVITE " + target->second->GetNickName() + " " + commandVec[2] + "\r\n");
-	user->AppendUserRecvBuf("341 :" + user->GetNickName() +  " " + commandVec[1] + " " + commandVec[2] + " :" + RPL_INVITING);
+	target->second->AppendUserSendBuf(":" + user->GetNickName() + " INVITE " + target->second->GetNickName() + " " + commandVec[2] + "\r\n");
+	user->AppendUserSendBuf("341 :" + user->GetNickName() +  " " + commandVec[1] + " " + commandVec[2] + " :" + RPL_INVITING);
 	channel->AppendInviteFdList(target->second->GetUserFd());
 }

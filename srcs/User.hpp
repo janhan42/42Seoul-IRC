@@ -23,7 +23,7 @@ class User
 		bool								GetUserRegist(void);
 		bool								GetCapEnd(void);
 		int									GetUserFd(void);
-		std::string							GetUserRecvBuf(void);
+		std::string							GetUserSendBuf(void);
 		std::vector<std::string>&			GetChannelList(void);
 
 		// Setter
@@ -35,11 +35,11 @@ class User
 		void								SetRegist(bool state);
 		void								SetCapEnd(bool state);
 		// Append
-		void								AppendUserRecvBuf(std::string userRecvBuffer);
+		void								AppendUserSendBuf(std::string userRecvBuffer);
 		void								AppendChannelList(std::string channelName);
 
 		// clear
-		void								ClearUserRecvBuf(void);
+		void								ClearUserSendBuf(void);
 		void								ClearChannelList(void);
 		void								ClearUser(void);
 
@@ -60,7 +60,7 @@ class User
 		bool								mbIsRegistUser;
 		bool								mbIsCapEnd;
 		// others
-		std::string							mUserRecvBuf;
+		std::string							mUserSendBuf;
 		std::vector<std::string>			mChannelList;
 		int									mUserFd;
 	private: // delete OCCF

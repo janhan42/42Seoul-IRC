@@ -71,9 +71,9 @@ int		User::GetUserFd()
 	return (mUserFd);
 }
 
-std::string	User::GetUserRecvBuf()
+std::string	User::GetUserSendBuf()
 {
-	return (mUserRecvBuf);
+	return (mUserSendBuf);
 }
 
 std::vector<std::string>&	User::GetChannelList()
@@ -125,9 +125,9 @@ void	User::SetCapEnd(bool state)
 
 
 /* Append */
-void	User::AppendUserRecvBuf(std::string userRecvBuffer)
+void	User::AppendUserSendBuf(std::string userRecvBuffer)
 {
-	mUserRecvBuf.append(userRecvBuffer);
+	mUserSendBuf.append(userRecvBuffer);
 }
 
 void	User::AppendChannelList(std::string channelName)
@@ -137,9 +137,9 @@ void	User::AppendChannelList(std::string channelName)
 
 
 /* Clear */
-void	User::ClearUserRecvBuf()
+void	User::ClearUserSendBuf()
 {
-	mUserRecvBuf.clear();
+	mUserSendBuf.clear();
 }
 
 void	User::ClearChannelList()
@@ -156,7 +156,7 @@ void	User::ClearUser()
 	mRealName = "";
 	mUserFd = -2;
 	ClearChannelList();
-	ClearUserRecvBuf();
+	ClearUserSendBuf();
 	SetRegist(false);
 	mbIsCapEnd = false;
 }

@@ -114,5 +114,5 @@ void Command::TopicMsg(int fd, std::string channelName)
 
 	topic = topic.substr(1, topic.length() - 1);
 	class User*& user = mServer.GetUserList().find(fd)->second;
-	user->AppendUserRecvBuf("332 " + user->GetNickName() + " " + channelName + " :" + topic + "\r\n");
+	user->AppendUserSendBuf("332 " + user->GetNickName() + " " + channelName + " :" + topic + "\r\n");
 }

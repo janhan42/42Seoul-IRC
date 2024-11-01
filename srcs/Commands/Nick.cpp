@@ -7,20 +7,20 @@
 
 void ErrorNotRegistered451(User& user)
 {
-	user.AppendUserRecvBuf("451: ");
-	user.AppendUserRecvBuf(ERR_NOTREGISTERED);
+	user.AppendUserSendBuf("451: ");
+	user.AppendUserSendBuf(ERR_NOTREGISTERED);
 }
 
 void ErrorErronusNickName432(User& user)
 {
-	user.AppendUserRecvBuf("432: ");
-	user.AppendUserRecvBuf(ERR_ERRONEUSNICKNAME);
+	user.AppendUserSendBuf("432: ");
+	user.AppendUserSendBuf(ERR_ERRONEUSNICKNAME);
 }
 
 void ErrorNickNameInuse433(User& user)
 {
-	user.AppendUserRecvBuf("433: ");
-	user.AppendUserRecvBuf(ERR_NOTREGISTERED);
+	user.AppendUserSendBuf("433: ");
+	user.AppendUserSendBuf(ERR_NOTREGISTERED);
 }
 
 void Command::Nick(int fd, std::vector<std::string> commadVec)
@@ -31,7 +31,7 @@ void Command::Nick(int fd, std::vector<std::string> commadVec)
 	if (!it->second->GetPassRegist()) // pass-authentication == false
 	{
 		ErrorNotRegistered451(*it->second);
-		send(fd, it->second->GetUserRecvBuf().c_str(), it->second->GetUserRecvBuf().length(), 0);
+		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
 		it->second->ClearUser();
 		userList.erase(fd);
 		close(fd);
@@ -51,7 +51,7 @@ void Command::Nick(int fd, std::vector<std::string> commadVec)
 	if (!CheckNickNameValidate(commadVec[1]))
 	{
 		ErrorErronusNickName432(*it->second);
-		it->second->AppendUserRecvBuf("/NICK <nickname> First Letter is not digit and length is under 10.\r\n");
+		it->second->AppendUserSendBuf("/NICK <nickname> First Letter is not digit and length is under 10.\r\n");
 		return ;
 	}
 	if (!CheckNickNameDuplicate(commadVec[1], mServer.GetUserList()))
@@ -71,7 +71,7 @@ void Command::Nick(int fd, std::vector<std::string> commadVec)
 			MsgToAllChannel(fd, channel->GetChannelName(), "NICK", oldNickName + " " + commadVec[1]);
 	}
 	it->second->SetNickName(commadVec[1]); // TEST NICKNAME COLOR
-	it->second->AppendUserRecvBuf(":" + oldNickName + " NICK " + it->second->GetNickName() + "\r\n");
+	it->second->AppendUserSendBuf(":" + oldNickName + " NICK " + it->second->GetNickName() + "\r\n");
 	it->second->SetNickRegist(true);
 }
 

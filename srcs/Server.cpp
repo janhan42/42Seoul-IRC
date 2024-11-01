@@ -108,11 +108,11 @@ void Server::Run()
 		std::map<int, User*>::iterator It = mUserList.begin();
 		for (; It != mUserList.end(); It++)
 		{
-			if (It->second->GetUserRecvBuf().length() > 0)
+			if (It->second->GetUserSendBuf().length() > 0)
 			{
-				std::cout << "Server Send fd[" << It->second->GetUserFd() << "]: "<< It->second->GetUserRecvBuf() << std::endl;
-				send(It->first, It->second->GetUserRecvBuf().c_str(), It->second->GetUserRecvBuf().length(), 0);
-				It->second->ClearUserRecvBuf();
+				std::cout << "Server Send fd[" << It->second->GetUserFd() << "]: "<< It->second->GetUserSendBuf() << std::endl;
+				send(It->first, It->second->GetUserSendBuf().c_str(), It->second->GetUserSendBuf().length(), 0);
+				It->second->ClearUserSendBuf();
 			}
 		}
 	}

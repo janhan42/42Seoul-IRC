@@ -44,9 +44,9 @@ void Command::Run(int fd)
 		}
 		else
 		{
-			iter->second->AppendUserRecvBuf(iter->second->GetNickName() + ":");
-			iter->second->AppendUserRecvBuf(ERR_NOTREGISTERED);
-			send(fd, iter->second->GetUserRecvBuf().c_str(), iter->second->GetUserRecvBuf().length(), 0);
+			iter->second->AppendUserSendBuf(iter->second->GetNickName() + ":");
+			iter->second->AppendUserSendBuf(ERR_NOTREGISTERED);
+			send(fd, iter->second->GetUserSendBuf().c_str(), iter->second->GetUserSendBuf().length(), 0);
 			iter->second->ClearUser();
 			userList.erase(fd);
 			close(fd);
@@ -56,12 +56,12 @@ void Command::Run(int fd)
 		{
 			if (iter->second->GetIsRegist())
 			{
-				iter->second->AppendUserRecvBuf(":SIRC 001 " + iter->second->GetNickName() + " :Welcome to the Smoking Relay Chat " + iter->second->GetNickName() + "!" + iter->second->GetUserName() + "@" + iter->second->GetHostName() + "\r\n");
-				iter->second->AppendUserRecvBuf(":SIRC 002 : Your host is SIRC, running version v1.0.0\r\n");
-				iter->second->AppendUserRecvBuf(":SIRC 003 : This server was created 10m 26d 10pm 34m\r\n");
-				iter->second->AppendUserRecvBuf(":SIRC 004 : SRIC v1.0.0\r\n");
-				iter->second->AppendUserRecvBuf(":SIRC 005 : NICKLEN=9 CASEMAPPING=ascii :are supported by this server\r\n");
-				iter->second->AppendUserRecvBuf(":SIRC 442 : MOTD File is missing\r\n");
+				iter->second->AppendUserSendBuf(":SIRC 001 " + iter->second->GetNickName() + " :Welcome to the Smoking Relay Chat " + iter->second->GetNickName() + "!" + iter->second->GetUserName() + "@" + iter->second->GetHostName() + "\r\n");
+				iter->second->AppendUserSendBuf(":SIRC 002 : Your host is SIRC, running version v1.0.0\r\n");
+				iter->second->AppendUserSendBuf(":SIRC 003 : This server was created 10m 26d 10pm 34m\r\n");
+				iter->second->AppendUserSendBuf(":SIRC 004 : SRIC v1.0.0\r\n");
+				iter->second->AppendUserSendBuf(":SIRC 005 : NICKLEN=9 CASEMAPPING=ascii :are supported by this server\r\n");
+				iter->second->AppendUserSendBuf(":SIRC 442 : MOTD File is missing\r\n");
 			}
 
 		}
@@ -111,7 +111,7 @@ void Command::MsgToAllChannel(int target, std::string channelName, std::string c
 			iter++;
 			continue;
 		}
-		user->AppendUserRecvBuf(MakeFullName(target) + " " + command + " " + channelName + " " + msg + "\r\n");
+		user->AppendUserSendBuf(MakeFullName(target) + " " + command + " " + channelName + " " + msg + "\r\n");
 		iter++;
 	}
 }
@@ -148,8 +148,8 @@ void Command::NameListMsg(int fd, std::string channelName)
 		iter++;
 	}
 	class User*& user = mServer.GetUserList().find(fd)->second;
-	user->AppendUserRecvBuf("353 " + user->GetNickName() + " = " + channelName + " :" + message + "\r\n");
-	user->AppendUserRecvBuf("366 " + user->GetNickName() + " " + channelName + " :End of NAMES list.\r\n");
+	user->AppendUserSendBuf("353 " + user->GetNickName() + " = " + channelName + " :" + message + "\r\n");
+	user->AppendUserSendBuf("366 " + user->GetNickName() + " " + channelName + " :End of NAMES list.\r\n");
 }
 
 std::string Command::ChannelMessage(int index, std::vector<std::string> commandVec)
@@ -177,7 +177,7 @@ void Command::ChannelPrivmsg(std::string message, class User& user, Channel* che
 		if (*fdIter != user.GetUserFd())
 		{
 			class User*& target = mServer.GetUserList().find(*fdIter)->second;
-			target->AppendUserRecvBuf(":" + user.GetNickName() + " PRIVMSG " + chennal->GetChannelName() + " :" + message + "\r\n");
+			target->AppendUserSendBuf(":" + user.GetNickName() + " PRIVMSG " + chennal->GetChannelName() + " :" + message + "\r\n");
 		}
 	}
 }
@@ -195,7 +195,7 @@ void Command::ChannelPART(int fd, std::string channelName, std::vector<std::stri
 		if (*fdIter != fd)
 		{
 			class User*& target = mServer.GetUserList().find(*fdIter)->second;
-			target->AppendUserRecvBuf(":" + target->GetNickName() + "!" + target->GetUserName() + "@" + target->GetServerName() + userIt->second->GetNickName() + " PART " + channel->GetChannelName() + " " + message + "\r\n");
+			target->AppendUserSendBuf(":" + target->GetNickName() + "!" + target->GetUserName() + "@" + target->GetServerName() + userIt->second->GetNickName() + " PART " + channel->GetChannelName() + " " + message + "\r\n");
 		}
 	}
 }

@@ -18,12 +18,12 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 	}
 	if (channel != NULL && commandVec.size() == 2) // show channel-mode
 	{
-		user->AppendUserRecvBuf("324 " + user->GetNickName() + " " + commandVec[1] + " +" + channel->GetMode() + "\r\n");
+		user->AppendUserSendBuf("324 " + user->GetNickName() + " " + commandVec[1] + " +" + channel->GetMode() + "\r\n");
 		return;
 	}
 	if (user->GetNickName() == commandVec[1] && commandVec[2] == "+i")
 	{
-		user->AppendUserRecvBuf("324 " + user->GetNickName() +  " " + commandVec[1] + " +i" + "\r\n");
+		user->AppendUserSendBuf("324 " + user->GetNickName() +  " " + commandVec[1] + " +i" + "\r\n");
 		return;
 	}
 	if (channel != NULL && !channel->CheckOperator(fd)) // if not channel-operator
@@ -59,7 +59,7 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 				continue;
 			if (user->GetNickName() == commandVec[1])
 			{
-				user->AppendUserRecvBuf("324 " + user->GetNickName() + " " + commandVec[1] + " +i" + "\r\n");
+				user->AppendUserSendBuf("324 " + user->GetNickName() + " " + commandVec[1] + " +i" + "\r\n");
 				return;
 			}
 			channel->SetMode(INVITE, sign);
