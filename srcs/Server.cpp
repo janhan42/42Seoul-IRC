@@ -100,8 +100,6 @@ void Server::Run()
 					// User Fd 메시지 버퍼 초기화
 					mMessage[mUserEventList[i].ident] = "";
 					std::cout << "User read buffer clear after: " << mMessage[mUserEventList[i].ident] << std::endl;
-					// TODO: 이거 전부 초기화 하면 안됨
-					// 명령어 짤렸을 수도 있으니까 제대로 들어온데까지만 실행하고 나머지는 저장해야함
 				}
 			}
 
