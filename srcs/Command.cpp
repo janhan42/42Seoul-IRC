@@ -44,8 +44,6 @@ void Command::Run(int fd)
 		}
 		else
 		{
-			std::cout << "여기서 나가나 " << std::endl;
-			std::cout << iter->second->GetPassRegist() << iter->second->GetNickRegist() << iter->second->GetUserRegist() << std::endl;
 			iter->second->AppendUserRecvBuf(iter->second->GetNickName() + ":");
 			iter->second->AppendUserRecvBuf(ERR_NOTREGISTERED);
 			send(fd, iter->second->GetUserRecvBuf().c_str(), iter->second->GetUserRecvBuf().length(), 0);
@@ -140,10 +138,13 @@ void Command::NameListMsg(int fd, std::string channelName)
 	{
 		class User*& user = mServer.GetUserList().find(*iter)->second;
 		if (channel->CheckOperator(user->GetUserFd()))
+		{
 			message += "@";
+			std::cout << "CheckOperator 들어오나" << std::endl;
+		}
 		message += user->GetNickName();
 		if (iter != userFdList.end() - 1)
-			message += "";
+			message += " ";
 		iter++;
 	}
 	class User*& user = mServer.GetUserList().find(fd)->second;

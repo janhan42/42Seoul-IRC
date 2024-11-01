@@ -37,6 +37,7 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 				}
 				std::string messages = ChannelMessage(2, commandVec);
 				ChannelPrivmsg(messages, *userIt->second, channel);
+				std::cout << "PRIVMSG USER NICK : " << userIt->second->GetNickName() << std::endl;
 			}
 			else // if Channel not exists
 			{
@@ -49,6 +50,7 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 			if (user != mServer.GetUserList().end())
 			{
 				std::string messages = ChannelMessage(2, commandVec);
+				std::cout << "PRIVMSG USER NICK : " << userIt->second->GetNickName() << std::endl;
 				user->second->AppendUserRecvBuf(":" + userIt->second->GetNickName() + " PRIVMSG " + user->second->GetNickName() + " :" + messages + "\r\n");
 			}
 			else
@@ -99,6 +101,12 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 	}
 	else if (strcmp(command.c_str(), "BuckShot") == 0)
 	{
+		if (bot->GameOn() == true)
+		{
+			std::string response = "현재 게임중 입니다. 다른 사람들은 게임을 할 수 없습니다.";
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
+			return;
+		}
 		std::cout << commandVec.size() << std::endl;
 		if (commandVec.size() < 5) // arg error
 		{
@@ -148,62 +156,43 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		std::cout << "FirstUser Name: " << bot->GetFirstUser()->GetNickName() << std::endl;
 		std::cout << "SecondUser Name: " << bot->GetSecondUser()->GetNickName() << std::endl;
 	}
-	/*
-	else if (commandVec[2] == bot->GetSecondUser() && bot->GaemOn() == false) // 도전을 받은 유저이고 게임 시작 전이면
+	else if (*channel->FindMyUserIt(fd) == bot->GetSecondUser()->GetUserFd() && bot->GameOn() == false) // 도전을 받은 유저이고 게임 시작 전이면
 	{
-		if (commandVec[3] == "accpet") // 신청을 받았으면.
+		std::cout << "Accept : 들어오긴하나" << std::endl;
+		std::cout << "commandVec[3]: " << commandVec[3] << std::endl;
+		if (commandVec[3] == "accept") // 신청을 받았으면.
 		{
 			bot->SettingGame();
-			bot->SetGameOn(true);
-			std::string response = "[" + commandVec[3] + "] 가 게임을 수락했습니다! 다른 유저는 게임이 끝날때 까지 게임을 할수 없습니다.";
+			std::string response = "[" + bot->GetSecondUser()->GetNickName() + "]이 게임을 수락했습니다! 다른 유저는 게임이 끝날때 까지 게임을 할수 없습니다.";
 			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
 		}
 		else if (commandVec[3] == "reject") // 거절을 받았으면
 		{
-			bot->ClearGame();
-			bot->SetGameOn(false);
-			std::string response = "[" + commandVec[3] + "] 가 게임을 거절했습니다!";
+			std::string response = "[" + bot->GetSecondUser()->GetNickName() + "]이 게임을 거절했습니다!";
 			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
+			bot->ClearGame();
 		}
 	}
-	else if (bot->GetGameOn() == ture && (commandVec[2] == bot->GetFirstUser() || commandVec[2] == bot->GetSecondUser()))
+	// 게임 중이고 두명의 유저중에 입력이 들어왔을 경우
+	else if (bot->GameOn() == true && (fd == bot->GetFirstUser()->GetUserFd() || fd == bot->GetSecondUser()->GetUserFd()))
 	{
-		if (commandVec[2] == bot->GetFirstUser())
+		if (bot->GetWhoShot() == false) // false 면 첫번쨰 유저 턴
 		{
-			if (commandVec[3] == "ShotMe")
+			if (fd == bot->GetSecondUser()->GetUserFd())
 			{
-				bot->GameShot(bot->GetFirstUser());
-			}
-			else if (commandVec[3] == "ShotOther")
-			{
-				bot->GameShot(bot->GetSecondUser());
+				std::string response = "현재 [" + bot->GetFirstUser()->GetNickName() + "]의 턴입니다.";
+				MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
+				return;
 			}
 		}
-		else if (commandVec[2] == bot->GetSecondUser())
+		else if (bot->GetWhoShot() == true) // true 면 두번째 유저 턴
 		{
-			if (commandVec[3] == "ShotMe")
+			if (fd == bot->GetFirstUser()->GetUserFd())
 			{
-				bot->GameShot(bot->GetSecondUser());
+				std::string response = "현재 [" + bot->GetSecondUser()->GetNickName() + "]의 턴입니디.";
 			}
-			else if (commandVec[3] == "ShotOther")
-			{
-				bot->GameShot(bot->GetFirstUser());
-			}
-		}
-		if (!bot->GetFirstUser()->GetPoint() || !bot->GetSecondUser()->GetPoint())
-		{
-			if(!bot->GetFirstUser()->GetPoint())
-			{
-
-			}
-			else if (!bot->GetSecondUser()->GetPoint())
-			{
-
-			}
-			bot->GameClear();
 		}
 	}
-	*/
 	else
 	{
 		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", "BOT COMMAND NOT FOUND");

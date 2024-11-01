@@ -8,7 +8,6 @@
 void Command::Join(int fd, std::vector<std::string> commandVec)
 {
 	/* JOIN <channel> (<options>) */
-	/* TESTOUTPUT */
 	if (commandVec.size() < 2)
 	{
 		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second);
@@ -18,7 +17,6 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 	std::vector<std::string>::iterator iter = joinChannel.begin();
 	std::vector<std::string> joinKey;
 	std::vector<std::string>::iterator keyIt;
-	/* TESTOUTPUT */
 	if (commandVec.size() > 2)
 	{
 		joinKey = split(commandVec[2], ',');
@@ -26,7 +24,6 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 	}
 	std::map<int, class User*>& userList = mServer.GetUserList();
 	class User*& user = userList.find(fd)->second;
-	/* TESTOUTPUT */
 	while(iter != joinChannel.end())
 	{
 		if ((*iter)[0] != '#' && (*iter)[0] != '&')
@@ -37,7 +34,6 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 				keyIt++;
 			continue;
 		}
-		/* TESTOUTPUT */
 		std::map<std::string, Channel*>& channelList = mServer.GetChannelList();
 		std::map<std::string, Channel*>::iterator channelIt = channelList.find(*iter);
 		if (channelIt != channelList.end()) // channel exists
@@ -78,6 +74,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 				if (channel->GetUserFdList().size() >= channel->GetLimit())
 				{
 					mErrManager.ErrorChannelIsFull471(*user, *iter);
+					iter++;
 					if (commandVec.size() > 2 || keyIt != joinKey.end())
 						keyIt++;
 					continue;
@@ -91,21 +88,12 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 		}
 		else // channel not exicsts (new channel)
 		{
-			/* TESTOUTPUT */
-			std::cout << "Join New Channel : " << *iter << std::endl;
-			mServer.AppendNewChannel(*iter, fd);			// create new channel
-			mServer.FindChannel(*iter)->AppendInviteFdList(-1);
-			/* TESTOUTPUT */
-			mServer.FindChannel(*iter)->AppendUserFdList(fd); // join user to channel
+			mServer.AppendNewChannel(*iter, fd);					// create new channel
+			mServer.FindChannel(*iter)->AppendUserFdList(-1);	// join user to channel
+			mServer.FindChannel(*iter)->AppendUserFdList(fd);		// join user to channel
 			user->AppendChannelList(*iter);
 			MsgToAllChannel(fd, *iter, "JOIN", "");
 			mServer.FindChannel(*iter)->AddOperatorFd(fd);
-			std::vector<int> newChannelUserList = mServer.FindChannel(*iter)->GetUserFdList();
-			std::vector<int>::iterator it = newChannelUserList.begin();
-			for(; it != newChannelUserList.end(); it++)
-			{
-				std::cout << "User Fd : " << *it << std::endl;
-			}
 		}
 		NameListMsg(fd, *iter);
 		MsgToAllChannel(-1, *iter, "PRIVMSG", mServer.FindChannel(*iter)->GetBot()->Introduce());

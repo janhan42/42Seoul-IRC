@@ -151,6 +151,7 @@ Channel*	Server::FindChannel(std::string channelName)
 	return (It->second);
 }
 
+// TEST NICKNAME COLOR
 bool containsWordWithoutAnsi(const std::string& input, const std::string& word)
 {
 	std::string cleaned;
@@ -177,7 +178,7 @@ std::map<int, User*>::iterator	Server::FindUser(std::string userName)
 	std::map<int, User*>::iterator it = mUserList.begin();
 	for (; it != mUserList.end(); it++)
 	{
-		if (containsWordWithoutAnsi(it->second->GetNickName(), userName))
+		if (containsWordWithoutAnsi(it->second->GetNickName(), userName)) // TEST NICKNAME COLOR
 			return (it);
 	}
 	return (it);

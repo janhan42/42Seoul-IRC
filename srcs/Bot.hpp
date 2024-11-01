@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <stack>
 
 class Bot
 {
@@ -21,17 +22,23 @@ class Bot
 		class User*								GetSecondUser(void);
 		void									SetFirstUser(class User* firstUser);
 		void									SetSecondUser(class User* secondUser);
-
-		// BuckShot
-		// std::string BuckShot(class User*& firstUser, class User*& secondUser);
+		void									SettingGame(void);
+		void									ClearGame(void);
+		bool									GameOn(void);
+		bool									GetWhoShot(void);
+		void									SetWhoShot(bool state);
+		void									GameShot(class User* target);
 
 	private:
 		std::map<std::string ,std::string>		mCommandList;
 		// BuckShot
-		class User*							mFirstUser;
-		int									mFirstUserHp;
-		class User*							mSecondUser;
-		int									mSecondUserHp;
+		class User*								mFirstUser;
+		int										mFirstUserHp;
+		class User*								mSecondUser;
+		int										mSecondUserHp;
+		bool									mbGameOn;
+		bool									mbWhoShot;
+		std::stack<bool>						mbAmmoChamber;
 
 	private: // detele OCCF
 		Bot(const Bot& rhs);

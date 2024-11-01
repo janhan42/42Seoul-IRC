@@ -70,7 +70,7 @@ void Command::Nick(int fd, std::vector<std::string> commadVec)
 		if (channel)
 			MsgToAllChannel(fd, channel->GetChannelName(), "NICK", oldNickName + " " + commadVec[1]);
 	}
-	it->second->SetNickName("\033[3m\033[33m" + commadVec[1] + "\033[0m");
+	it->second->SetNickName(commadVec[1]); // TEST NICKNAME COLOR
 	it->second->AppendUserRecvBuf(":" + oldNickName + " NICK " + it->second->GetNickName() + "\r\n");
 	it->second->SetNickRegist(true);
 }
