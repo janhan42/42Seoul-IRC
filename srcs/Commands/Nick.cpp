@@ -20,7 +20,7 @@ void ErrorErronusNickName432(User& user)
 void ErrorNickNameInuse433(User& user)
 {
 	user.AppendUserSendBuf("433: ");
-	user.AppendUserSendBuf(ERR_NOTREGISTERED);
+	user.AppendUserSendBuf(ERR_NICKNAMEINUSE);
 }
 
 void Command::Nick(int fd, std::vector<std::string> commadVec)
@@ -29,8 +29,7 @@ void Command::Nick(int fd, std::vector<std::string> commadVec)
 	std::map<int, class User*>& userList = mServer.GetUserList();
 	std::map<int, class User*>::iterator it = userList.find(fd);
 	if (!it->second->GetPassRegist()) // pass-authentication == false
-	{
-		ErrorNotRegistered451(*it->second);
+	{ ErrorNotRegistered451(*it->second);
 		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
 		it->second->ClearUser();
 		userList.erase(fd);

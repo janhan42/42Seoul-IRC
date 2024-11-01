@@ -41,15 +41,16 @@ void Command::Run(int fd)
 		else if (commandVec[0] == "USER")
 		{
 			User(fd, commandVec);
-		}
-		else
-		{
-			iter->second->AppendUserSendBuf(iter->second->GetNickName() + ":");
-			iter->second->AppendUserSendBuf(ERR_NOTREGISTERED);
-			send(fd, iter->second->GetUserSendBuf().c_str(), iter->second->GetUserSendBuf().length(), 0);
-			iter->second->ClearUser();
-			userList.erase(fd);
-			close(fd);
+			if (!iter->second->GetIsRegist())
+			{
+				iter->second->AppendUserSendBuf(iter->second->GetNickName() + ":");
+				iter->second->AppendUserSendBuf(ERR_NOTREGISTERED);
+				send(fd, iter->second->GetUserSendBuf().c_str(), iter->second->GetUserSendBuf().length(), 0);
+				iter->second->ClearUser();
+				delete iter->second;
+				userList.erase(fd);
+				close(fd);
+			}
 		}
 		iter = userList.find(fd);
 		if (iter != userList.end())
