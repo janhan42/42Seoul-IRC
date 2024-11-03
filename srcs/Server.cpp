@@ -115,7 +115,7 @@ void Server::Run()
 				if (sent_byte > 0) // 전송 성공하면
 					usr->ClearUserSendBuf(sent_byte);
 				else
-	   				std::cout << "send error on fd [" << usr->GetUserFd() << "]" << std::endl;
+					std::cout << "send error on fd [" << usr->GetUserFd() << "]" << std::endl;
 			}
 		}
 		}

@@ -124,15 +124,12 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		if (targetUser != mServer.GetUserList().end())
 			std::cout << "targetUser Nick :" << targetUser->second->GetNickName() << std::endl;
 		/* END */
-		std::cout << "어디서 뻑나는거?" << std::endl;
 		Channel* channel = mServer.FindChannel(commandVec[1]);
 		std::cout << "FindChannel CommandVec[2] : " << commandVec[1] << std::endl;
-		std::cout << "어디서 뻑나는거?" << std::endl;
 		std::vector<int>::iterator channelInUser;
 		/* TESTOUTPUT */
 		std::cout << "채널 User FD 리스트" << std::endl;
 		std::vector<int> channelUserList = channel->GetUserFdList();
-		std::cout << " 설마 여기겠음?" << std::endl;
 		for (std::vector<int>::iterator it = channelUserList.begin(); it != channelUserList.end(); it++)
 		{
 			std::cout << *it << std::endl;
@@ -143,7 +140,6 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 			channelInUser = channel->FindMyUserIt(targetUser->second->GetUserFd());
 		else
 			channelInUser = channel->GetUserFdList().end();
-		std::cout << "어디서 뻑나는거?" << std::endl;
 		if (channelInUser == channel->GetUserFdList().end())
 		{
 			std::string response = "사용자 [" + commandVec[4] + "] 를 찾을수 없습니다.";

@@ -1,6 +1,8 @@
 #include "Bot.hpp"
 #include "Command.hpp"
 #include "User.hpp"
+#include <cstdlib>
+#include <iostream>
 
 Bot::Bot()
 : mbGameOn(false)
@@ -56,10 +58,24 @@ void Bot::SetSecondUser(class User* secondUser)
 
 void Bot::SettingGame()
 {
+	int ammoCount = 5;
 	mFirstUserHp = 5;		// FirstUserHp
 	mSecondUserHp = 5;		// SecondUserHp;
 	mbGameOn = true;		// Game상태 true;
 	mbWhoShot = false;		// false 면 FirstUser true면 SecondUser
+	srand((unsigned int)time(NULL));
+	while (ammoCount)
+	{
+		mbAmmoChamber.push(rand() % 2);
+		ammoCount--;
+	}
+	while (ammoCount < 5)
+	{
+		bool temp = mbAmmoChamber.top();
+		mbAmmoChamber.pop();
+		std::cout << temp << std::endl;
+		ammoCount++;
+	}
 }
 
 void Bot::ClearGame()

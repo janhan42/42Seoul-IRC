@@ -23,7 +23,8 @@ int main(int ac, char** av)
 	}
 	try
 	{
-		Server server("1577", "1234");
+		std::cout << av[1] << av[2] << std::endl;
+		Server server(av[1], av[2]);
 		server.Init();
 		server.Run();
 	}
