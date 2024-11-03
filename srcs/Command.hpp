@@ -18,10 +18,12 @@ class Command
 		Command(Server& server);
 		~Command();
 
-		void		Run(int fd);
+                void RegistNewUser(int &fd, std::map<int, class User *> &userList,
+                               std::map<int, class User *>::iterator &iter,
+                               std::vector<std::string> &commandVec);
+                void Run(int fd);
 
-
-		/* Commands */
+                /* Commands */
 		void		Pass(int fd, std::vector<std::string> commandVec);
 		void		Nick(int fd, std::vector<std::string> commandVec);
 		void		User(int fd, std::vector<std::string> commandVec);

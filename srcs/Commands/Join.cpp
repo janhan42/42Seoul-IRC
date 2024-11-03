@@ -3,7 +3,6 @@
 #include "../Utils/Split.hpp"
 #include "../User.hpp"
 #include "../Bot.hpp"
-#include <iostream>
 
 void Command::Join(int fd, std::vector<std::string> commandVec)
 {

@@ -16,84 +16,87 @@ Command::~Command()
 {
 }
 
-void Command::Run(int fd)
-{
-	std::istringstream	iss(mServer.GetMessage(fd));
-	std::string			buffer;
-	std::map<int, class User*>& userList = mServer.GetUserList();
-	std::map<int, class User*>::iterator iter = userList.find(fd);
-	// user = userList[fd]
-	std::vector<std::string> commandVec;
-	while (getline(iss, buffer, ' '))
-	{
-		std::size_t endPos = buffer.find_last_not_of("\r\n");
-		commandVec.push_back(buffer.substr(0, endPos + 1));
-	}
-	if (iter != userList.end() && !iter->second->GetIsRegist())
-	{
-		if (commandVec[0] == "PASS")
-		{
-			Pass(fd, commandVec);
-		}
-		else if (commandVec[0] == "NICK")
-		{
-			Nick(fd, commandVec);
-		}
-		else if (commandVec[0] == "USER")
-		{
-			User(fd, commandVec);
-			if (!iter->second->GetIsRegist())
-			{
-				std::cout << "haha" << std::endl;
-				iter->second->AppendUserSendBuf(iter->second->GetNickName() + ":");
-				iter->second->AppendUserSendBuf(ERR_NOTREGISTERED);
-				send(fd, iter->second->GetUserSendBuf().c_str(), iter->second->GetUserSendBuf().length(), 0);
-				delete iter->second;
-				userList.erase(fd);
-				close(fd);
-			}
-		}
-		iter = userList.find(fd);
-		if (iter != userList.end())
-		{
-			if (iter->second->GetIsRegist())
-			{
-				iter->second->AppendUserSendBuf(":SIRC 001 " + iter->second->GetNickName() + " :Welcome to the Smoking Relay Chat " + iter->second->GetNickName() + "!" + iter->second->GetUserName() + "@" + iter->second->GetHostName() + "\r\n");
-				iter->second->AppendUserSendBuf(":SIRC 002 : Your host is SIRC, running version v1.0.0\r\n");
-				iter->second->AppendUserSendBuf(":SIRC 003 : This server was created at 24/10/26\r\n");
-				iter->second->AppendUserSendBuf(":SIRC 004 : SRIC v1.0.0\r\n");
-				iter->second->AppendUserSendBuf(":SIRC 005 : NICKLEN=9 CASEMAPPING=ascii :are supported by this server\r\n");
-				iter->second->AppendUserSendBuf(":SIRC 442 : Have a nice day!\r\n");
-			}
-		}
-	}
-	else
-	{
-		if (commandVec[0] == "PING")
-			Ping(fd, commandVec);
-		else if (commandVec[0] == "USER")
-			User(fd, commandVec);
-		else if (commandVec[0] == "NICK")
-			Nick(fd, commandVec);
-		else if (commandVec[0] == "PASS")
-			Pass(fd, commandVec);
-		else if (commandVec[0] == "PRIVMSG")
-			Privmsg(fd, commandVec);
-		else if (commandVec[0] == "QUIT")
-			Quit(fd, commandVec);
-		else if (commandVec[0] == "PART")
-			Part(fd, commandVec);
-		else if (commandVec[0] == "JOIN")
-			Join(fd, commandVec);
-		else if (commandVec[0] == "KICK")
-			Kick(fd, commandVec);
-		else if (commandVec[0] == "MODE")
-			Mode(fd, commandVec);
-		else if (commandVec[0] == "TOPIC")
-			Topic(fd, commandVec);
-		else if (commandVec[0] == "INVITE")
-			Invite(fd, commandVec);
-	}
+void Command::RegistNewUser(int &fd, std::map<int, class User *> &userList,
+                        std::map<int, class User *>::iterator &iter,
+                        std::vector<std::string> &commandVec) {
+  {
+    if (commandVec[0] == "PASS") {
+      Pass(fd, commandVec);
+    } else if (commandVec[0] == "NICK") {
+      Nick(fd, commandVec);
+    } else if (commandVec[0] == "USER") {
+      User(fd, commandVec);
+      if (!iter->second->GetIsRegist()) {
+        std::cout << "haha" << std::endl;
+        iter->second->AppendUserSendBuf(iter->second->GetNickName() + ":");
+        iter->second->AppendUserSendBuf(ERR_NOTREGISTERED);
+        send(fd, iter->second->GetUserSendBuf().c_str(),
+             iter->second->GetUserSendBuf().length(), 0);
+        delete iter->second;
+        userList.erase(fd);
+        close(fd);
+      }
+    }
+    iter = userList.find(fd);
+    if (iter != userList.end()) {
+      if (iter->second->GetIsRegist()) {
+        iter->second->AppendUserSendBuf(
+            ":SIRC 001 " + iter->second->GetNickName() +
+            " :Welcome to the Smoking Relay Chat " +
+            iter->second->GetNickName() + "!" + iter->second->GetUserName() +
+            "@" + iter->second->GetHostName() + "\r\n");
+        iter->second->AppendUserSendBuf(
+            ":SIRC 002 : Your host is SIRC, running version v1.0.0\r\n");
+        iter->second->AppendUserSendBuf(
+            ":SIRC 003 : This server was created at 24/10/26\r\n");
+        iter->second->AppendUserSendBuf(":SIRC 004 : SRIC v1.0.0\r\n");
+        iter->second->AppendUserSendBuf(
+            ":SIRC 005 : NICKLEN=9 CASEMAPPING=ascii :are supported by this "
+            "server\r\n");
+        iter->second->AppendUserSendBuf(":SIRC 442 : Have a nice day!\r\n");
+      }
+    }
+  }
+}
+void Command::Run(int fd) {
+  std::istringstream iss(mServer.GetMessage(fd));
+  std::string buffer;
+  std::map<int, class User *> &userList = mServer.GetUserList();
+  std::map<int, class User *>::iterator iter = userList.find(fd);
+  // user = userList[fd]
+  std::vector<std::string> commandVec;
+  while (getline(iss, buffer, ' ')) {
+    std::size_t endPos = buffer.find_last_not_of("\r\n");
+    commandVec.push_back(buffer.substr(0, endPos + 1));
+  }
+  if (iter != userList.end() && !iter->second->GetIsRegist()) // 유저 첫 등록시
+    RegistNewUser(fd, userList, iter, commandVec);
+  else {
+    if (commandVec[0] == "PING")
+      Ping(fd, commandVec);
+    else if (commandVec[0] == "USER")
+      User(fd, commandVec);
+    else if (commandVec[0] == "NICK")
+      Nick(fd, commandVec);
+    else if (commandVec[0] == "PASS")
+      Pass(fd, commandVec);
+    else if (commandVec[0] == "PRIVMSG")
+      Privmsg(fd, commandVec);
+    else if (commandVec[0] == "QUIT")
+      Quit(fd, commandVec);
+    else if (commandVec[0] == "PART")
+      Part(fd, commandVec);
+    else if (commandVec[0] == "JOIN")
+      Join(fd, commandVec);
+    else if (commandVec[0] == "KICK")
+      Kick(fd, commandVec);
+    else if (commandVec[0] == "MODE")
+      Mode(fd, commandVec);
+    else if (commandVec[0] == "TOPIC")
+      Topic(fd, commandVec);
+    else if (commandVec[0] == "INVITE")
+      Invite(fd, commandVec);
+  }
 }
 
 void Command::MsgToAllChannel(int target, std::string channelName, std::string command, std::string msg)
@@ -162,7 +165,6 @@ void Command::NameListMsg(int fd, std::string channelName)
 		if (channel->CheckOperator(user->GetUserFd()))
 		{
 			message += "@";
-			std::cout << "CheckOperator 들어오나" << std::endl;
 		}
 		message += user->GetNickName();
 		if (iter != userFdList.end() - 1)
