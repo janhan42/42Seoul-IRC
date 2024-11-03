@@ -94,9 +94,11 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		}
 		std::string response = bot->GetHelpBuckShot();
 		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
-		response = bot->GetHelpShop();
+		response = bot->GetHelpAccept();
 		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
-		response = bot->GetHelpBuy();
+		response = bot->GetHelpReject();
+		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
+		response = bot->GetHelpGame();
 		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
 	}
 	else if (strcmp(command.c_str(), "buckshot") == 0)
@@ -172,9 +174,19 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 
 		if (commandVec[3] == "accept") // 신청을 받았으면.
 		{
-			bot->SettingGame();
 			std::string response = "[" + bot->GetSecondUser()->GetNickName() + "]이 게임을 수락했습니다! 다른 유저는 게임이 끝날때 까지 게임을 할수 없습니다.";
 			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
+			bot->SettingGame();
+			std::string Chamber = bot->SettingChamber();
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", Chamber);
+			int ammo = 5;
+			std::string Ammo = "Ammo |";
+			while (ammo--)
+			{
+				Ammo = Ammo + "◼";
+			}
+			Ammo = Ammo + "|";
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", Ammo);
 		}
 		else if (commandVec[3] == "reject") // 거절을 받았으면
 		{
@@ -186,6 +198,12 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 	// 게임 중이고 두명의 유저중에 입력이 들어왔을 경우
 	else if (bot->GameOn() == true && (fd == bot->GetFirstUser()->GetUserFd() || fd == bot->GetSecondUser()->GetUserFd()))
 	{
+		if (commandVec[3] != "me" && commandVec[3] != "other")
+		{
+			std::string response = "게임중 가능 명령어는 me 또는 other 입니다.";
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
+			return;
+		}
 		if (bot->GetWhoShot() == false) // false 면 첫번쨰 유저 턴
 		{
 			if (fd == bot->GetSecondUser()->GetUserFd())
@@ -207,8 +225,58 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 				return;
 			}
 			// logic
-			bot->GameShot(commandVec[3]);
+			std::string shotReuslt = bot->GameShot(commandVec[3]);
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", shotReuslt);
 			std::cout << "SecondPlayer Shot After Who Shot : " << bot->GetWhoShot() << std::endl;
+		}
+		int ammo = bot->AmmoCount();
+		if (ammo != 0)
+		{
+			int oringAmmo = 5 - ammo;
+			std::string AmmoUnit = "Ammo |";
+			std::string Ammo;
+			while (ammo--)
+			{
+				Ammo = Ammo + "◼";
+			}
+			while (oringAmmo--)
+			{
+				Ammo = Ammo + "◻︎";
+			}
+			AmmoUnit = AmmoUnit + Ammo + "|";
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", AmmoUnit);
+		}
+		else if (ammo == 0)
+		{
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", "Ammo |◻︎◻︎◻︎◻︎◻︎|");
+			std::string Chamber = bot->SettingChamber();
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", Chamber);
+			int ammo = 5;
+			std::string Ammo = "Ammo |";
+			while (ammo--)
+			{
+				Ammo = Ammo + "◼";
+			}
+			Ammo = Ammo + "|";
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", Ammo);
+		}
+		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", bot->GetFirstHpInfo());
+		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", bot->GetSecondHpInfo());
+		if (bot->GetFirstHp() == 0 || bot->GetSecondHp() == 0)
+		{
+			std::string response;
+			if (bot->GetFirstHp() == 0)
+			{
+				response = "[" + bot->GetSecondUser()->GetNickName() + "]님이 [" + bot->GetFirstUser()->GetNickName() + "]을 죽였습니다.";
+				MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
+			}
+			else if (bot->GetSecondHp() == 0)
+			{
+				response = "[" + bot->GetFirstUser()->GetNickName() + "]님이 [" + bot->GetSecondUser()->GetNickName() + "]을 죽였습니다.";
+				MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
+			}
+			bot->ClearGame();
+			std::cout << "게임 클리어 하나?" << std::endl;
 		}
 	}
 	else

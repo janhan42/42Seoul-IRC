@@ -12,17 +12,23 @@ class Bot
 		~Bot();
 
 		/* functions */
-		std::string								Introduce(void);;
-		std::string								GetHelpBuckShot(void);
-		std::string								GetHelpShop(void);
-		std::string								GetHelpBuy(void);
+		const std::string						Introduce(void);;
+		const std::string						GetHelpBuckShot(void);
+		const std::string						GetHelpAccept(void);
+		const std::string						GetHelpReject(void);
+		const std::string						GetHelpGame(void);
 
 		// BuckShot
 		class User*								GetFirstUser(void);
 		class User*								GetSecondUser(void);
+		const std::string						GetFirstHpInfo(void);
+		const std::string						GetSecondHpInfo(void);
+		int										GetFirstHp(void);
+		int										GetSecondHp(void);
 		void									SetFirstUser(class User* firstUser);
 		void									SetSecondUser(class User* secondUser);
 		void									SettingGame(void);
+		const std::string						SettingChamber(void);
 		void									ClearGame(void);
 		bool									GameOn(void);
 		bool									GetWhoShot(void);

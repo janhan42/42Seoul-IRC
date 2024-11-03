@@ -3,6 +3,7 @@
 #include "User.hpp"
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 Bot::Bot()
 : mbGameOn(false)
@@ -11,26 +12,32 @@ Bot::Bot()
 Bot::~Bot()
 {}
 
-std::string Bot::Introduce()
+const std::string Bot::Introduce()
 {
-	return "@BOT help 로 BOT에 대한 설명을 볼수 있습니다.";
+	return "@bot help 로 BOT에 대한 설명을 볼수 있습니다.";
 }
 
-std::string	Bot::GetHelpBuckShot()
+const std::string	Bot::GetHelpBuckShot()
 {
-	std::string result = " @BOT BuckShot <target-user>: target-user에게 BuckShot게임을 신청합니다.\n";
+	std::string result = " @bot buckshot <target-user>: target-user에게 BuckShot게임을 신청합니다.";
 	return (result);
 }
 
-std::string Bot::GetHelpShop()
+const std::string Bot::GetHelpAccept()
 {
-	std::string result = " @BOT POINTSHOP: 구매가능한 아이템들을 보여줍니다.\n";
+	std::string result = " @bot accept: 게임을 수락합니다.";
 	return (result);
 }
 
-std::string Bot::GetHelpBuy()
+const std::string Bot::GetHelpReject()
 {
-	std::string result = " @BOT BUY <item-name>: item-name을 구매합니다.\r\n";
+	std::string result = " @bot reject: 게임을 거절합니다.\r\n";
+	return (result);
+}
+
+const std::string Bot::GetHelpGame()
+{
+	std::string result = " @bot me(자신에게), other(상대방에게)쏩니다, gg(항복을 할수 있습니다).";
 	return (result);
 }
 
@@ -46,6 +53,48 @@ class User*	Bot::GetSecondUser(void)
 	return (mSecondUser);
 }
 
+const std::string Bot::GetFirstHpInfo()
+{
+	std::string result = "[" + mFirstUser->GetNickName() + " HP] ";
+	int userHp = mFirstUserHp;
+	int count = 5 - mFirstUserHp;
+	while (userHp--)
+	{
+		result = result + "◼";
+	}
+	while (count--)
+	{
+		result = result + "◻︎";
+	}
+	return (result);
+}
+
+const std::string Bot::GetSecondHpInfo()
+{
+	std::string result = "[" + mSecondUser->GetNickName() + " HP] ";
+	int userHp = mSecondUserHp;
+	int count = 5 - mSecondUserHp;
+	while (userHp--)
+	{
+		result = result + "◼";
+	}
+	while (count--)
+	{
+		result = result + "◻︎";
+	}
+	return (result);
+}
+
+int Bot::GetFirstHp()
+{
+	return (mFirstUserHp);
+}
+
+int Bot::GetSecondHp()
+{
+	return (mSecondUserHp);
+}
+
 void Bot::SetFirstUser(class User* firstUser)
 {
 	mFirstUser = firstUser;
@@ -58,27 +107,51 @@ void Bot::SetSecondUser(class User* secondUser)
 
 void Bot::SettingGame()
 {
-	int ammoCount = 5;
 	mFirstUserHp = 5;		// FirstUserHp
 	mSecondUserHp = 5;		// SecondUserHp;
 	mbGameOn = true;		// Game상태 true;
 	mbWhoShot = false;		// false 면 FirstUser true면 SecondUser
 	srand((unsigned int)time(NULL));
-	while (ammoCount)
-	{
-		int temp = rand() % 2;
-		std::cout << temp << std::endl;
-		mbAmmoChamber.push(temp);
-		ammoCount--;
-	}
-	// while (ammoCount < 5)
-	// {
-	// 	bool temp = mbAmmoChamber.top();
-	// 	mbAmmoChamber.pop();
-	// 	std::cout << temp << std::endl;
-	// 	ammoCount++;
-	// }
 }
+
+const std::string Bot::SettingChamber()
+{
+	std::stringstream ss;
+	std::string result;
+	int ammoCount = 5;
+	int fakeround = 0;
+	int realround = 0;
+
+	// 두 개의 변수를 조건에 따라 초기화합니다.
+	bool valid = false;
+
+	while (!valid)
+	{
+		std::stack<bool> tempStack;
+		fakeround = 0;
+		realround = 0;
+		for (int i = 0; i < ammoCount; ++i)
+		{
+			int temp = rand() % 2;
+			if (temp == 1)
+				realround++;
+			else
+				fakeround++;
+			std::cout << temp << std::endl;
+			tempStack.push(temp);
+		}
+		// 둘 다 0이 아닌지 체크
+		if (fakeround > 0 && realround > 0)
+		{
+			mbAmmoChamber = tempStack;
+			valid = true; // 조건이 만족되면 valid를 true로 설정
+		}
+	}
+	ss << "공포탄은 " << fakeround << " 발" << " 실탄은 " << realround << " 발" << "입니다.";
+	result = ss.str();
+	return result;
+}
+
 
 void Bot::ClearGame()
 {
@@ -114,11 +187,11 @@ const std::string Bot::GameShot(const std::string& state)
 			response = "[" + mFirstUser->GetNickName() + "]님이 자기 자신을 쐈습니다.";
 			if (mbAmmoChamber.top() == false)
 			{
-				response = response + " 공포탄이였습니다. 한번 더 턴을 가져갑니다.";
+				response = response + " 공포탄이였습니다 한번 더 턴을 가져갑니다.";
 			}
 			else if (mbAmmoChamber.top() == true)
 			{
-				response = response + " 실탄이였습니다. HP가 1감소하고 턴이 넘어갑니다.";
+				response = response + " 실탄이였습니다 HP가 1감소하고 턴이 넘어갑니다.";
 				mFirstUserHp--;
 				mbWhoShot = !mbWhoShot;
 			}
@@ -128,12 +201,12 @@ const std::string Bot::GameShot(const std::string& state)
 			response = "[" + mFirstUser->GetNickName() + "]님이 [" + mSecondUser->GetNickName() + "]님을 쐈습니다.";
 			if (mbAmmoChamber.top() == false)
 			{
-				response = response + " 공포탄이였습니다. 아무런 이득없이 턴이 넘어갑니다.";
+				response = response + " 공포탄이였습니다 아무런 이득없이 턴이 넘어갑니다.";
 				mbWhoShot = !mbWhoShot;
 			}
 			else if (mbAmmoChamber.top() == true)
 			{
-				response = response + " 실탄이였습니다. [" + mSecondUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
+				response = response + " 실탄이였습니다 [" + mSecondUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
 				mSecondUserHp--;
 				mbWhoShot = !mbWhoShot;
 			}
@@ -145,13 +218,14 @@ const std::string Bot::GameShot(const std::string& state)
 		if (state == "me")
 		{
 			response = "[" + mSecondUser->GetNickName() + "]님이 자기 자신을 쐈습니다.";
+			std::cout << response << std::endl;
 			if (mbAmmoChamber.top() == false)
 			{
-				response = response + " 공포탄이였습니다. 한번 더 턴을 가져갑니다.";
+				response = response + " 공포탄이였습니다 한번 더 턴을 가져갑니다.";
 			}
 			else if (mbAmmoChamber.top() == true)
 			{
-				response = response + " 실탄이였습니다. HP가 1감소하고 턴이 넘어갑니다.";
+				response = response + " 실탄이였습니다 HP가 1감소하고 턴이 넘어갑니다.";
 				mSecondUserHp--;
 				mbWhoShot = !mbWhoShot;
 			}
@@ -161,31 +235,18 @@ const std::string Bot::GameShot(const std::string& state)
 			response = "[" + mSecondUser->GetNickName() + "]님이 [" + mFirstUser->GetNickName() + "]님을 쐈습니다.";
 			if (mbAmmoChamber.top() == false)
 			{
-				response = response + " 공포탄이였습니다. 아무런 이득없이 턴이 넘어갑니다.";
+				response = response + " 공포탄이였습니다 아무런 이득없이 턴이 넘어갑니다.";
+				mbWhoShot = !mbWhoShot;
 			}
 			else if (mbAmmoChamber.top() == true)
 			{
-				response = response + " 실탄이였습니다. [" + mSecondUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
+				response = response + " 실탄이였습니다 [" + mFirstUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
 				mFirstUserHp--;
 				mbWhoShot = !mbWhoShot;
 			}
 		}
 	}
 	mbAmmoChamber.pop();
-	if (mbAmmoChamber.size() == 0)
-	{
-		// 한판 끝나는 메세지 및 체력 확인뒤에 재장전
-		std::cout << "재장전" << std::endl;
-		int ammoCount = 5;
-		srand((unsigned int)time(NULL));
-		while (ammoCount)
-		{
-			int temp = rand() % 2;
-			std::cout << temp << std::endl;
-			mbAmmoChamber.push(temp);
-			ammoCount--;
-		}
-	}
 	return (response);
 }
 
