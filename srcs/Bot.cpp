@@ -66,16 +66,18 @@ void Bot::SettingGame()
 	srand((unsigned int)time(NULL));
 	while (ammoCount)
 	{
-		mbAmmoChamber.push(rand() % 2);
+		int temp = rand() % 2;
+		std::cout << temp << std::endl;
+		mbAmmoChamber.push(temp);
 		ammoCount--;
 	}
-	while (ammoCount < 5)
-	{
-		bool temp = mbAmmoChamber.top();
-		mbAmmoChamber.pop();
-		std::cout << temp << std::endl;
-		ammoCount++;
-	}
+	// while (ammoCount < 5)
+	// {
+	// 	bool temp = mbAmmoChamber.top();
+	// 	mbAmmoChamber.pop();
+	// 	std::cout << temp << std::endl;
+	// 	ammoCount++;
+	// }
 }
 
 void Bot::ClearGame()
@@ -100,45 +102,96 @@ void Bot::SetWhoShot(bool state)
 	mbWhoShot = state;
 }
 
-void Bot::GameShot(const std::string& state)
+// false -> 첫번쨰 플레이어, true -> 두번째 플레이어
+// Ammo false -> 공포탄, true -> 실탄
+const std::string Bot::GameShot(const std::string& state)
 {
-	if (state == "me") // 자기 자신 쏘기
+	std::string response;
+	if (mbWhoShot == false) // 첫번째 플레이어
 	{
-		if (mbAmmoChamber.top() == true) // 실탄
+		if (state == "me")
 		{
-			if (mbWhoShot == false) // 현재 턴이 첫번째 플레이어면
+			response = "[" + mFirstUser->GetNickName() + "]님이 자기 자신을 쐈습니다.";
+			if (mbAmmoChamber.top() == false)
 			{
-				mFirstUserHp--; // 첫번째 유저의 hp를 1 감소
-				// 메세지 센드해야할거 같은데 채팅방에
-				mbAmmoChamber.pop(); // 총알 빼기
-
-				mbWhoShot = !mbWhoShot; // 턴 변경
+				response = response + " 공포탄이였습니다. 한번 더 턴을 가져갑니다.";
 			}
-			else if (mbWhoShot == true) // 현재 턴이 두번째 플레이어면
+			else if (mbAmmoChamber.top() == true)
 			{
-				mSecondUserHp--; // 두번쨰 유저의 Hp를 1 감소
-				mbAmmoChamber.pop(); // 총알 뺴기
-
-				mbWhoShot = !mbWhoShot; // 턴 변경
+				response = response + " 실탄이였습니다. HP가 1감소하고 턴이 넘어갑니다.";
+				mFirstUserHp--;
+				mbWhoShot = !mbWhoShot;
 			}
 		}
-		else if (mbAmmoChamber.top() == false) // 공포탄
+		else if (state == "other")
 		{
-			if (mbWhoShot == false) // 현재 턴이 첫번쨰 플레이어면
+			response = "[" + mFirstUser->GetNickName() + "]님이 [" + mSecondUser->GetNickName() + "]님을 쐈습니다.";
+			if (mbAmmoChamber.top() == false)
 			{
-				mbAmmoChamber.pop();
-				// 메세지 출력
+				response = response + " 공포탄이였습니다. 아무런 이득없이 턴이 넘어갑니다.";
+				mbWhoShot = !mbWhoShot;
 			}
-			else if (mbWhoShot == true)
+			else if (mbAmmoChamber.top() == true)
 			{
-				mbAmmoChamber.pop();
+				response = response + " 실탄이였습니다. [" + mSecondUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
+				mSecondUserHp--;
 				mbWhoShot = !mbWhoShot;
 			}
 		}
 	}
-	else if (state == "other") // 다른사람 쏘기
+	else if (mbWhoShot == true) // 두번째 플레이어
 	{
+		std::cout << "어드민 유저 테스트" << std::endl;
+		if (state == "me")
+		{
+			response = "[" + mSecondUser->GetNickName() + "]님이 자기 자신을 쐈습니다.";
+			if (mbAmmoChamber.top() == false)
+			{
+				response = response + " 공포탄이였습니다. 한번 더 턴을 가져갑니다.";
+			}
+			else if (mbAmmoChamber.top() == true)
+			{
+				response = response + " 실탄이였습니다. HP가 1감소하고 턴이 넘어갑니다.";
+				mSecondUserHp--;
+				mbWhoShot = !mbWhoShot;
+			}
+		}
+		else if (state == "other")
+		{
+			response = "[" + mSecondUser->GetNickName() + "]님이 [" + mFirstUser->GetNickName() + "]님을 쐈습니다.";
+			if (mbAmmoChamber.top() == false)
+			{
+				response = response + " 공포탄이였습니다. 아무런 이득없이 턴이 넘어갑니다.";
+			}
+			else if (mbAmmoChamber.top() == true)
+			{
+				response = response + " 실탄이였습니다. [" + mSecondUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
+				mFirstUserHp--;
+				mbWhoShot = !mbWhoShot;
+			}
+		}
 	}
+	mbAmmoChamber.pop();
+	if (mbAmmoChamber.size() == 0)
+	{
+		// 한판 끝나는 메세지 및 체력 확인뒤에 재장전
+		std::cout << "재장전" << std::endl;
+		int ammoCount = 5;
+		srand((unsigned int)time(NULL));
+		while (ammoCount)
+		{
+			int temp = rand() % 2;
+			std::cout << temp << std::endl;
+			mbAmmoChamber.push(temp);
+			ammoCount--;
+		}
+	}
+	return (response);
+}
+
+int	Bot::AmmoCount()
+{
+	return (mbAmmoChamber.size());
 }
 // 도박봇을 만들꺼임
 // @BOT <game> <targetUser> // 상대 유저에게 게임 신청

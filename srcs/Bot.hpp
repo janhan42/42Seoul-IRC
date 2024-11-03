@@ -27,7 +27,8 @@ class Bot
 		bool									GameOn(void);
 		bool									GetWhoShot(void);
 		void									SetWhoShot(bool state);
-		void									GameShot(const std::string& state);
+		const std::string						GameShot(const std::string& state);
+		int										AmmoCount(void);
 
 	private:
 		std::map<std::string ,std::string>		mCommandList;

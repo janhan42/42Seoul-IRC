@@ -325,13 +325,13 @@ void Server::SendBufferToUser()
 		{
 			int sent_byte =
 				send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(),
-					 usr->GetUserSendBuf().length(), 0);
-
+					usr->GetUserSendBuf().length(), 0);
+			std::cout << usr->GetUserSendBuf() << std::endl;
 			if (sent_byte > 0)	// 전송 성공하면
 				usr->ClearUserSendBuf(sent_byte);
 			else
 				std::cout << "send error on fd [" << usr->GetUserFd() << "]"
-						  << std::endl;
+						<< std::endl;
 		}
 	}
 }

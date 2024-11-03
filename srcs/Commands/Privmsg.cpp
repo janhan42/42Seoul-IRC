@@ -195,9 +195,8 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 				return;
 			}
 			// logic
-			// changeWhoSHot
-			bot->SetWhoShot(true);
-			std::cout << "FirstPlayer Shot After Who Shot : " << bot->GetWhoShot() << std::endl;
+			std::string shotReuslt = bot->GameShot(commandVec[3]);
+			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", shotReuslt);
 		}
 		else if (bot->GetWhoShot() == true) // true 면 두번째 유저 턴
 		{
@@ -208,9 +207,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 				return;
 			}
 			// logic
-
-			// changeWhoShot
-			bot->SetWhoShot(false);
+			bot->GameShot(commandVec[3]);
 			std::cout << "SecondPlayer Shot After Who Shot : " << bot->GetWhoShot() << std::endl;
 		}
 	}
