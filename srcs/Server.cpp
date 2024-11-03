@@ -1,16 +1,16 @@
 #include "./Server.hpp"
-#include "User.hpp"
-#include <iostream>
-#include <cstdlib>
-#include <stdexcept>
+#include <string.h>
 #include <sys/event.h>
 #include <sys/fcntl.h>
 #include <sys/resource.h>
 #include <sys/socket.h>
-#include <string.h>
 #include <sys/syslimits.h>
 #include <unistd.h>
+#include <cstdlib>
+#include <iostream>
+#include <stdexcept>
 #include <utility>
+#include "User.hpp"
 
 Server::Server(const std::string& port, const std::string& password)
 {
@@ -30,7 +30,8 @@ Server::~Server()
 		close(iter->first);
 		delete iter->second;
 	}
-	std::map<std::string, Channel*>::iterator channelIter = mChannelList.begin();
+	std::map<std::string, Channel*>::iterator channelIter =
+		mChannelList.begin();
 	for (; channelIter != mChannelList.end(); channelIter++)
 	{
 		delete channelIter->second;
@@ -74,12 +75,16 @@ void Server::Run()
 			{
 				mStrLen = RecvMessage(mUserEventList[i].ident);
 
-				if (mStrLen <= 0) // from outside signal(ctrl+C, ...)
+				if (mStrLen <= 0)  // from outside signal(ctrl+C, ...)
 					DeleteDisconnectedUser(i);
 				else
-					std::cout << "User Send: " << mMessage[mUserEventList[i].ident] << std::endl;
+					std::cout
+						<< "User Send: " << mMessage[mUserEventList[i].ident]
+						<< std::endl;
 
-				if (CheckMessageEnds(mUserEventList[i].ident)) // 메세지가 잘 들어와서 실행할 수 있으면 실행
+				if (CheckMessageEnds(
+						mUserEventList[i].ident))  // 메세지가 잘 들어와서
+												   // 실행할 수 있으면 실행
 					DoCommand(mUserEventList[i].ident);
 			}
 			// send 하는 부분
@@ -88,36 +93,24 @@ void Server::Run()
 	}
 }
 
-std::map<int, User*>&	Server::GetUserList()
-{
-	return (mUserList);
-}
+std::map<int, User*>& Server::GetUserList() { return (mUserList); }
 
-std::string	Server::GetPassWord()
-{
-	return (mPassword);
-}
+std::string Server::GetPassWord() { return (mPassword); }
 
-std::string	Server::GetMessage(int fd)
-{
-	return (mMessage[fd]);
-}
+std::string Server::GetMessage(int fd) { return (mMessage[fd]); }
 
-std::map<std::string, Channel *>&	Server::GetChannelList()
+std::map<std::string, Channel*>& Server::GetChannelList()
 {
 	return (mChannelList);
 }
 
-int	Server::GetKqFd()
-{
-	return (mKqFd);
-}
+int Server::GetKqFd() { return (mKqFd); }
 
-Channel*	Server::FindChannel(std::string channelName)
+Channel* Server::FindChannel(std::string channelName)
 {
-	std::map<std::string, Channel*>::iterator It = mChannelList.find(channelName);
-	if (It == mChannelList.end())
-		return (NULL);
+	std::map<std::string, Channel*>::iterator It =
+		mChannelList.find(channelName);
+	if (It == mChannelList.end()) return (NULL);
 	return (It->second);
 }
 
@@ -125,14 +118,16 @@ Channel*	Server::FindChannel(std::string channelName)
 bool containsWordWithoutAnsi(const std::string& input, const std::string& word)
 {
 	std::string cleaned;
-	bool in_ansi = false;
+	bool		in_ansi = false;
 
 	for (size_t i = 0; i < input.length(); ++i)
 	{
-		if (input[i] == '\033' && input[i + 1] == '[') {
+		if (input[i] == '\033' && input[i + 1] == '[')
+		{
 			in_ansi = true;
 		}
-		if (!in_ansi) {
+		if (!in_ansi)
+		{
 			cleaned += input[i];
 		}
 		if (in_ansi && input[i] == 'm')
@@ -143,28 +138,28 @@ bool containsWordWithoutAnsi(const std::string& input, const std::string& word)
 	return cleaned.find(word) != std::string::npos;
 }
 
-std::map<int, User*>::iterator	Server::FindUser(std::string userName)
+std::map<int, User*>::iterator Server::FindUser(std::string userName)
 {
 	std::map<int, User*>::iterator it = mUserList.begin();
 	for (; it != mUserList.end(); it++)
 	{
-		if (containsWordWithoutAnsi(it->second->GetNickName(), userName)) // TEST NICKNAME COLOR
+		if (containsWordWithoutAnsi(it->second->GetNickName(),
+									userName))	// TEST NICKNAME COLOR
 			return (it);
 	}
 	return (it);
 }
 
-void	Server::RemoveChannel(std::string channelName)
+void Server::RemoveChannel(std::string channelName)
 {
 	mChannelList.erase(channelName);
 }
 
-void	Server::AppendNewChannel(std::string& channelName, int fd)
+void Server::AppendNewChannel(std::string& channelName, int fd)
 {
-	mChannelList.insert(std::make_pair(channelName, new Channel(channelName, fd)));
+	mChannelList.insert(
+		std::make_pair(channelName, new Channel(channelName, fd)));
 }
-
-
 
 unsigned short int Server::SetPortNum(const std::string& port)
 {
@@ -185,8 +180,7 @@ unsigned short int Server::SetPortNum(const std::string& port)
 std::string Server::SetPassword(const std::string& password)
 {
 	int strIndex = 0;
-	while (password[strIndex])
-		strIndex++;
+	while (password[strIndex]) strIndex++;
 	if (strIndex >= 9)
 		throw std::logic_error("ERROR:: Password is under 9 digit");
 	return (password);
@@ -197,10 +191,10 @@ void Server::SetServerSock()
 	int option = 1;
 
 	mServerSock = socket(PF_INET, SOCK_STREAM, 0);
-	if (mServerSock == -1)
-		throw std::logic_error ("ERROR:: socket() error");
-	if (setsockopt(mServerSock, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option)) != 0)
-		throw std::logic_error ("ERROR:: setsockopt() fail");
+	if (mServerSock == -1) throw std::logic_error("ERROR:: socket() error");
+	if (setsockopt(mServerSock, SOL_SOCKET, SO_REUSEADDR, &option,
+				   sizeof(option)) != 0)
+		throw std::logic_error("ERROR:: setsockopt() fail");
 }
 
 void Server::SetServerAddr()
@@ -213,7 +207,8 @@ void Server::SetServerAddr()
 
 void Server::SetServerBind()
 {
-	if (bind(mServerSock, (struct sockaddr *)&mServerAddr, sizeof(mServerAddr)) == -1)
+	if (bind(mServerSock, (struct sockaddr*)&mServerAddr,
+			 sizeof(mServerAddr)) == -1)
 		throw std::logic_error("ERROR:: bind() error");
 }
 
@@ -229,8 +224,7 @@ void Server::SetServerListen()
 void Server::SetServerKqueue()
 {
 	mKqFd = kqueue();
-	if (mKqFd < 0)
-		throw std::logic_error("ERROR:: kqueue() error");
+	if (mKqFd < 0) throw std::logic_error("ERROR:: kqueue() error");
 	EV_SET(&mServerEvent, mServerSock, EVFILT_READ, EV_ADD, 0, 0, NULL);
 	kevent(mKqFd, &mServerEvent, 1, NULL, 0, NULL);
 }
@@ -244,52 +238,52 @@ void Server::SetBot()
 
 int Server::RecvMessage(int fd)
 {
-	char buf[2];
+	char	buf[2];
 	ssize_t read_len;
-	int ret = 0;
+	int		ret = 0;
 	while ((read_len = recv(fd, buf, 1, 0)) == 1)
 	{
 		ret++;
 		mMessage[fd] += buf[0];
-		if (buf[0] == '\n')
-			break;
+		if (buf[0] == '\n') break;
 	}
 	return (ret);
 }
 
-void	Server::AddUser(int fd, User* newUser)
+void Server::AddUser(int fd, User* newUser)
 {
 	mUserList.insert(std::make_pair(fd, newUser));
 }
 
 void Server::AcceptUser()
 {
-	mUserSock = accept(mServerSock, (struct sockaddr *)&mUserAddr, &mUserAddrLen);
-	if (mUserSock < 0)
-		std::logic_error("ERROR:: AcceptUser accept() failed");
+	mUserSock =
+		accept(mServerSock, (struct sockaddr*)&mUserAddr, &mUserAddrLen);
+	if (mUserSock < 0) std::logic_error("ERROR:: AcceptUser accept() failed");
 	fcntl(mUserSock, F_SETFL, O_NONBLOCK);
 	std::cout << "New User Conneted fd [" << mUserSock << "]" << std::endl;
 
-	User* newUser = new User(mUserSock);
+	User*		  newUser = new User(mUserSock);
 	struct kevent evSet;
-	EV_SET(&evSet, mUserSock, EVFILT_READ | EVFILT_WRITE, EV_ADD, 0, 0, newUser);
+	EV_SET(&evSet, mUserSock, EVFILT_READ | EVFILT_WRITE, EV_ADD, 0, 0,
+		   newUser);
 	kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
 	AddUser(mUserSock, newUser);
 }
 
-bool	Server::CheckMessageEnds(int fd)
+bool Server::CheckMessageEnds(int fd)
 {
 	if (mMessage[fd].length() == 1 && mMessage[fd][0] == '\n')
 		mMessage[fd] = "";
-	if (mMessage[fd][mMessage[fd].length() - 1] == '\n'
-	&& mMessage[fd][mMessage[fd].length() -2] == '\r')
+	if (mMessage[fd][mMessage[fd].length() - 1] == '\n' &&
+		mMessage[fd][mMessage[fd].length() - 2] == '\r')
 		return (true);
 	return (false);
 }
 
 void Server::DoCommand(int fd)
 {
-	std::cout << "Docommand  FD : "<< fd << std::endl;
+	std::cout << "Docommand  FD : " << fd << std::endl;
 	std::cout << "fd [" << fd << "] command exec:" << mMessage[fd] << std::endl;
 	mCommand->Run(fd);
 	mMessage[fd] = "";
@@ -298,21 +292,21 @@ void Server::DoCommand(int fd)
 void Server::DeleteDisconnectedUser(int& i)
 {
 	std::cout << "fd [" << mUserEventList[i].ident << "]is quit connet"
-				<< std::endl;
+			  << std::endl;
 	std::map<int, User*>::iterator userIt =
 		mUserList.find(mUserEventList[i].ident);  // find 안해도될듯
-	if (userIt != mUserList.end())	// 접속 해제 유저 처리
+	if (userIt != mUserList.end())				  // 접속 해제 유저 처리
 	{
 		struct kevent evSet;
-		EV_SET(&evSet, userIt->second->GetUserFd(),
-				EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+		EV_SET(&evSet, userIt->second->GetUserFd(), EVFILT_READ | EVFILT_WRITE,
+			   EV_DELETE, 0, 0, NULL);
 		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
 		mMessage[userIt->first].clear();
 		delete userIt->second;
 		mUserList.erase(mUserEventList[i].ident);
 		close(mUserEventList[i].ident);
 		std::cout << "User Deleted [" << mUserEventList[i].ident << "]"
-					<< std::endl;
+				  << std::endl;
 	}
 }
 void Server::SendBufferToUser()
@@ -325,14 +319,13 @@ void Server::SendBufferToUser()
 		{
 			int sent_byte =
 				send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(),
-					usr->GetUserSendBuf().length(), 0);
+					 usr->GetUserSendBuf().length(), 0);
 			std::cout << usr->GetUserSendBuf() << std::endl;
 			if (sent_byte > 0)	// 전송 성공하면
 				usr->ClearUserSendBuf(sent_byte);
 			else
 				std::cout << "send error on fd [" << usr->GetUserFd() << "]"
-						<< std::endl;
+						  << std::endl;
 		}
 	}
 }
-
