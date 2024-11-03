@@ -1,10 +1,10 @@
+
 #include "./Server.hpp"
 #include <string.h>
-#include <sys/event.h>
+#include <sys/epoll.h>
 #include <sys/fcntl.h>
 #include <sys/resource.h>
 #include <sys/socket.h>
-#include <sys/syslimits.h>
 #include <unistd.h>
 #include <cstdlib>
 #include <iostream>
@@ -48,7 +48,7 @@ void Server::Init()
 	SetServerAddr();
 	SetServerBind();
 	SetServerListen();
-	SetServerKqueue();
+	SetServerEpoll();
 	SetBot();
 	mbRunning = true;
 }
@@ -57,37 +57,29 @@ void Server::Run()
 {
 	while (mbRunning)
 	{
-		// 루프당 mEventList 초기화
-		memset(mUserEventList, 0, sizeof(mUserEventList));
-		mEventCount = kevent(mKqFd, NULL, 0, mUserEventList, MAX_EVENT, NULL);
+		memset(mEvents, 0, sizeof(mEvents));
+		mEventCount = epoll_wait(mEpollFd, mEvents, MAX_EVENT, -1);
 		if (mEventCount < 0)
-			throw std::logic_error("ERROR:: Run():kevent() error");
+			throw std::logic_error("ERROR:: Run():epoll_wait() error");
 		for (int i = 0; i < mEventCount; i++)
 		{
-			// New User Connection
-			if (static_cast<int>(mUserEventList[i].ident) == mServerSock)
+			if (mEvents[i].data.fd == mServerSock)
 			{
 				AcceptUser();
 				continue;
 			}
-
-			else if (mUserEventList[i].filter & EVFILT_READ)
+			else if (mEvents[i].events & EPOLLIN)
 			{
-				mStrLen = RecvMessage(mUserEventList[i].ident);
+				mStrLen = RecvMessage(mEvents[i].data.fd);
 
-				if (mStrLen <= 0)  // from outside signal(ctrl+C, ...)
+				if (mStrLen <= 0)
 					DeleteDisconnectedUser(i);
 				else
-					std::cout
-						<< "User Send: " << mMessage[mUserEventList[i].ident]
-						<< std::endl;
+					std::cout << "User Send: " << mMessage[mEvents[i].data.fd] << std::endl;
 
-				if (CheckMessageEnds(
-						mUserEventList[i].ident))  // 메세지가 잘 들어와서
-												   // 실행할 수 있으면 실행
-					DoCommand(mUserEventList[i].ident);
+				if (CheckMessageEnds(mEvents[i].data.fd))
+					DoCommand(mEvents[i].data.fd);
 			}
-			// send 하는 부분
 			SendBufferToUser();
 		}
 	}
@@ -104,7 +96,7 @@ std::map<std::string, Channel*>& Server::GetChannelList()
 	return (mChannelList);
 }
 
-int Server::GetKqFd() { return (mKqFd); }
+int Server::GetEpollFd() { return (mEpollFd); }
 
 Channel* Server::FindChannel(std::string channelName)
 {
@@ -114,7 +106,6 @@ Channel* Server::FindChannel(std::string channelName)
 	return (It->second);
 }
 
-// TEST NICKNAME COLOR
 bool containsWordWithoutAnsi(const std::string& input, const std::string& word)
 {
 	std::string cleaned;
@@ -144,7 +135,7 @@ std::map<int, User*>::iterator Server::FindUser(std::string userName)
 	for (; it != mUserList.end(); it++)
 	{
 		if (containsWordWithoutAnsi(it->second->GetNickName(),
-									userName))	// TEST NICKNAME COLOR
+									userName))
 			return (it);
 	}
 	return (it);
@@ -217,16 +208,17 @@ void Server::SetServerListen()
 	if (listen(mServerSock, 15) == -1)
 		throw std::logic_error("ERROR:: listen() error");
 	fcntl(mServerSock, F_SETFL, O_NONBLOCK);
-	// F_SETFL:		re-set file fd flag with arg
-	// O_NONBLOCK:	set fd NONBLOCK
 }
 
-void Server::SetServerKqueue()
+void Server::SetServerEpoll()
 {
-	mKqFd = kqueue();
-	if (mKqFd < 0) throw std::logic_error("ERROR:: kqueue() error");
-	EV_SET(&mServerEvent, mServerSock, EVFILT_READ, EV_ADD, 0, 0, NULL);
-	kevent(mKqFd, &mServerEvent, 1, NULL, 0, NULL);
+	mEpollFd = epoll_create1(0);
+	if (mEpollFd < 0) throw std::logic_error("ERROR:: epoll_create1() error");
+	struct epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = mServerSock;
+	if (epoll_ctl(mEpollFd, EPOLL_CTL_ADD, mServerSock, &ev) < 0)
+		throw std::logic_error("ERROR:: epoll_ctl() error");
 }
 
 void Server::SetBot()
@@ -264,10 +256,11 @@ void Server::AcceptUser()
 	std::cout << "New User Conneted fd [" << mUserSock << "]" << std::endl;
 
 	User*		  newUser = new User(mUserSock);
-	struct kevent evSet;
-	EV_SET(&evSet, mUserSock, EVFILT_READ | EVFILT_WRITE, EV_ADD, 0, 0,
-		   newUser);
-	kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
+	struct epoll_event ev;
+	ev.events = EPOLLIN | EPOLLOUT;
+	ev.data.fd = mUserSock;
+	if (epoll_ctl(mEpollFd, EPOLL_CTL_ADD, mUserSock, &ev) < 0)
+		throw std::logic_error("ERROR:: epoll_ctl() error");
 	AddUser(mUserSock, newUser);
 }
 
@@ -291,24 +284,23 @@ void Server::DoCommand(int fd)
 
 void Server::DeleteDisconnectedUser(int& i)
 {
-	std::cout << "fd [" << mUserEventList[i].ident << "]is quit connet"
+	std::cout << "fd [" << mEvents[i].data.fd << "]is quit connet"
 			  << std::endl;
 	std::map<int, User*>::iterator userIt =
-		mUserList.find(mUserEventList[i].ident);  // find 안해도될듯
-	if (userIt != mUserList.end())				  // 접속 해제 유저 처리
+		mUserList.find(mEvents[i].data.fd);
+	if (userIt != mUserList.end())
 	{
-		struct kevent evSet;
-		EV_SET(&evSet, userIt->second->GetUserFd(), EVFILT_READ | EVFILT_WRITE,
-			   EV_DELETE, 0, 0, NULL);
-		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
+		if (epoll_ctl(mEpollFd, EPOLL_CTL_DEL, userIt->second->GetUserFd(), NULL) < 0)
+			throw std::logic_error("ERROR:: epoll_ctl() error");
 		mMessage[userIt->first].clear();
 		delete userIt->second;
-		mUserList.erase(mUserEventList[i].ident);
-		close(mUserEventList[i].ident);
-		std::cout << "User Deleted [" << mUserEventList[i].ident << "]"
+		mUserList.erase(mEvents[i].data.fd);
+		close(mEvents[i].data.fd);
+		std::cout << "User Deleted [" << mEvents[i].data.fd << "]"
 				  << std::endl;
 	}
 }
+
 void Server::SendBufferToUser()
 {
 	std::map<int, User*>::iterator It = mUserList.begin();
@@ -321,7 +313,7 @@ void Server::SendBufferToUser()
 				send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(),
 					 usr->GetUserSendBuf().length(), 0);
 			std::cout << usr->GetUserSendBuf() << std::endl;
-			if (sent_byte > 0)	// 전송 성공하면
+			if (sent_byte > 0)
 				usr->ClearUserSendBuf(sent_byte);
 			else
 				std::cout << "send error on fd [" << usr->GetUserFd() << "]"

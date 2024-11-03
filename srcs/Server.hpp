@@ -71,6 +71,8 @@ class Server
 	unsigned short int mPort;
 	int				   mServerSock;
 	struct sockaddr_in mServerAddr;
+	struct sockaddr_in mUserAddr;
+	int				mUserAddrLen;
 	bool			   mbRunning;
 
 #ifdef __linux__
