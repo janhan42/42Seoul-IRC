@@ -30,7 +30,7 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 			channel->RemoveUserFdList(fd);
 			channel->RemoveOperatorFd(fd);
 			userIt->second->RemoveChannel(*channelIt);
-			if (channel->GetUserFdList().size() < 1) // if last-user in channel: remove channel
+			if (channel->GetUserFdList().size() <= 1) // if last-user in channel: remove channel
 			{
 				std::cout << "채널에 fd 갯수 : " << channel->GetUserFdList().size() << std::endl;
 				mServer.RemoveChannel(channel->GetChannelName());
