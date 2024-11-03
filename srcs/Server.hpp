@@ -27,7 +27,9 @@ class Server
 
 		User										*mBot;
 		void										Init(void);
-		void										Run(void);
+		void										 DeleteDisconnectedUser(int& i);
+		void SendBufferToUser();
+		void Run(void);
 
 		//Getter
 		std::map<int, User*>&						GetUserList(void);
