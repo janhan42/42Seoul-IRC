@@ -6,14 +6,14 @@
 #    By: janhan <janhan@student.42seoul.kr>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/24 15:49:02 by janhan            #+#    #+#              #
-#    Updated: 2024/10/26 12:53:59 by janhan           ###   ########.fr        #
+#    Updated: 2024/11/03 21:44:40 by janhan           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			=		ircserv
 
 CXX				=		c++
-CXXFLAGS		=		-Wall -Wextra -Werror -std=c++98
+CXXFLAGS		=		-g -Wall -Wextra -Werror -std=c++98
 
 SRCS_DIR	= ./srcs/
 SRCS		=	User.cpp					\

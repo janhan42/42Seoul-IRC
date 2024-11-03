@@ -63,7 +63,7 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 
 bool Command::CheckBotCommand(std::string comamnd)
 {
-	if (!strcmp(comamnd.c_str(), ":@BOT"))
+	if (!strcmp(comamnd.c_str(), ":@bot"))
 		return (true);
 	return (false);
 }
@@ -99,7 +99,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		response = bot->GetHelpBuy();
 		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
 	}
-	else if (strcmp(command.c_str(), "BuckShot") == 0)
+	else if (strcmp(command.c_str(), "buckshot") == 0)
 	{
 		if (bot->GameOn() == true)
 		{
@@ -107,13 +107,16 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 			MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
 			return;
 		}
+		// TEST OUTPUT
 		std::cout << commandVec.size() << std::endl;
+
 		if (commandVec.size() < 5) // arg error
 		{
 			mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second);
 			return;
 		}
 		std::map<int, class User*>::iterator targetUser = mServer.FindUser(commandVec[4]);
+
 		/* TESTOUTPUT */
 		std::cout << "commandVec[4] : " << commandVec[4] << std::endl;
 		std::cout << "서버 유저 리스트" << std::endl;
@@ -124,9 +127,13 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		if (targetUser != mServer.GetUserList().end())
 			std::cout << "targetUser Nick :" << targetUser->second->GetNickName() << std::endl;
 		/* END */
+
 		Channel* channel = mServer.FindChannel(commandVec[1]);
+
+		// TEST OUTPUT
 		std::cout << "FindChannel CommandVec[2] : " << commandVec[1] << std::endl;
 		std::vector<int>::iterator channelInUser;
+
 		/* TESTOUTPUT */
 		std::cout << "채널 User FD 리스트" << std::endl;
 		std::vector<int> channelUserList = channel->GetUserFdList();
@@ -136,6 +143,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		}
 		std::cout << "채널 User FD 리스트 끝 " << std::endl << std::endl;
 		/* END */
+
 		if (targetUser != mServer.GetUserList().end())
 			channelInUser = channel->FindMyUserIt(targetUser->second->GetUserFd());
 		else
@@ -149,13 +157,19 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		bot->SetFirstUser(mServer.GetUserList().find(fd)->second);
 		bot->SetSecondUser(targetUser->second);
 		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", std::string("유저 [" + bot->GetFirstUser()->GetNickName() + "]가 유저[" + bot->GetSecondUser()->GetNickName() + "] 에게 게임을 신청했습니다."));
+
+		/* TESTOUTPUT */
 		std::cout << "FirstUser Name: " << bot->GetFirstUser()->GetNickName() << std::endl;
 		std::cout << "SecondUser Name: " << bot->GetSecondUser()->GetNickName() << std::endl;
+		/* END */
 	}
 	else if (*channel->FindMyUserIt(fd) == bot->GetSecondUser()->GetUserFd() && bot->GameOn() == false) // 도전을 받은 유저이고 게임 시작 전이면
 	{
+		/* TESTOUTPUT */
 		std::cout << "Accept : 들어오긴하나" << std::endl;
 		std::cout << "commandVec[3]: " << commandVec[3] << std::endl;
+		/* END */
+
 		if (commandVec[3] == "accept") // 신청을 받았으면.
 		{
 			bot->SettingGame();
@@ -181,12 +195,10 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 				return;
 			}
 			// logic
-
 			// changeWhoSHot
 			bot->SetWhoShot(true);
 			std::cout << "FirstPlayer Shot After Who Shot : " << bot->GetWhoShot() << std::endl;
 		}
-
 		else if (bot->GetWhoShot() == true) // true 면 두번째 유저 턴
 		{
 			if (fd == bot->GetFirstUser()->GetUserFd())

@@ -100,10 +100,46 @@ void Bot::SetWhoShot(bool state)
 	mbWhoShot = state;
 }
 
-// void Bot::GameShot(class User* target)
-// {
+void Bot::GameShot(const std::string& state)
+{
+	if (state == "me") // 자기 자신 쏘기
+	{
+		if (mbAmmoChamber.top() == true) // 실탄
+		{
+			if (mbWhoShot == false) // 현재 턴이 첫번째 플레이어면
+			{
+				mFirstUserHp--; // 첫번째 유저의 hp를 1 감소
+				// 메세지 센드해야할거 같은데 채팅방에
+				mbAmmoChamber.pop(); // 총알 빼기
 
-// }
+				mbWhoShot = !mbWhoShot; // 턴 변경
+			}
+			else if (mbWhoShot == true) // 현재 턴이 두번째 플레이어면
+			{
+				mSecondUserHp--; // 두번쨰 유저의 Hp를 1 감소
+				mbAmmoChamber.pop(); // 총알 뺴기
+
+				mbWhoShot = !mbWhoShot; // 턴 변경
+			}
+		}
+		else if (mbAmmoChamber.top() == false) // 공포탄
+		{
+			if (mbWhoShot == false) // 현재 턴이 첫번쨰 플레이어면
+			{
+				mbAmmoChamber.pop();
+				// 메세지 출력
+			}
+			else if (mbWhoShot == true)
+			{
+				mbAmmoChamber.pop();
+				mbWhoShot = !mbWhoShot;
+			}
+		}
+	}
+	else if (state == "other") // 다른사람 쏘기
+	{
+	}
+}
 // 도박봇을 만들꺼임
 // @BOT <game> <targetUser> // 상대 유저에게 게임 신청
 // @BOT <accept> // 신청 수락
