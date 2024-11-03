@@ -31,7 +31,7 @@ void Command::Nick(int fd, std::vector<std::string> commadVec)
 	if (!it->second->GetPassRegist()) // pass-authentication == false
 	{ ErrorNotRegistered451(*it->second);
 		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
-		it->second->ClearUser();
+		delete it->second;
 		userList.erase(fd);
 		close(fd);
 		return ;

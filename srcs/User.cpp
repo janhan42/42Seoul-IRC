@@ -12,6 +12,16 @@ User::User(int fd)
 
 User::~User()
 {
+	mNickName = "";
+	mUserName = "";
+	mHostName = "";
+	mServerName = "";
+	mRealName = "";
+	mUserFd = -2;
+	ClearChannelList();
+	ClearUserSendBuf();
+	SetRegist(false);
+	mbIsCapEnd = false;
 }
 
 /* Getter */
@@ -150,20 +160,6 @@ void User::ClearUserSendBuf(int len)
 void	User::ClearChannelList()
 {
 	mChannelList.clear();
-}
-
-void	User::ClearUser()
-{
-	mNickName = "";
-	mUserName = "";
-	mHostName = "";
-	mServerName = "";
-	mRealName = "";
-	mUserFd = -2;
-	ClearChannelList();
-	ClearUserSendBuf();
-	SetRegist(false);
-	mbIsCapEnd = false;
 }
 
 void	User::MakeUserToBot()

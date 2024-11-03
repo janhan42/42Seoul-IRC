@@ -42,7 +42,6 @@ class User
 		void								ClearUserSendBuf(void);
 		void								ClearUserSendBuf(int len);
 		void								ClearChannelList(void);
-		void								ClearUser(void);
 
 		// others
 		void								MakeUserToBot(void);

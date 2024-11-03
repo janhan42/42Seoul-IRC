@@ -79,16 +79,9 @@ void Server::Run()
 				else
 					std::cout << "User Send: " << mMessage[mUserEventList[i].ident] << std::endl;
 
-				if (CheckMessageEnds(mUserEventList[i].ident)) // if messages end with "\r\n"
-				{
-					std::cout << "fd [" << mUserEventList[i].ident << "] command exec:" << mMessage[mUserEventList[i].ident] << std::endl;
-					// 명령어 실행 분기
+				if (CheckMessageEnds(mUserEventList[i].ident)) // 메세지가 잘 들어와서 실행할 수 있으면 실행
 					DoCommand(mUserEventList[i].ident);
-					// User Fd 메시지 버퍼 초기화
-					mMessage[mUserEventList[i].ident] = "";
-				}
 			}
-
 			// send 하는 부분
 			SendBufferToUser();
 		}
@@ -297,7 +290,9 @@ bool	Server::CheckMessageEnds(int fd)
 void Server::DoCommand(int fd)
 {
 	std::cout << "Docommand  FD : "<< fd << std::endl;
+	std::cout << "fd [" << fd << "] command exec:" << mMessage[fd] << std::endl;
 	mCommand->Run(fd);
+	mMessage[fd] = "";
 }
 
 void Server::DeleteDisconnectedUser(int& i)
@@ -313,7 +308,6 @@ void Server::DeleteDisconnectedUser(int& i)
 				EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
 		mMessage[userIt->first].clear();
-		userIt->second->ClearUser();
 		delete userIt->second;
 		mUserList.erase(mUserEventList[i].ident);
 		close(mUserEventList[i].ident);
