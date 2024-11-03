@@ -29,6 +29,8 @@ class Bot
 		void									SetSecondUser(class User* secondUser);
 		void									SettingGame(void);
 		const std::string						SettingChamber(void);
+		void									SetReady(bool state);
+		bool									GetReady(void);
 		void									ClearGame(void);
 		bool									GameOn(void);
 		bool									GetWhoShot(void);
@@ -44,6 +46,7 @@ class Bot
 		class User*								mSecondUser;
 		int										mSecondUserHp;
 		bool									mbGameOn;
+		bool									mbGameReady;
 		bool									mbWhoShot;
 		std::stack<bool>						mbAmmoChamber;
 
