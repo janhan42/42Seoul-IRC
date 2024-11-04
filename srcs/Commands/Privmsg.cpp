@@ -276,6 +276,8 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		}
 		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", bot->GetFirstHpInfo());
 		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", bot->GetSecondHpInfo());
+		MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", "---------------------------------------------\033[0m");
+
 		if (bot->GetFirstHp() == 0 || bot->GetSecondHp() == 0)
 		{
 			std::string response;
@@ -283,14 +285,14 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 			{
 				response = "[" + bot->GetSecondUser()->GetNickName() + "]님이 [" + bot->GetFirstUser()->GetNickName() + "]을 죽였습니다.";
 				MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
-				response = "승자는!!!!!!!!!!!" + bot->GetSecondUser()->GetNickName() + "님 입니다!!!";
+				response = "승자는 [" + bot->GetSecondUser()->GetNickName() + "]님 입니다.";
 				MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
 			}
 			else if (bot->GetSecondHp() == 0)
 			{
 				response = "[" + bot->GetFirstUser()->GetNickName() + "]님이 [" + bot->GetSecondUser()->GetNickName() + "]을 죽였습니다.";
 				MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
-				response = "승자는!!!!!!!!!!!" + bot->GetFirstUser()->GetNickName() + "님 입니다!!!";
+				response = "승자는 [" + bot->GetFirstUser()->GetNickName() + "]님 입니다.";
 				MsgToAllChannel(-1, channel->GetChannelName(), "PRIVMSG", response);
 			}
 			bot->ClearGame();

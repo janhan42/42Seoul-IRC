@@ -6,6 +6,7 @@
 - [ ] channel에 있다보면 mode b라는 명령어를 오퍼레이터가 아닌 유저가 쏘는데 이유가 뭔지 모르겠음
 - [ ] @BOT BuckShot z 를 했을때 zinox가 찾아짐 풀 네임이 아닌데도 찾아짐 - logic 문제가 있음
 - [ ] /mode +i 하고 나가면 방이 안없어짐
+- [ ] Privmsg Bot부분 리펙토링 예정....
 ## Command
 - [ ] Invite
 	- [ ]

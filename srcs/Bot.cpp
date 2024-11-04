@@ -147,7 +147,7 @@ const std::string Bot::SettingChamber()
 			valid = true; // 조건이 만족되면 valid를 true로 설정
 		}
 	}
-	ss << "공포탄은 " << fakeround << " 발" << " 실탄은 " << realround << " 발" << "입니다.";
+	ss << "\033[3m\033[32m공포탄\033[0m은 " << fakeround << " 발" << " \033[3m\033[31m실탄\033[0m은 " << realround << " 발" << "입니다.";
 	result = ss.str();
 	return result;
 }
@@ -197,11 +197,11 @@ const std::string Bot::GameShot(const std::string& state)
 			response = "[" + mFirstUser->GetNickName() + "]님이 자기 자신을 쐈습니다.";
 			if (mbAmmoChamber.top() == false)
 			{
-				response = response + " 공포탄이였습니다 한번 더 턴을 가져갑니다.";
+				response = response + " \033[3m\033[32m공포탄이였습니다\033[0m 한번 더 턴을 가져갑니다.";
 			}
 			else if (mbAmmoChamber.top() == true)
 			{
-				response = response + " 실탄이였습니다 HP가 1감소하고 턴이 넘어갑니다.";
+				response = response + " \033[3m\033[31m실탄이였습니다\033[0m HP가 1감소하고 턴이 넘어갑니다.";
 				mFirstUserHp--;
 				mbWhoShot = !mbWhoShot;
 			}
@@ -211,12 +211,12 @@ const std::string Bot::GameShot(const std::string& state)
 			response = "[" + mFirstUser->GetNickName() + "]님이 [" + mSecondUser->GetNickName() + "]님을 쐈습니다.";
 			if (mbAmmoChamber.top() == false)
 			{
-				response = response + " 공포탄이였습니다 아무런 이득없이 턴이 넘어갑니다.";
+				response = response + " \033[3m\033[32m공포탄이였습니다\033[0m 아무런 이득없이 턴이 넘어갑니다.";
 				mbWhoShot = !mbWhoShot;
 			}
 			else if (mbAmmoChamber.top() == true)
 			{
-				response = response + " 실탄이였습니다 [" + mSecondUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
+				response = response + " \033[3m\033[31m실탄이였습니다\033[0m [" + mSecondUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
 				mSecondUserHp--;
 				mbWhoShot = !mbWhoShot;
 			}
@@ -224,18 +224,17 @@ const std::string Bot::GameShot(const std::string& state)
 	}
 	else if (mbWhoShot == true) // 두번째 플레이어
 	{
-		std::cout << "어드민 유저 테스트" << std::endl;
 		if (state == "me")
 		{
 			response = "[" + mSecondUser->GetNickName() + "]님이 자기 자신을 쐈습니다.";
 			std::cout << response << std::endl;
 			if (mbAmmoChamber.top() == false)
 			{
-				response = response + " 공포탄이였습니다 한번 더 턴을 가져갑니다.";
+				response = response + " \033[3m\033[32m공포탄이였습니다\033[0m 한번 더 턴을 가져갑니다.";
 			}
 			else if (mbAmmoChamber.top() == true)
 			{
-				response = response + " 실탄이였습니다 HP가 1감소하고 턴이 넘어갑니다.";
+				response = response + " \033[3m\033[31m실탄이였습니다\033[0m HP가 1감소하고 턴이 넘어갑니다.";
 				mSecondUserHp--;
 				mbWhoShot = !mbWhoShot;
 			}
@@ -245,12 +244,12 @@ const std::string Bot::GameShot(const std::string& state)
 			response = "[" + mSecondUser->GetNickName() + "]님이 [" + mFirstUser->GetNickName() + "]님을 쐈습니다.";
 			if (mbAmmoChamber.top() == false)
 			{
-				response = response + " 공포탄이였습니다 아무런 이득없이 턴이 넘어갑니다.";
+				response = response + " \033[3m\033[32m공포탄이였습니다\033[0m 아무런 이득없이 턴이 넘어갑니다.";
 				mbWhoShot = !mbWhoShot;
 			}
 			else if (mbAmmoChamber.top() == true)
 			{
-				response = response + " 실탄이였습니다 [" + mFirstUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
+				response = response + " \033[3m\033[31m실탄이였습니다\033[0m [" + mFirstUser->GetNickName() + "]님의 HP가 1감소하며, 턴이 넘어갑니다.";
 				mFirstUserHp--;
 				mbWhoShot = !mbWhoShot;
 			}
