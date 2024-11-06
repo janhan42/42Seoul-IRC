@@ -295,6 +295,7 @@ void Server::DoCommand(int fd)
 	mMessage[fd] = "";
 }
 
+// TODO: 다른 부분에서도 동일하게 사용가능 하도록 함수화 예정
 void Server::DeleteDisconnectedUser(int& i)
 {
 	std::cout << "fd [" << mUserEventList[i].ident << "]is quit connet"

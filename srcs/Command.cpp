@@ -71,11 +71,13 @@ void Command::RegistNewUser(int &fd, std::map<int, class User *> &userList, std:
 		User(fd, commandVec);
 		if (!iter->second->GetIsRegist())
 		{
+			int kqFd = mServer.GetKqFd();
 			iter->second->AppendUserSendBuf(commandVec[1] + ": ");
 			iter->second->AppendUserSendBuf(ERR_NOTREGISTERED);
 			send(fd, iter->second->GetUserSendBuf().c_str(), iter->second->GetUserSendBuf().length(), 0);
 			delete iter->second;
 			userList.erase(fd);
+
 			close(fd);
 		}
 	}

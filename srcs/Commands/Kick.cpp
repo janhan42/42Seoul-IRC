@@ -29,12 +29,15 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 	std::map<int, class User*>& userList = mServer.GetUserList();
 	std::map<int, class User*>::iterator userIt = userList.find(fd);
 
+	/* TEST OUTPUT */
 	int i = 0;
 	for (std::vector<std::string>::iterator it = commandVec.begin(); it != commandVec.end(); it++)
 	{
 		std::cout << "commandVec[" + std::to_string(i) + "] : " << commandVec[i] << std::endl;
 		i++;
 	}
+	/* END */
+
 	if (commandVec.size() < 3)
 	{
 		mErrManager.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
@@ -51,12 +54,16 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 	while(getline(iss, buffer, ',')) // TargetUser
 		vec.push_back(buffer);
 	std::vector<std::string>::iterator vecIt = vec.begin();
+
+	/* TEST OUTPUT */
 	i = 0;
 	for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++)
 	{
 		std::cout <<  "VecIt[" << std::to_string(i) << "] : " << *it << std::endl;
 		i++;
 	}
+	/* END */
+
 	Channel* channel = mServer.FindChannel(*vecIt);
 	if (channel && channel->CheckOperator(fd) == false)
 	{
@@ -66,7 +73,7 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 	for (; vecIt != vec.end(); vecIt++)
 	{
 		Channel* channel = mServer.FindChannel(*vecIt);
-		std::cout << "Find Channel : " << *vecIt << std::endl;
+		std::cout << "Find Channel : " << *vecIt << std::endl; // TEST OUTPUT
 		if (channel == NULL) // channel not exists
 		{
 			mErrManager.ErrorNosuchChannel403(*userIt->second, *vecIt);

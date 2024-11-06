@@ -8,6 +8,7 @@ u# IRC Check List
 - [x] /mode +i 하고 나가면 방이 안없어짐
 - [ ] Privmsg Bot부분 리펙토링 예정....
 - [ ] Error 프로토콜 대부분이 맞지 않음.... 다시 고치는중
+- [ ] Regist 중에 실패했을때 Evlist에서 삭제 및 Regist Fail 로직 변경 예정
 ## Command
 - [ ] Invite
 	- [x] 서버에 없는 사람을 초대한 경우 -> NoSuchNick
@@ -16,7 +17,7 @@ u# IRC Check List
 - [ ] Join
 	- [x] 답변 체크
 - [ ] Kick
-	- [ ] 자기 자신 킥 했을때 채팅방이 남아 있는 현상 있음 -> TEST /mode +i 한뒤 자기 자신 Kick
+	- [x] 자기 자신 킥 했을때 채팅방이 남아 있는 현상 있음 -> TEST /mode +i 한뒤 자기 자신 Kick
 		<br>-> 해결 방안1 : ChannelManager 를 만들어서 루프당 인원 체크뒤 close
 		<br>-> 해결 방안2 : Kick 부분에서 체크후 Close 처리
 	- [x] 채널에 없는 유저 킥 했을때 NoSuchNick 프로토콜 발생 -> 처리함
