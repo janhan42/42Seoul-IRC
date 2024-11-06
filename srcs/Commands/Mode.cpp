@@ -1,5 +1,6 @@
 #include "../Command.hpp"
 #include "../User.hpp"
+#include <iostream>
 
 void Command::Mode(int fd, std::vector<std::string> commandVec)
 {
@@ -7,7 +8,7 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 	class User*& user = mServer.GetUserList().find(fd)->second;
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*user);
+		mErrManager.ErrorNeedMoreParams461(*user, commandVec[1]);
 		return;
 	}
 	Channel* channel = mServer.FindChannel(commandVec[1]);
@@ -26,6 +27,10 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 		user->AppendUserSendBuf("324 " + user->GetNickName() +  " " + commandVec[1] + " +i" + "\r\n");
 		return;
 	}
+	if (commandVec[2] == "b")
+	{
+		return;
+	}
 	if (channel != NULL && !channel->CheckOperator(fd)) // if not channel-operator
 	{
 		mErrManager.ErrorChanOprivsNeeded482(*user, commandVec[1]);
@@ -40,9 +45,7 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 		index++;
 	}
 	if (mode.length() == 1)
-	{
 		return;
-	}
 	std::string msg = "";
 	std::vector<std::string> modeArgList;
 	unsigned int modeArgIndex = 3;
@@ -98,6 +101,11 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 		{
 			if (sign == '-' && !channel->CheckMode(LIMIT))
 				continue;
+			else if (sign == '-' && channel->CheckMode(LIMIT))
+			{
+				channel->SetMode(LIMIT, sign);
+				isSetMode = true;
+			}
 			if (commandVec.size() > modeArgIndex)
 			{
 				std::string limit_s = commandVec[modeArgIndex].c_str();
@@ -170,7 +178,7 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 				}
 			}
 		}
-		else	// unknown mode: error
+		else if (mode[i] != 'b')	// unknown mode: error
 		{
 			mErrManager.ErrorUnknownMode472(*user, mode[i]);
 			continue;

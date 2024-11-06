@@ -17,7 +17,7 @@ void Command::Pass(int fd, std::vector<std::string> commandVec)
 	}
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*it->second);
+		mErrManager.ErrorNeedMoreParams461(*it->second, commandVec[1]);
 		return ;
 	}
 	if (strcmp(commandVec[1].c_str(), password.c_str()) != 0)

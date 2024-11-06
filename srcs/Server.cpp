@@ -148,7 +148,7 @@ std::map<int, User*>::iterator	Server::FindUser(std::string userName)
 	std::map<int, User*>::iterator it = mUserList.begin();
 	for (; it != mUserList.end(); it++)
 	{
-		if (containsWordWithoutAnsi(it->second->GetNickName(), userName)) // TEST NICKNAME COLOR
+		if (it->second->GetNickName() == userName)
 			return (it);
 	}
 	return (it);

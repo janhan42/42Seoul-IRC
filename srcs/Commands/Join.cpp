@@ -4,12 +4,32 @@
 #include "../User.hpp"
 #include "../Bot.hpp"
 
+/*
+	- RESPONSE LIST-
+	ERR_NEEDMOREPARAMS (461)
+	ERR_NOSUCHCHANNEL (403)
+	ERR_TOOMANYCHANNELS (405) -> 서버에서 최대 채널 수 제한을 안해뒀기 때문에 비사용
+	ERR_BADCHANNELKEY (475)
+	ERR_BANNEDFROMCHAN (474) -> b 모드 지원안하기 때문에 비사용
+	ERR_CHANNELISFULL (471)
+	ERR_INVITEONLYCHAN (473)
+	ERR_BADCHANMASK (476) -> ERR_NOSUCHCHANNEL로 대체
+	RPL_TOPIC (332)
+	RPL_TOPICWHOTIME (333)
+	RPL_NAMREPLY (353)
+	RPL_ENDOF (366)
+ */
 void Command::Join(int fd, std::vector<std::string> commandVec)
 {
-	/* JOIN <channel> (<options>) */
+	/* JOIN <channel>{,<channel>} [<key>{,<key>}] */
+	/*
+		commandVec[0] = JOIN
+		commandVec[1] = <channel>{,<channel>}
+		commnadVec[2] = [<key>{,key>}]
+	*/
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second);
+		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 		return;
 	}
 	std::vector<std::string> joinChannel = split(commandVec[1], ',');
@@ -46,9 +66,9 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 					keyIt++;
 				continue;
 			}
-			if (channel->CheckMode(INVITE)) // MODE(invite) == true;
+			if (channel->CheckMode(INVITE) == true) // MODE(invite) == true;
 			{
-				if (!channel->CheckInvite(fd))
+				if (channel->CheckInvite(fd) == false)
 				{
 					mErrManager.ErrorInviteOnlychan473(*user, *iter);
 					iter++;
@@ -57,9 +77,9 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 					continue;
 				}
 			}
-			if (channel->CheckMode(KEY)) // MODE(key) == true
+			if (channel->CheckMode(KEY) == true) // MODE(key) == true
 			{
-				if (commandVec.size() <= 2 || keyIt == joinKey.end() || !channel->CheckKey(*keyIt)) // if Invalid key
+				if (commandVec.size() <= 2 || keyIt == joinKey.end() || channel->CheckKey(*keyIt) == false) // Bad Key
 				{
 					mErrManager.ErrorBadChannelKey475(*user, *iter);
 					iter++;
@@ -68,7 +88,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 					continue;
 				}
 			}
-			if (channel->CheckMode(LIMIT)) // MODE(limit) == true
+			if (channel->CheckMode(LIMIT) == true) // MODE(limit) == true
 			{
 				if (channel->GetUserFdList().size() >= channel->GetLimit())
 				{
@@ -79,9 +99,9 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 					continue;
 				}
 			}
-			std::string channelName = (*channelIt).second->GetChannelName();
-			(*channelIt).second->AppendUserFdList(fd);
-			user->AppendChannelList(channelName); 			// join user to channel
+			std::string channelName = channelIt->second->GetChannelName();
+			channelIt->second->AppendUserFdList(fd);
+			user->AppendChannelList(channelName);							// join user to channel
 			MsgToAllChannel(fd, channelName, "JOIN", "");	// send join-message to users(in channel)
 			TopicMsg(fd, channelName);
 		}
@@ -94,7 +114,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 			MsgToAllChannel(fd, *iter, "JOIN", "");
 			mServer.FindChannel(*iter)->AddOperatorFd(fd);
 		}
-		NameListMsg(fd, *iter);
+		NameListMsg(fd, *iter); // 353 RPL_NAMREPLAY, 366 RPL_ENDOFNAMES
 		MsgToAllChannel(-1, *iter, "PRIVMSG", mServer.FindChannel(*iter)->GetBot()->Introduce());
 		iter++;
 		if (commandVec.size() > 2 || keyIt != joinKey.end())

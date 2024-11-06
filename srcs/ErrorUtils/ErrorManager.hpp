@@ -23,9 +23,13 @@ class Errormanager
 		void ErrorUserOnChannel443(User& user, std::string nickName, std::string channel);
 
 
+		void ErrorNeedMoreParams461(User& user, std::string command);
 		void ErrorAlreadyRegistRed462(User& user);
-		void ErrorNeedMoreParams461(User& user);
 		void ErrorPasswdMisMatch464(User& user);
+
+		void ErrorNotRegistered451(User& user);
+		void ErrorErronusNickName432(User& user, std::string name);
+		void ErrorNickNameInuse433(User& user, std::string name);
 
 		/* mode 47* Error */
 		void ErrorChannelIsFull471(User& user, std::string channel);
@@ -36,7 +40,7 @@ class Errormanager
 		/* mode 48* Error */
 		void ErrorChanOprivsNeeded482(User& user, std::string channel);
 
-		void ErrorNotRegistered451(User& user);
+
 	private: // delete OCCF
 		Errormanager(const Errormanager& rhs);
 		Errormanager& operator=(const Errormanager& rhs);

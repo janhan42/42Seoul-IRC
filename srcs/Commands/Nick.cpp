@@ -5,57 +5,58 @@
 #include "../ErrDefine.hpp"
 #include "../Utils/IsSpecial.hpp"
 
-void ErrorNotRegistered451(User& user)
-{
-	user.AppendUserSendBuf("451: ");
-	user.AppendUserSendBuf(ERR_NOTREGISTERED);
-}
+// void ErrorNotRegistered451(User& user)
+// {
+// 	user.AppendUserSendBuf("451: ");
+// 	user.AppendUserSendBuf(ERR_NOTREGISTERED);
+// }
 
-void ErrorErronusNickName432(User& user)
-{
-	user.AppendUserSendBuf("432: ");
-	user.AppendUserSendBuf(ERR_ERRONEUSNICKNAME);
-}
+// void ErrorErronusNickName432(User& user)
+// {
+// 	user.AppendUserSendBuf("432: ");
+// 	user.AppendUserSendBuf(ERR_ERRONEUSNICKNAME);
+// }
 
-void ErrorNickNameInuse433(User& user)
-{
-	user.AppendUserSendBuf("433: ");
-	user.AppendUserSendBuf(ERR_NICKNAMEINUSE);
-}
+// void ErrorNickNameInuse433(User& user, std::string name)
+// {
+// 	user.AppendUserSendBuf("433: " + name + " " + name + " ");
+// 	user.AppendUserSendBuf(ERR_NICKNAMEINUSE);
+// }
 
-void Command::Nick(int fd, std::vector<std::string> commadVec)
+void Command::Nick(int fd, std::vector<std::string> commandVec)
 {
 	/* NICK <nickname> */
 	std::map<int, class User*>& userList = mServer.GetUserList();
 	std::map<int, class User*>::iterator it = userList.find(fd);
 	if (!it->second->GetPassRegist()) // pass-authentication == false
-	{ ErrorNotRegistered451(*it->second);
+	{
+		mErrManager.ErrorNotRegistered451(*it->second);
 		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
 		delete it->second;
 		userList.erase(fd);
 		close(fd);
 		return ;
 	}
-	if (commadVec[1] == "_")
+	if (commandVec[1] == "_")
 	{
 		while (1)
 		{
-			std::map<int, class User*>::iterator userIt = mServer.FindUser(commadVec[1]);
+			std::map<int, class User*>::iterator userIt = mServer.FindUser(commandVec[1]);
 			if (userIt != mServer.GetUserList().end())
-				commadVec[1] = userIt->second->GetNickName() + "_";
+				commandVec[1] = userIt->second->GetNickName() + "_";
 			else
 				break;
 		}
 	}
-	if (!CheckNickNameValidate(commadVec[1]))
+	if (!CheckNickNameValidate(commandVec[1]))
 	{
-		ErrorErronusNickName432(*it->second);
+		mErrManager.ErrorErronusNickName432(*it->second, commandVec[1]);
 		it->second->AppendUserSendBuf("/NICK <nickname> First Letter is not digit and length is under 10.\r\n");
 		return ;
 	}
-	if (!CheckNickNameDuplicate(commadVec[1], mServer.GetUserList()))
+	if (!CheckNickNameDuplicate(commandVec[1], mServer.GetUserList()))
 	{
-		ErrorNickNameInuse433(*it->second);
+		mErrManager.ErrorNickNameInuse433(*it->second, commandVec[1]);
 		return ;
 	}
 	std::string oldNickName = it->second->GetNickName();
@@ -67,9 +68,9 @@ void Command::Nick(int fd, std::vector<std::string> commadVec)
 	{
 		Channel* channel = mServer.FindChannel(*channelIt);
 		if (channel)
-			NickMsgToAllChannel(fd, channel->GetChannelName(),  oldNickName, commadVec[1]);
+			NickMsgToAllChannel(fd, channel->GetChannelName(),  oldNickName, commandVec[1]);
 	}
-	it->second->SetNickName(commadVec[1]); // TEST NICKNAME COLOR
+	it->second->SetNickName(commandVec[1]); // TEST NICKNAME COLOR
 	it->second->AppendUserSendBuf(":" + oldNickName + " NICK " + it->second->GetNickName() + "\r\n");
 	it->second->SetNickRegist(true);
 }

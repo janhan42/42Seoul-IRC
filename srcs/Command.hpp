@@ -18,12 +18,9 @@ class Command
 		Command(Server& server);
 		~Command();
 
-                void RegistNewUser(int &fd, std::map<int, class User *> &userList,
-                               std::map<int, class User *>::iterator &iter,
-                               std::vector<std::string> &commandVec);
-                void Run(int fd);
+		void Run(int fd);
 
-                /* Commands */
+		/* Commands */
 		void		Pass(int fd, std::vector<std::string> commandVec);
 		void		Nick(int fd, std::vector<std::string> commandVec);
 		void		User(int fd, std::vector<std::string> commandVec);
@@ -55,6 +52,7 @@ class Command
 		void		NameListMsg(int fd, std::string);
 
 	private: // variables
+		void RegistNewUser(int &fd, std::map<int, class User *> &userList, std::map<int, class User *>::iterator &iter, std::vector<std::string> &commandVec);
 		Server&			mServer;
 		Errormanager	mErrManager;
 

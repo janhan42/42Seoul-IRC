@@ -10,9 +10,9 @@ void Command::Ping(int fd, std::vector<std::string> commandVec)
 
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*it->second);
+		mErrManager.ErrorNeedMoreParams461(*it->second, commandVec[1]);
 		it->second->AppendUserSendBuf("/PING <token>\r\n");
 		return ;
 	}
-	it->second->AppendUserSendBuf("PONG " + commandVec[1] + "\r\n");
+	it->second->AppendUserSendBuf("PONG " + commandVec[1] + " :" + commandVec[1] + "\r\n");
 }

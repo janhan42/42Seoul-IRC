@@ -25,7 +25,7 @@ void Command::User(int fd, std::vector<std::string> commandVec)
 	}
 	if (commandVec.size() < 5 || !CheckRealName(commandVec[4]))
 	{
-		mErrManager.ErrorNeedMoreParams461(*it->second);
+		mErrManager.ErrorNeedMoreParams461(*it->second, commandVec[1]);
 		it->second->AppendUserSendBuf("/USER <username> <hostname> <servername> <:realname>\r\n");
 		return ;
 	}

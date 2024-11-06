@@ -14,7 +14,7 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 	std::vector<std::string> vec;
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*userIt->second);
+		mErrManager.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
 		return;
 	}
 
@@ -72,7 +72,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 {
 	if (commandVec.size() < 3 && commandVec[3] != "help")
 	{
-		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second);
+		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 		return;
 	}
 	Channel* channel = mServer.FindChannel(commandVec[1]);
@@ -101,7 +101,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		std::cout << commandVec.size() << std::endl;
 		if (commandVec.size() != 4)
 		{
-			mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second);
+			mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 			return;
 		}
 		std::string response = bot->GetHelpBuckShot();
@@ -127,7 +127,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 
 		if (commandVec.size() < 5) // arg error
 		{
-			mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second);
+			mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 			return;
 		}
 		std::map<int, class User*>::iterator targetUser = mServer.FindUser(commandVec[4]);

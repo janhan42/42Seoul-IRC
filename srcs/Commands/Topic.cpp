@@ -7,7 +7,7 @@ void Command::Topic(int fd, std::vector<std::string> commandVec)
 	/* TOPIC <channel> <topic-message> */
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second);
+		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 		return;
 	}
 	Channel* channel = mServer.FindChannel(commandVec[1]);
