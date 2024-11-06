@@ -24,9 +24,10 @@ void Command::Pass(int fd, std::vector<std::string> commandVec)
 	{
 		mErrManager.ErrorPasswdMisMatch464(*it->second);
 		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
-		delete it->second;
-		userList.erase(fd);
-		close(fd);
+		// delete it->second;
+		// userList.erase(fd);
+		// close(fd);
+		mServer.DeleteUserFromServer(fd);
 		return ;
 	}
 	it->second->SetPassRegist(true);

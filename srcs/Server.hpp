@@ -27,7 +27,7 @@ class Server
 
 		User										*mBot;
 		void										Init(void);
-		void										 DeleteDisconnectedUser(int& i);
+		void										 DeleteUserFromServer(int fd);
 		void SendBufferToUser();
 		void Run(void);
 

@@ -75,7 +75,7 @@ void Server::Run()
 				mStrLen = RecvMessage(mUserEventList[i].ident);
 
 				if (mStrLen <= 0) // from outside signal(ctrl+C, ...)
-					DeleteDisconnectedUser(i);
+					DeleteUserFromServer(mUserEventList[i].ident);
 				else
 					std::cout << "User Send: " << mMessage[mUserEventList[i].ident] << std::endl;
 
@@ -296,12 +296,12 @@ void Server::DoCommand(int fd)
 }
 
 // TODO: 다른 부분에서도 동일하게 사용가능 하도록 함수화 예정
-void Server::DeleteDisconnectedUser(int& i)
+void Server::DeleteUserFromServer(int fd)
 {
-	std::cout << "fd [" << mUserEventList[i].ident << "]is quit connet"
+	std::cout << "fd [" << fd << "]is quit connet"
 				<< std::endl;
 	std::map<int, User*>::iterator userIt =
-		mUserList.find(mUserEventList[i].ident);  // find 안해도될듯
+		mUserList.find(fd);
 	if (userIt != mUserList.end())	// 접속 해제 유저 처리
 	{
 		struct kevent evSet;
@@ -310,9 +310,9 @@ void Server::DeleteDisconnectedUser(int& i)
 		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
 		mMessage[userIt->first].clear();
 		delete userIt->second;
-		mUserList.erase(mUserEventList[i].ident);
-		close(mUserEventList[i].ident);
-		std::cout << "User Deleted [" << mUserEventList[i].ident << "]"
+		mUserList.erase(fd);
+		close(fd);
+		std::cout << "User Deleted [" << fd << "]"
 					<< std::endl;
 	}
 }
