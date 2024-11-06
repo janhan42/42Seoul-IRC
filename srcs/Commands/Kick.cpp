@@ -6,17 +6,17 @@
 #include <string>
 
 
-bool findMyChannel(int fd, Server& mServer, const std::string& channelName)
-{
-	std::vector<std::string>& client = mServer.GetUserList().find(fd)->second->GetChannelList();
-
-	for (std::vector<std::string>::iterator it = client.begin(); it != client.end(); it++)
-	{
-		if (*it == channelName)
-			return (true);
-	}
-	return (false);
-}
+// bool findMyChannel(int fd, Server& mServer, const std::string& channelName)
+// {
+// 	std::vector<std::string>& client = mServer.GetUserList().find(fd)->second->GetChannelList();
+//
+// 	for (std::vector<std::string>::iterator it = client.begin(); it != client.end(); it++)
+// 	{
+// 		if (*it == channelName)
+// 			return (true);
+// 	}
+// 	return (false);
+// }
 
 /*
 	- RESPONSE LIST -
@@ -53,7 +53,8 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 		mErrManager.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
 		return;
 	}
-	if (findMyChannel(fd, mServer, commandVec[1]) == false)
+	//if (findMyChannel(fd, mServer, commandVec[1]) == false)
+	if (userIt->second->AmIInChannel(commandVec[1]) == false)
 	{
 		mErrManager.ErrorNotOnChannel442(*userIt->second, commandVec[1]);
 		return;

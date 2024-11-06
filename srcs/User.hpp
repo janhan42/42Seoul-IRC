@@ -47,6 +47,7 @@ class User
 		void								MakeUserToBot(void);
 		void								RemoveChannel(std::string channelName);
 		std::vector<std::string>::iterator	FindChannel(std::string channelName);
+		bool								AmIInChannel(const std::string channelName);
 	private:
 		// User Infomations
 		std::string							mNickName;
@@ -66,5 +67,4 @@ class User
 	private: // delete OCCF
 		User& operator=(const User& rhs);
 };
-
 #endif
