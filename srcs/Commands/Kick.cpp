@@ -45,10 +45,6 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 				mErrManager.ErrorNosuchNick401(*userIt->second, commandVec[2]);
 				return;
 			}
-			if (target->second->GetNickName() == userIt->second->GetNickName()) // if user == me: ignore
-			{
-				return;
-			}
 			else
 			{
 				if (!channel->CheckUserInChannel(target->second->GetUserFd())) // user not exists "in channel"
@@ -62,7 +58,13 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 						message += " " + commandVec[3];
 					MsgToAllChannel(fd, *vecIt, "KICK", message);
 					channel->RemoveUserFdList(target->second->GetUserFd());
+					channel->RemoveOperatorFd(target->second->GetUserFd()); // 오퍼레이터일수도 있어서 추가
 					target->second->RemoveChannel(*vecIt);
+					if (channel->GetUserFdList().size() <= 1)// if no user in channel
+					{
+						mServer.RemoveChannel(channel->GetChannelName());
+						delete channel;
+					}
 				}
 			}
 		}
