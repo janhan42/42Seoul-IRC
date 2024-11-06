@@ -5,19 +5,6 @@
 #include <iostream>
 #include <string>
 
-
-// bool findMyChannel(int fd, Server& mServer, const std::string& channelName)
-// {
-// 	std::vector<std::string>& client = mServer.GetUserList().find(fd)->second->GetChannelList();
-//
-// 	for (std::vector<std::string>::iterator it = client.begin(); it != client.end(); it++)
-// 	{
-// 		if (*it == channelName)
-// 			return (true);
-// 	}
-// 	return (false);
-// }
-
 /*
 	- RESPONSE LIST -
 	ERR_NEEDMOREPARAMS (461)
