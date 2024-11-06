@@ -105,7 +105,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 			MsgToAllChannel(fd, channelName, "JOIN", "");	// send join-message to users(in channel)
 			TopicMsg(fd, channelName);
 		}
-		else // channel not exicsts (new channel)
+		else // channel not exists (new channel)
 		{
 			mServer.AppendNewChannel(*iter, fd);					// create new channel
 			mServer.FindChannel(*iter)->AppendUserFdList(-1);	// join user to channel

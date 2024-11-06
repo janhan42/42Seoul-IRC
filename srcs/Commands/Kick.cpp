@@ -40,7 +40,6 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 		mErrManager.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
 		return;
 	}
-	//if (findMyChannel(fd, mServer, commandVec[1]) == false)
 	if (userIt->second->AmIInChannel(commandVec[1]) == false)
 	{
 		mErrManager.ErrorNotOnChannel442(*userIt->second, commandVec[1]);

@@ -89,7 +89,7 @@ void Command::RegistNewUser(int &fd, std::map<int, class User *> &userList, std:
 			iter->second->AppendUserSendBuf(":SIRC 003 " + iter->second->GetNickName() + " :This server was created 2024 \r\n");
 			iter->second->AppendUserSendBuf(":SIRC 004  " + iter->second->GetNickName() + " SRIC v1.0.0 \r\n");
 			iter->second->AppendUserSendBuf( ":SIRC 005 " + iter->second->GetNickName() + " MAXNICKLEN=9 MAXCHANNELLEN=200 :are supported by this server\r\n");
-			iter->second->AppendUserSendBuf(":SIRC 442  " + iter->second->GetNickName() + " :MOTD FIle is missing\r\n");
+			iter->second->AppendUserSendBuf(":SIRC 442  " + iter->second->GetNickName() + " :MOTD File is missing\r\n");
 		}
 	}
 }
