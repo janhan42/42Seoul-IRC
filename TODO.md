@@ -26,6 +26,8 @@ u# IRC Check List
 - [ ] Mode
 	- [X] limit 모드 해제 안되는거 -> -l이 무시되는 코드가 있었음
 	- [x] mode #test b 들어오는거 ->ignore 처리 해둠
+	- [ ] 서버에 janhan이 없을때 /mode janhan +b를 한다 했을때 ERR_NOSUCHNICK (401)일이 떠야하고
+		  서버에 janhna이 있는대 zinox가 /mode janhan +b를 하면 ERR_USERSDONTMATCH (502) 가 떠야함
 	- [ ] 답변 체크
 - [ ] Nick
 	- [x] 서버에 접속후 Channel에 접속해있을때 NICK 명령어를 했을떄 #\<channel-name> 으로 바뀌는 상황이 있음.
