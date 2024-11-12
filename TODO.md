@@ -26,10 +26,10 @@ u# IRC Check List
 - [ ] Mode
 	- [X] limit 모드 해제 안되는거 -> -l이 무시되는 코드가 있었음
 	- [x] mode #test b 들어오는거 ->ignore 처리 해둠
-	- [ ] 서버에 janhan이 없을때 /mode janhan +b를 한다 했을때 ERR_NOSUCHNICK (401)일이 떠야하고
-		  서버에 janhna이 있는대 zinox가 /mode janhan +b를 하면 ERR_USERSDONTMATCH (502) 가 떠야함
-	- [ ] user op모드가 안빠짐 채널 모드만 신경써서 해서 다시 만들어야 할듯
-	- [ ] 답변 체크
+	- [x] 서버에 janhan이 없을때 /mode janhan +b를 한다 했을때 ERR_NOSUCHNICK (401)일이 떠야하고
+		  서버에 janhna이 있는대 zinox가 /mode janhan +b를 하면 ERR_USERSDONTMATCH (502) 가 떠야함 -> 구현 요구사항 모드들 중에서 걸릴 에러가 없음
+	- [x] user op모드가 안빠짐 채널 모드만 신경써서 해서 다시 만들어야 할듯 -> /mode #test +o janhan 이 문법임
+	- [x] 답변 체크
 - [ ] Nick
 	- [x] 서버에 접속후 Channel에 접속해있을때 NICK 명령어를 했을떄 #\<channel-name> 으로 바뀌는 상황이 있음.
 	- [x] 위의 상황처럼 되면 #test에서 /Part를 하게 되면 이전 닉네임은 나가지고 실적으로 나가지지 않음
@@ -41,8 +41,8 @@ u# IRC Check List
 	- [x] 답변 체크
 	- [ ]
 - [ ] Ping
-	- [ ]	/PING janhan 을 했을떄 CTCP PING으로 처리 되는데 requsted는 뜨는데 답변이 안가고있음
-			근데 이게 irssi 클라이언트 PING과 유저 입력 PING의 서버로 들어오는 메세지가 다름 유저 PING 은 PRIVMSG로 들어옴
+	- [x]	/PING janhan 을 했을떄 CTCP PING으로 처리 되는데 requsted는 뜨는데 답변이 안가고있음
+			근데 이게 irssi 클라이언트 PING과 유저 입력 PING의 서버로 들어오는 메세지가 다름 유저 PING 은 PRIVMSG로 들어옴 -> PING 구현 사항이 아니기 때문에 클라이언트 에서 서버로 쏘는 token Ping만 처리
 	- [x] 답변 체크
 - [ ] Privmsg
 	- [x] 없는 유저에게 채팅을 보냈을때 채팅방이 생기면서 오류메세지가 발생 -> 정상임 Irssi 클라이언트에서 그렇게 처리함

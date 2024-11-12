@@ -15,7 +15,6 @@
 
 int main(int ac, char** av)
 {
-	(void)av;
 	if (ac != 3)
 	{
 		std::cout << "Usage : ./ircserv [PORT] [PASS]" << std::endl;
@@ -23,9 +22,9 @@ int main(int ac, char** av)
 	}
 	try
 	{
-		std::cout << av[1] << av[2] << std::endl;
 		Server server(av[1], av[2]);
 		server.Init();
+		std::cout << "/connect -nocap 127.0.0.1 " << av[1] << " " << av[2] << std::endl;
 		server.Run();
 	}
 	catch(const std::exception& e)

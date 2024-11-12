@@ -1,7 +1,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sstream>
-#include <iostream>
 #include "ErrDefine.hpp"
 #include "Server.hpp"
 #include "Command.hpp"
@@ -22,14 +21,13 @@ void Command::Run(int fd)
 	std::string buffer;
 	std::map<int, class User *> &userList = mServer.GetUserList();
 	std::map<int, class User *>::iterator iter = userList.find(fd);
-	// user = userList[fd]
 	std::vector<std::string> commandVec;
 	while (getline(iss, buffer, ' '))
 	{
 		std::size_t endPos = buffer.find_last_not_of("\r\n");
 		commandVec.push_back(buffer.substr(0, endPos + 1));
 	}
-	if (iter != userList.end() && !iter->second->GetIsRegist()) // 유저 첫 등록시
+	if (iter != userList.end() && !iter->second->GetIsRegist()) // new User Join Server
 		RegistNewUser(fd, userList, iter, commandVec);
 	else
 	{

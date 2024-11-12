@@ -5,23 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
-#include <iomanip>
 
-void printRawString(const std::string& str) {
-    std::ostringstream oss;
-
-    for (char ch : str) {
-        if (isprint(ch) || ch == '\n' || ch == '\r' || ch == '\t') {
-            // 출력할 수 있는 문자들, 공백이나 탭 등도 그대로 출력
-            oss << ch;
-        } else {
-            // 제어문자일 경우, \xHH 형식으로 출력
-            oss << "\\x" << std::hex << std::uppercase << (0xFF & static_cast<int>(ch));
-        }
-    }
-
-    std::cout << "Raw String Output: [" << oss.str() << "]" << std::endl;
-}
 /*
 	- RESPONSE LIST -
 	ERR_NOSUCHNICK (401)
@@ -54,7 +38,6 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 	std::istringstream iss(commandVec[1]);
 	while (getline(iss, buffer, ','))
 		vec.push_back(buffer);
-	printRawString(commandVec[2]);
 	std::vector<std::string>::iterator vecIt = vec.begin();
 	for(; vecIt != vec.end(); vecIt++)
 	{
