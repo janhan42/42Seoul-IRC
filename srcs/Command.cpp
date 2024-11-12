@@ -57,6 +57,8 @@ void Command::Run(int fd)
 			Topic(fd, commandVec);
 		else if (commandVec[0] == "INVITE")
 			Invite(fd, commandVec);
+		else if (commandVec[0] == "NOTICE")
+			Notice(fd, commandVec);
 	}
 }
 

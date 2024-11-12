@@ -7,13 +7,21 @@
 #include <vector>
 #include <iomanip>
 
-std::string trim(const std::string& str)
-{
-	size_t first = str.find_first_not_of(" \t\n\r");
-	size_t last = str.find_last_not_of(" \t\n\r");
-	return str.substr(first, (last - first + 1));
-}
+void printRawString(const std::string& str) {
+    std::ostringstream oss;
 
+    for (char ch : str) {
+        if (isprint(ch) || ch == '\n' || ch == '\r' || ch == '\t') {
+            // 출력할 수 있는 문자들, 공백이나 탭 등도 그대로 출력
+            oss << ch;
+        } else {
+            // 제어문자일 경우, \xHH 형식으로 출력
+            oss << "\\x" << std::hex << std::uppercase << (0xFF & static_cast<int>(ch));
+        }
+    }
+
+    std::cout << "Raw String Output: [" << oss.str() << "]" << std::endl;
+}
 /*
 	- RESPONSE LIST -
 	ERR_NOSUCHNICK (401)
@@ -43,28 +51,10 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 		mErrManager.ErrorNoTextToSend412(*userIt->second);
 		return;
 	}
-	/* TESTOUT PUT */
-	std::cout << "User FD [" << fd << "]" << std::endl;
-	for (std::vector<std::string>::iterator it = commandVec.begin(); it != commandVec.end(); it++)
-	{
-		std::cout << "PRIVMSG PING TEST [" << userIt->second->GetNickName() << "] : [" << *it << "]" << std::endl;
-	}
-	std::cerr << commandVec[2] << " " << commandVec[2].length() << " " << std::string(":PING") << " " << std::string(":PING").length() << std::endl;
-	std::cout << std::quoted(commandVec[2]) << std::endl;
-	/* END */
-
-	if (trim(commandVec[2]) == ":PING\r")
-	{
-		// PING 요청인 경우
-		std::cout << "PING 요청 들어옴?" << std::endl;
-		std::string pongMessage = "여기서 추가 PONG " + userIt->second->GetNickName() + " :" + commandVec[3] + "\r\n";
-		userIt->second->AppendUserSendBuf(pongMessage);
-		return;
-	}
 	std::istringstream iss(commandVec[1]);
 	while (getline(iss, buffer, ','))
 		vec.push_back(buffer);
-
+	printRawString(commandVec[2]);
 	std::vector<std::string>::iterator vecIt = vec.begin();
 	for(; vecIt != vec.end(); vecIt++)
 	{

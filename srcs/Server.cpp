@@ -76,9 +76,6 @@ void Server::Run()
 
 				if (mStrLen <= 0) // from outside signal(ctrl+C, ...)
 					DeleteUserFromServer(mUserEventList[i].ident);
-				else
-					std::cout << "User Send: " << mMessage[mUserEventList[i].ident] << std::endl;
-
 				if (CheckMessageEnds(mUserEventList[i].ident)) // 메세지가 잘 들어와서 실행할 수 있으면 실행
 					DoCommand(mUserEventList[i].ident);
 			}
@@ -289,8 +286,8 @@ bool	Server::CheckMessageEnds(int fd)
 
 void Server::DoCommand(int fd)
 {
-	std::cout << "Docommand  FD : "<< fd << std::endl;
-	std::cout << "fd [" << fd << "] command exec:" << mMessage[fd] << std::endl;
+	std::cout << "Docommand NICK : [" << mUserList.find(fd)->second->GetNickName() << "]" << std::endl;
+	std::cout << "Recv Send: " << mMessage[fd] << std::endl;
 	mCommand->Run(fd);
 	mMessage[fd] = "";
 }
@@ -324,10 +321,12 @@ void Server::SendBufferToUser()
 		User* usr = It->second;
 		if (!usr->GetUserSendBuf().empty() && usr->GetUserFd() != -1)
 		{
+			/* TESTOUTPUT */
+			std::cout << "Server Send : " << usr->GetUserSendBuf() << std::endl;
+			/* END */
 			int sent_byte =
 				send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(),
 					usr->GetUserSendBuf().length(), 0);
-			std::cout << usr->GetUserSendBuf() << std::endl;
 			if (sent_byte > 0)	// 전송 성공하면
 				usr->ClearUserSendBuf(sent_byte);
 			else

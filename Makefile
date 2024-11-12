@@ -6,14 +6,14 @@
 #    By: janhan <janhan@student.42seoul.kr>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/24 15:49:02 by janhan            #+#    #+#              #
-#    Updated: 2024/11/12 16:55:56 by janhan           ###   ########.fr        #
+#    Updated: 2024/11/12 18:29:52 by janhan           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			=		ircserv
 
-CXX				=		g++
-CXXFLAGS		=		-g -Wall -Wextra -Werror# -std=c++98
+CXX				=		c++
+CXXFLAGS		=		#-g -Wall -Wextra -Werror -std=c++98
 
 SRCS_DIR	= ./srcs/
 SRCS		=	User.cpp					\
@@ -39,6 +39,7 @@ CMDS		=	Invite.cpp					\
 				Kick.cpp					\
 				Mode.cpp					\
 				Nick.cpp					\
+				Notice.cpp					\
 				Part.cpp					\
 				Pass.cpp					\
 				Ping.cpp					\
