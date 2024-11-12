@@ -33,7 +33,6 @@ class Command
 		void		Mode(int fd, std::vector<std::string> commandVec);
 		void		Topic(int fd, std::vector<std::string> commadVec);
 		void		Invite(int fd, std::vector<std::string> commanVec);
-		void		Notice(int fd, std::vector<std::string> commandVec);
 
 		/* Utils in commands */
 		void		BotCommand(int fd, std::vector<std::string> commandVeco);
