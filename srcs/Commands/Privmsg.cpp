@@ -4,7 +4,28 @@
 #include "../Bot.hpp"
 #include <sstream>
 #include <iostream>
+#include <vector>
+#include <iomanip>
 
+std::string trim(const std::string& str)
+{
+	size_t first = str.find_first_not_of(" \t\n\r");
+	size_t last = str.find_last_not_of(" \t\n\r");
+	return str.substr(first, (last - first + 1));
+}
+
+/*
+	- RESPONSE LIST -
+	ERR_NOSUCHNICK (401)
+	ERR_NOSUCHSERVER (402) -> 다중서버 처리가 아니기 때문에 없음
+	ERR_CANNOTSENDTOCHAN (404) -> 외부에서 메세지를 보내지 못하는 모드는 구현 안되있기 때문에 없음
+	ERR_TOOMANYTARGETS (407) -> 타겟 리밋 변수가 없기 때문에 없음
+	ERR_NORECIPIENT (411) -> irssi쪽에서 막아버림
+	ERR_NOTEXTTOSEND (412)
+	ERR_NOTOPLEVEL (413) -> 구현사항 아님
+	ERR_WILDTOPLEVEL (414) -> 구현사항 아님
+	RPL_AWAY (301) -> /away <message> 를 한 상대에게 /msg를 했을때 응답인데 해야하나 모르겠음
+ */
 void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 {
 	/* PRIVMSG(or /msg) <channel/nickname> <messages...> */
@@ -17,7 +38,29 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 		mErrManager.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
 		return;
 	}
+	if (commandVec[2].empty()) // <message>가 empty일때
+	{
+		mErrManager.ErrorNoTextToSend412(*userIt->second);
+		return;
+	}
+	/* TESTOUT PUT */
+	std::cout << "User FD [" << fd << "]" << std::endl;
+	for (std::vector<std::string>::iterator it = commandVec.begin(); it != commandVec.end(); it++)
+	{
+		std::cout << "PRIVMSG PING TEST [" << userIt->second->GetNickName() << "] : [" << *it << "]" << std::endl;
+	}
+	std::cerr << commandVec[2] << " " << commandVec[2].length() << " " << std::string(":PING") << " " << std::string(":PING").length() << std::endl;
+	std::cout << std::quoted(commandVec[2]) << std::endl;
+	/* END */
 
+	if (trim(commandVec[2]) == ":PING\r")
+	{
+		// PING 요청인 경우
+		std::cout << "PING 요청 들어옴?" << std::endl;
+		std::string pongMessage = "여기서 추가 PONG " + userIt->second->GetNickName() + " :" + commandVec[3] + "\r\n";
+		userIt->second->AppendUserSendBuf(pongMessage);
+		return;
+	}
 	std::istringstream iss(commandVec[1]);
 	while (getline(iss, buffer, ','))
 		vec.push_back(buffer);
@@ -47,6 +90,8 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 		else
 		{
 			std::map<int, class User*>::iterator user = mServer.FindUser(*vecIt);
+			if (*vecIt == "SIRC") // /PING SIRC처리
+				return ;
 			if (user != mServer.GetUserList().end())
 			{
 				std::string messages = ChannelMessage(2, commandVec);
@@ -56,6 +101,7 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 			else
 			{
 				mErrManager.ErrorNosuchNick401(*userIt->second, *vecIt);
+				return ;
 			}
 		}
 	}

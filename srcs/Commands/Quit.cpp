@@ -3,6 +3,10 @@
 #include "../Server.hpp"
 #include "../User.hpp"
 
+/*
+	-RESPONSE LIST-
+	없음
+ */
 void Command::Quit(int fd, std::vector<std::string> commandVec)
 {
 	/* QUIT */

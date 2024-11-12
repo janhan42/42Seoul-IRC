@@ -77,7 +77,6 @@ void Command::RegistNewUser(int &fd, std::map<int, class User *> &userList, std:
 			// delete iter->second;
 			// userList.erase(fd);
 			//close(fd);
-
 			mServer.DeleteUserFromServer(fd);
 		}
 	}

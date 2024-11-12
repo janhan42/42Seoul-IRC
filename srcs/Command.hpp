@@ -43,7 +43,7 @@ class Command
 		bool		CheckBotCommand(std::string command);
 
 		/* Uitls in Uils.cpp */
-		std::string	ChannelMessage(int fd, std::vector<std::string> commandVec);
+		std::string	ChannelMessage(int messageIndex, std::vector<std::string> commandVec);
 		void		ChannelPrivmsg(std::string, class User&, Channel*);
 		void		ChannelPART(int fd, std::string cannelName, std::vector<std::string> commandVec);
 		void		MsgToAllChannel(int target, std::string channelName, std::string command, std::string msg);

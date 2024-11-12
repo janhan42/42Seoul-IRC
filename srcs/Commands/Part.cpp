@@ -4,6 +4,12 @@
 #include "../Server.hpp"
 #include "../User.hpp"
 
+/*
+	- RESPONSE LIST-
+	ERR_NEEDMOREPARAMS (461)
+	ERR_NOSUCHCHANNEL (403)
+	ERR_NOTONCHANNEL (442)
+ */
 void Command::Part(int fd, std::vector<std::string> commandVec)
 {
 	/* PART <channel> <nickname> (<reasons, ...>) */

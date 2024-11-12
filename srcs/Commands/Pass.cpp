@@ -4,6 +4,12 @@
 #include "../Server.hpp"
 #include "../User.hpp"
 
+/*
+	- RESPONSE LIST -
+	ERR_NEEDMOREPARAMS (461)
+	ERR_ALREADYREGISTERED (462)
+	ERR_PASSWDMISMATCH (464)
+ */
 void Command::Pass(int fd, std::vector<std::string> commandVec)
 {
 	/* PASS <password> */

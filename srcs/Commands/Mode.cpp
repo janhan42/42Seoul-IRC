@@ -178,11 +178,6 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 				}
 			}
 		}
-		else if (mode[i] != 'b')	// unknown mode: error
-		{
-			mErrManager.ErrorUnknownMode472(*user, mode[i]);
-			continue;
-		}
 		if (isSetMode)
 		{
 			if (msg.empty())

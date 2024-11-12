@@ -7,6 +7,10 @@ Errormanager::Errormanager()
 Errormanager::~Errormanager()
 {}
 
+void Errormanager::ErrorNoTopic331(User& user, std::string channel)
+{
+	user.AppendUserSendBuf("331 " + user.GetNickName() + " " + channel + " :" + RPL_NOTOPIC);
+}
 
 /* No Such Error */
 // "401 <client> <nickname> :No such nick/channel"
@@ -21,6 +25,15 @@ void Errormanager::ErrorNosuchChannel403(User& user, std::string channel)
 	user.AppendUserSendBuf("403 " + user.GetNickName() + " " + channel + " :[" + channel + "] " + ERR_NOSUCHCHANNEL);
 }
 
+void Errormanager::ErrorNoTextToSend412(User& user)
+{
+	user.AppendUserSendBuf("412 " + user.GetNickName() + " :" + ERR_NOTEXTTOSEND);
+}
+
+void Errormanager::ErrorNoNickNameGiven431(User& user)
+{
+	user.AppendUserSendBuf("431 " + user.GetNickName() + " :" + ERR_NONICKNAMEGIVEN);
+}
 
 /* Channel Error */
 // "441 <client> <nick> <channel> :They aren't on that channel"
@@ -111,3 +124,7 @@ void Errormanager::ErrorNickNameInuse433(User& user, std::string name)
 	user.AppendUserSendBuf("433: " + name + " " + name + " " + ERR_NICKNAMEINUSE);
 }
 
+void Errormanager::ErrorUsersDontMatch502(User& user)
+{
+	user.AppendUserSendBuf("502 " + user.GetNickName() + " :" + ERR_USERSDONTMATCH);
+}

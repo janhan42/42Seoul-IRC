@@ -2,55 +2,61 @@
 #include "../Server.hpp"
 #include "../User.hpp"
 
+/*
+	- RESPONSE LIST -
+	ERR_NEEDMOREPARAMS (461) o
+	ERR_NOSUCHCHANNEL (403) o
+	ERR_NOTONCHANNEL (442) o
+	ERR_CHANOPRIVSNEEDED (482) o
+	RPL_NOTOPIC (331) o
+	RPL_TOPIC (332) o
+	RPL_TOPICWHOTIME (333) irssi 쪽에서 관리함
+ */
 void Command::Topic(int fd, std::vector<std::string> commandVec)
 {
 	/* TOPIC <channel> <topic-message> */
+	class User& user = *mServer.GetUserList().find(fd)->second;
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+		mErrManager.ErrorNeedMoreParams461(user, commandVec[1]);
 		return;
 	}
 	Channel* channel = mServer.FindChannel(commandVec[1]);
 	if (channel == NULL)
 	{
-		mErrManager.ErrorNosuchChannel403(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+		mErrManager.ErrorNosuchChannel403(user, commandVec[1]);
 		return;
 	}
 	std::vector<int> channelUserFdList = channel->GetUserFdList();
 	std::vector<int>::iterator iter = channelUserFdList.begin();
-	for (; iter != channelUserFdList.end(); iter++)
+	for (; iter != channelUserFdList.end(); iter++) // find User in Channel
 	{
 		if (*iter == fd)
 			break;
 	}
-	if (iter == channelUserFdList.end())
+	if (iter == channelUserFdList.end()) // User Not on Channel
 	{
-		mErrManager.ErrorNotOnChannel442(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+		mErrManager.ErrorNotOnChannel442(user, commandVec[1]);
 		return;
 	}
-	if (channel->CheckMode(TOPIC))
+	if (channel->CheckMode(TOPIC)) // Channel Mode +t
 	{
 		if (channel->CheckOperator(fd) == false)
 		{
-			mErrManager.ErrorChanOprivsNeeded482(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+			mErrManager.ErrorChanOprivsNeeded482(user, commandVec[1]);
 			return;
 		}
 	}
 	if (commandVec.size() == 2)
 	{
-		if (channel == NULL)
-		{
-			mErrManager.ErrorNosuchChannel403(*mServer.GetUserList().find(fd)->second, commandVec[1]);
-			return;
-		}
 		if (channel->GetTopic().length() == 0)
 		{
-			mServer.GetUserList().find(fd)->second->AppendUserSendBuf("331 " + mServer.GetUserList().find(fd)->second->GetNickName() + "  " + commandVec[1] + " :" + RPL_NOTOPIC);
+			mErrManager.ErrorNoTopic331(user, commandVec[1]);
 			return;
 		}
-		mServer.GetUserList().find(fd)->second->AppendUserSendBuf("332 " + mServer.GetUserList().find(fd)->second->GetNickName() + " " + commandVec[1] + " :" + channel->GetTopic() + "\r\n");
+		user.AppendUserSendBuf("332 " + user.GetNickName() + " " + commandVec[1] + " :" + channel->GetTopic() + "\r\n");
 	}
-	else
+	else // SetTopic
 	{
 		if (commandVec[2] == ":")
 			channel->SetTopic("");

@@ -19,6 +19,7 @@
 # define ERR_NOSUCHSERVER "No such server\r\n"
 # define ERR_CANNOTSENDTOCHAN "Cannot send to channel\r\n"
 # define ERR_NORECIPIENT "No recipient given\r\n"
+# define ERR_NOTEXTTOSEND "No text to send\r\n"
 
 // PART
 # define ERR_NOSUCHCHANNEL "No such channel\r\n"

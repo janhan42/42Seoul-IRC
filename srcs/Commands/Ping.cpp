@@ -2,6 +2,11 @@
 #include "../Server.hpp"
 #include "../User.hpp"
 
+/*
+	- RESPONSE LIST -
+	ERR_NEEDMOREPARAMS (461)
+	ERR_NOORIGIN (409)
+ */
 void Command::Ping(int fd, std::vector<std::string> commandVec)
 {
 	/* PING <token> */

@@ -4,25 +4,15 @@
 #include "../User.hpp"
 #include "../ErrDefine.hpp"
 #include "../Utils/IsSpecial.hpp"
+#include <iostream>
 
-// void ErrorNotRegistered451(User& user)
-// {
-// 	user.AppendUserSendBuf("451: ");
-// 	user.AppendUserSendBuf(ERR_NOTREGISTERED);
-// }
-
-// void ErrorErronusNickName432(User& user)
-// {
-// 	user.AppendUserSendBuf("432: ");
-// 	user.AppendUserSendBuf(ERR_ERRONEUSNICKNAME);
-// }
-
-// void ErrorNickNameInuse433(User& user, std::string name)
-// {
-// 	user.AppendUserSendBuf("433: " + name + " " + name + " ");
-// 	user.AppendUserSendBuf(ERR_NICKNAMEINUSE);
-// }
-
+/*
+	- RESPONSE LIST -
+	ERR_NONICKNAMEGIVEN (431) o
+	ERR_ERRONEUSNICKNAME (432) o
+	ERR_NICKNAMEINUSE (433) o
+	ERR_NICKCOLLISION (436) (다른 서버에 대한 처리라서 안함)
+ */
 void Command::Nick(int fd, std::vector<std::string> commandVec)
 {
 	/* NICK <nickname> */
@@ -48,6 +38,15 @@ void Command::Nick(int fd, std::vector<std::string> commandVec)
 			else
 				break;
 		}
+	}
+	/* TESTOUTPUT */
+	std::cout << "NICK TEST OUT PUT [" << commandVec[1] << "]" << std::endl;
+	std::cout << commandVec[1].empty() << std::endl;
+	/* END */
+	if (commandVec[1].empty())
+	{
+		mErrManager.ErrorNoNickNameGiven431(*it->second);
+		return ;
 	}
 	if (!CheckNickNameValidate(commandVec[1]))
 	{

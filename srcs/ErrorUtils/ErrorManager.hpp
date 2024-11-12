@@ -13,9 +13,13 @@ class Errormanager
 		Errormanager();
 		~Errormanager();
 
+		void ErrorNoTopic331(User& user, std::string channel);
 		/* No Such Error */
 		void ErrorNosuchNick401(User& user, std::string nickName);
 		void ErrorNosuchChannel403(User& user, std::string channel);;
+
+		void ErrorNoTextToSend412(User& user);
+		void ErrorNoNickNameGiven431(User& user);
 
 		/* Channel Error */
 		void ErrorUserNotInChannel441(User& user, std::string nickName, std::string channel);
@@ -39,6 +43,8 @@ class Errormanager
 
 		/* mode 48* Error */
 		void ErrorChanOprivsNeeded482(User& user, std::string channel);
+
+		void ErrorUsersDontMatch502(User& user);
 
 
 	private: // delete OCCF
