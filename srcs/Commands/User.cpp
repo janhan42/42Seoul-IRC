@@ -10,12 +10,12 @@ void Command::User(int fd, std::vector<std::string> commandVec)
 	std::map<int, class User*>::iterator it = userList.find(fd);
 	if (it->second->GetUserRegist())
 	{
-		mErrManager.ErrorAlreadyRegistRed462(*it->second);
+		mResponse.ErrorAlreadyRegistRed462(*it->second);
 		return ;
 	}
 	if (!it->second->GetPassRegist())
 	{
-		mErrManager.ErrorNotRegistered451(*it->second);
+		mResponse.ErrorNotRegistered451(*it->second);
 		it->second->AppendUserSendBuf("\r\n");
 		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
 		// delete it->second;
@@ -26,7 +26,7 @@ void Command::User(int fd, std::vector<std::string> commandVec)
 	}
 	if (commandVec.size() < 5 || !CheckRealName(commandVec[4]))
 	{
-		mErrManager.ErrorNeedMoreParams461(*it->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*it->second, commandVec[1]);
 		it->second->AppendUserSendBuf("/USER <username> <hostname> <servername> <:realname>\r\n");
 		return ;
 	}

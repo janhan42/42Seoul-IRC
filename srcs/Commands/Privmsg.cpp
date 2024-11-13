@@ -27,12 +27,12 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 	std::vector<std::string> vec;
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
 		return;
 	}
 	if (commandVec[2].empty()) // <message>가 empty일때
 	{
-		mErrManager.ErrorNoTextToSend412(*userIt->second);
+		mResponse.ErrorNoTextToSend412(*userIt->second);
 		return;
 	}
 	std::istringstream iss(commandVec[1]);
@@ -57,13 +57,13 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 			}
 			else // if Channel not exists
 			{
-				mErrManager.ErrorNosuchChannel403(*userIt->second, *vecIt);
+				mResponse.ErrorNosuchChannel403(*userIt->second, *vecIt);
 			}
 		}
 		else
 		{
 			std::map<int, class User*>::iterator user = mServer.FindUser(*vecIt);
-			if (*vecIt == "SIRC") // /PING SIRC처리
+			if (*vecIt == SERVERNAME) // /PING SIRC처리
 				return ;
 			if (user != mServer.GetUserList().end())
 			{
@@ -73,7 +73,7 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 			}
 			else
 			{
-				mErrManager.ErrorNosuchNick401(*userIt->second, *vecIt);
+				mResponse.ErrorNosuchNick401(*userIt->second, *vecIt);
 				return ;
 			}
 		}
@@ -91,7 +91,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 {
 	if (commandVec.size() < 3 && commandVec[3] != "help")
 	{
-		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 		return;
 	}
 	Channel* channel = mServer.FindChannel(commandVec[1]);
@@ -120,7 +120,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		std::cout << commandVec.size() << std::endl;
 		if (commandVec.size() != 4)
 		{
-			mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+			mResponse.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 			return;
 		}
 		std::string response = bot->GetHelpBuckShot();
@@ -146,7 +146,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 
 		if (commandVec.size() < 5) // arg error
 		{
-			mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+			mResponse.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 			return;
 		}
 		std::map<int, class User*>::iterator targetUser = mServer.FindUser(commandVec[4]);

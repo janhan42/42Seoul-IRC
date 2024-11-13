@@ -2,7 +2,7 @@
 #include "../Command.hpp"
 #include "../Server.hpp"
 #include "../User.hpp"
-#include "../ErrDefine.hpp"
+#include "../Define.hpp"
 #include "../Utils/IsSpecial.hpp"
 #include <iostream>
 
@@ -20,7 +20,7 @@ void Command::Nick(int fd, std::vector<std::string> commandVec)
 	std::map<int, class User*>::iterator it = userList.find(fd);
 	if (!it->second->GetPassRegist()) // pass-authentication == false
 	{
-		mErrManager.ErrorNotRegistered451(*it->second);
+		mResponse.ErrorNotRegistered451(*it->second);
 		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
 		// delete it->second;
 		// userList.erase(fd);
@@ -45,18 +45,18 @@ void Command::Nick(int fd, std::vector<std::string> commandVec)
 	/* END */
 	if (commandVec[1].empty())
 	{
-		mErrManager.ErrorNoNickNameGiven431(*it->second);
+		mResponse.ErrorNoNickNameGiven431(*it->second);
 		return ;
 	}
 	if (!CheckNickNameValidate(commandVec[1]))
 	{
-		mErrManager.ErrorErronusNickName432(*it->second, commandVec[1]);
+		mResponse.ErrorErronusNickName432(*it->second, commandVec[1]);
 		it->second->AppendUserSendBuf("/NICK <nickname> First Letter is not digit and length is under 10.\r\n");
 		return ;
 	}
 	if (!CheckNickNameDuplicate(commandVec[1], mServer.GetUserList()))
 	{
-		mErrManager.ErrorNickNameInuse433(*it->second, commandVec[1]);
+		mResponse.ErrorNickNameInuse433(*it->second, commandVec[1]);
 		return ;
 	}
 	std::string oldNickName = it->second->GetNickName();

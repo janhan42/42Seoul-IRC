@@ -1,17 +1,23 @@
-#ifndef ERRORMANAGER_HPP
-# define ERRORMANAGER_HPP
+#ifndef ResponseManager_HPP
+# define ResponseManager_HPP
 
 #include <string>
-#include "../ErrDefine.hpp"
+#include "../Define.hpp"
 
 class User;
 
-class Errormanager
+class ResponseManager
 {
 	public:
 		/* OCCF */
-		Errormanager();
-		~Errormanager();
+		ResponseManager();
+		~ResponseManager();
+
+		void RPLWelcome001(User& user, std::string FUllName);
+		void RPLYourHost002(User& user);
+		void RPLCreated003(User& user);
+		void RPLMyInfo004(User& user);
+		void RPLISupport005(User& user);
 
 		void ErrorNoTopic331(User& user, std::string channel);
 		/* No Such Error */
@@ -19,6 +25,7 @@ class Errormanager
 		void ErrorNosuchChannel403(User& user, std::string channel);;
 
 		void ErrorNoTextToSend412(User& user);
+		void RPLNoMotd422(User& user);
 		void ErrorNoNickNameGiven431(User& user);
 
 		/* Channel Error */
@@ -48,8 +55,8 @@ class Errormanager
 
 
 	private: // delete OCCF
-		Errormanager(const Errormanager& rhs);
-		Errormanager& operator=(const Errormanager& rhs);
+		ResponseManager(const ResponseManager& rhs);
+		ResponseManager& operator=(const ResponseManager& rhs);
 
 };
 #endif

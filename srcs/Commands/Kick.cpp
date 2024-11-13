@@ -40,12 +40,12 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 
 	if (commandVec.size() < 3)
 	{
-		mErrManager.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
 		return;
 	}
 	if (userIt->second->AmIInChannel(commandVec[1]) == false)
 	{
-		mErrManager.ErrorNotOnChannel442(*userIt->second, commandVec[1]);
+		mResponse.ErrorNotOnChannel442(*userIt->second, commandVec[1]);
 		return;
 	}
 	std::istringstream iss(commandVec[1]);
@@ -67,7 +67,7 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 	Channel* channel = mServer.FindChannel(*vecIt);
 	if (channel && channel->CheckOperator(fd) == false)
 	{
-		mErrManager.ErrorChanOprivsNeeded482(*userIt->second, *vecIt);
+		mResponse.ErrorChanOprivsNeeded482(*userIt->second, *vecIt);
 		return;
 	}
 	for (; vecIt != vec.end(); vecIt++)
@@ -76,14 +76,14 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 		std::cout << "Find Channel : " << *vecIt << std::endl; // TEST OUTPUT
 		if (channel == NULL) // channel not exists
 		{
-			mErrManager.ErrorNosuchChannel403(*userIt->second, *vecIt);
+			mResponse.ErrorNosuchChannel403(*userIt->second, *vecIt);
 		}
 		else
 		{
 			std::map<int, class User*>::iterator target = mServer.FindUser(commandVec[2]);
 			if (target == mServer.GetUserList().end()) // user not exists
 			{
-				mErrManager.ErrorUserNotInChannel441(*userIt->second, commandVec[2], *vecIt);
+				mResponse.ErrorUserNotInChannel441(*userIt->second, commandVec[2], *vecIt);
 				return;
 			}
 			if (target->second->GetUserFd() == -1) // if user == bot : ignore
@@ -92,7 +92,7 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 			{
 				if (!channel->CheckUserInChannel(target->second->GetUserFd())) // user not exists "in channel"
 				{
-					mErrManager.ErrorUserNotInChannel441(*userIt->second, commandVec[2], *vecIt);
+					mResponse.ErrorUserNotInChannel441(*userIt->second, commandVec[2], *vecIt);
 				}
 				else // kick user from channel
 				{

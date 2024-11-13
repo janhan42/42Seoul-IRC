@@ -18,17 +18,17 @@ void Command::Pass(int fd, std::vector<std::string> commandVec)
 	std::string password = mServer.GetPassWord();
 	if (it->second->GetPassRegist())
 	{
-		mErrManager.ErrorAlreadyRegistRed462(*it->second);
+		mResponse.ErrorAlreadyRegistRed462(*it->second);
 		return ;
 	}
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*it->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*it->second, commandVec[1]);
 		return ;
 	}
 	if (strcmp(commandVec[1].c_str(), password.c_str()) != 0)
 	{
-		mErrManager.ErrorPasswdMisMatch464(*it->second);
+		mResponse.ErrorPasswdMisMatch464(*it->second);
 		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
 		// delete it->second;
 		// userList.erase(fd);

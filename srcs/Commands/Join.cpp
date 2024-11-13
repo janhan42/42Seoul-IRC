@@ -29,7 +29,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 	*/
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 		return;
 	}
 	std::vector<std::string> joinChannel = split(commandVec[1], ',');
@@ -47,7 +47,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 	{
 		if ((*iter)[0] != '#' && (*iter)[0] != '&')
 		{
-			mErrManager.ErrorNosuchChannel403(*user, *iter);
+			mResponse.ErrorNosuchChannel403(*user, *iter);
 			iter++;
 			if (commandVec.size() > 2 || keyIt != joinKey.end())
 				keyIt++;
@@ -70,7 +70,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 			{
 				if (channel->CheckInvite(fd) == false)
 				{
-					mErrManager.ErrorInviteOnlychan473(*user, *iter);
+					mResponse.ErrorInviteOnlychan473(*user, *iter);
 					iter++;
 					if (commandVec.size() > 2 || keyIt != joinKey.end())
 						keyIt++;
@@ -81,7 +81,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 			{
 				if (commandVec.size() <= 2 || keyIt == joinKey.end() || channel->CheckKey(*keyIt) == false) // Bad Key
 				{
-					mErrManager.ErrorBadChannelKey475(*user, *iter);
+					mResponse.ErrorBadChannelKey475(*user, *iter);
 					iter++;
 					if (commandVec.size() > 2 || keyIt != joinKey.end())
 						keyIt++;
@@ -92,7 +92,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 			{
 				if (channel->GetUserFdList().size() >= channel->GetLimit())
 				{
-					mErrManager.ErrorChannelIsFull471(*user, *iter);
+					mResponse.ErrorChannelIsFull471(*user, *iter);
 					iter++;
 					if (commandVec.size() > 2 || keyIt != joinKey.end())
 						keyIt++;

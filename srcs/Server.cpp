@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <utility>
 
+/* OCCF */
 Server::Server(const std::string& port, const std::string& password)
 {
 	mPort = SetPortNum(port);
@@ -52,6 +53,45 @@ void Server::Init()
 	mbRunning = true;
 }
 
+void Server::DeleteUserFromServer(int fd)
+{
+	std::cout << "fd [" << fd << "]is quit connet" << std::endl;
+	std::map<int, User*>::iterator userIt =
+		mUserList.find(fd);
+	if (userIt != mUserList.end())	// 접속 해제 유저 처리
+	{
+		struct kevent evSet;
+		EV_SET(&evSet, userIt->second->GetUserFd(),
+				EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
+		mMessage[userIt->first].clear();
+		delete userIt->second;
+		mUserList.erase(fd);
+		close(fd);
+		std::cout << "User Deleted [" << fd << "]" << std::endl;
+	}
+}
+
+void Server::SendBufferToUser()
+{
+	std::map<int, User*>::iterator It = mUserList.begin();
+	for (; It != mUserList.end(); It++)
+	{
+		User* usr = It->second;
+		if (!usr->GetUserSendBuf().empty() && usr->GetUserFd() != -1)
+		{
+			/* TESTOUTPUT */
+			std::cout << "Server Send : " << usr->GetUserSendBuf() << std::endl;
+			/* END */
+			int sent_byte = send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(), usr->GetUserSendBuf().length(), 0);
+			if (sent_byte > 0)	// 전송 성공하면
+				usr->ClearUserSendBuf(sent_byte);
+			else
+				std::cout << "send error on fd [" << usr->GetUserFd() << "]" << std::endl;
+		}
+	}
+}
+
 void Server::Run()
 {
 	while (mbRunning)
@@ -69,22 +109,21 @@ void Server::Run()
 				AcceptUser();
 				continue;
 			}
-
 			else if (mUserEventList[i].filter & EVFILT_READ)
 			{
 				mStrLen = RecvMessage(mUserEventList[i].ident);
-
 				if (mStrLen <= 0) // from outside signal(ctrl+C, ...)
 					DeleteUserFromServer(mUserEventList[i].ident);
-				if (CheckMessageEnds(mUserEventList[i].ident)) // 메세지가 잘 들어와서 실행할 수 있으면 실행
+				if (CheckMessageEnds(mUserEventList[i].ident)) // CRLF 체크
 					DoCommand(mUserEventList[i].ident);
 			}
-			// send 하는 부분
+			// Send Message
 			SendBufferToUser();
 		}
 	}
 }
 
+/* Getter */
 std::map<int, User*>&	Server::GetUserList()
 {
 	return (mUserList);
@@ -110,34 +149,13 @@ int	Server::GetKqFd()
 	return (mKqFd);
 }
 
+/* Others */
 Channel*	Server::FindChannel(std::string channelName)
 {
 	std::map<std::string, Channel*>::iterator It = mChannelList.find(channelName);
 	if (It == mChannelList.end())
 		return (NULL);
 	return (It->second);
-}
-
-// TEST NICKNAME COLOR
-bool containsWordWithoutAnsi(const std::string& input, const std::string& word)
-{
-	std::string cleaned;
-	bool in_ansi = false;
-
-	for (size_t i = 0; i < input.length(); ++i)
-	{
-		if (input[i] == '\033' && input[i + 1] == '[') {
-			in_ansi = true;
-		}
-		if (!in_ansi) {
-			cleaned += input[i];
-		}
-		if (in_ansi && input[i] == 'm')
-		{
-			in_ansi = false;
-		}
-	}
-	return cleaned.find(word) != std::string::npos;
 }
 
 std::map<int, User*>::iterator	Server::FindUser(std::string userName)
@@ -161,15 +179,14 @@ void	Server::AppendNewChannel(std::string& channelName, int fd)
 	mChannelList.insert(std::make_pair(channelName, new Channel(channelName, fd)));
 }
 
-
-
+/* Init func */
 unsigned short int Server::SetPortNum(const std::string& port)
 {
 	int ret;
 	int strIndex = 0;
 	while (port[strIndex])
 	{
-		if (!('0' <= port[strIndex] || port[strIndex] <= '0'))
+		if (!('0' <= port[strIndex] || port[strIndex] <= '9'))
 			throw std::out_of_range("ERROR:: Port Number is only number");
 		strIndex++;
 	}
@@ -185,7 +202,7 @@ std::string Server::SetPassword(const std::string& password)
 	while (password[strIndex])
 		strIndex++;
 	if (strIndex >= 9)
-		throw std::logic_error("ERROR:: Password is under 9 digit");
+		throw std::logic_error("ERROR:: Password is under 9 length");
 	return (password);
 }
 
@@ -239,6 +256,7 @@ void Server::SetBot()
 	mUserList.insert(std::make_pair(-1, mBot));
 }
 
+/* Ohter Func */
 int Server::RecvMessage(int fd)
 {
 	char buf[2];
@@ -261,13 +279,14 @@ void	Server::AddUser(int fd, User* newUser)
 
 void Server::AcceptUser()
 {
+	User* newUser = NULL;
 	mUserSock = accept(mServerSock, (struct sockaddr *)&mUserAddr, &mUserAddrLen);
 	if (mUserSock < 0)
-		std::logic_error("ERROR:: AcceptUser accept() failed");
+		throw std::logic_error("ERROR:: AcceptUser accept() failed");
 	fcntl(mUserSock, F_SETFL, O_NONBLOCK);
-	std::cout << "New User Conneted fd [" << mUserSock << "]" << std::endl;
-
-	User* newUser = new User(mUserSock);
+	newUser = new User(mUserSock);
+	if (newUser == NULL)
+		throw std::logic_error("ERROR:: AcceptUser new User failed");
 	struct kevent evSet;
 	EV_SET(&evSet, mUserSock, EVFILT_READ | EVFILT_WRITE, EV_ADD, 0, 0, newUser);
 	kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
@@ -291,48 +310,3 @@ void Server::DoCommand(int fd)
 	mCommand->Run(fd);
 	mMessage[fd] = "";
 }
-
-// TODO: 다른 부분에서도 동일하게 사용가능 하도록 함수화 예정
-void Server::DeleteUserFromServer(int fd)
-{
-	std::cout << "fd [" << fd << "]is quit connet"
-				<< std::endl;
-	std::map<int, User*>::iterator userIt =
-		mUserList.find(fd);
-	if (userIt != mUserList.end())	// 접속 해제 유저 처리
-	{
-		struct kevent evSet;
-		EV_SET(&evSet, userIt->second->GetUserFd(),
-				EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
-		mMessage[userIt->first].clear();
-		delete userIt->second;
-		mUserList.erase(fd);
-		close(fd);
-		std::cout << "User Deleted [" << fd << "]"
-					<< std::endl;
-	}
-}
-void Server::SendBufferToUser()
-{
-	std::map<int, User*>::iterator It = mUserList.begin();
-	for (; It != mUserList.end(); It++)
-	{
-		User* usr = It->second;
-		if (!usr->GetUserSendBuf().empty() && usr->GetUserFd() != -1)
-		{
-			/* TESTOUTPUT */
-			std::cout << "Server Send : " << usr->GetUserSendBuf() << std::endl;
-			/* END */
-			int sent_byte =
-				send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(),
-					usr->GetUserSendBuf().length(), 0);
-			if (sent_byte > 0)	// 전송 성공하면
-				usr->ClearUserSendBuf(sent_byte);
-			else
-				std::cout << "send error on fd [" << usr->GetUserFd() << "]"
-						<< std::endl;
-		}
-	}
-}
-

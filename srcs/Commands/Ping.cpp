@@ -15,7 +15,7 @@ void Command::Ping(int fd, std::vector<std::string> commandVec)
 
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*it->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*it->second, commandVec[1]);
 		it->second->AppendUserSendBuf("/PING <token>\r\n");
 		return ;
 	}

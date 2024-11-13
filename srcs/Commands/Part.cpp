@@ -17,7 +17,7 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 	std::map<int, class User*>::iterator userIt = userList.find(fd);
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
 		return;
 	}
 	std::istringstream iss(commandVec[1]);
@@ -47,11 +47,11 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 		{
 			if (mServer.FindChannel(*vecIt))
 			{
-				mErrManager.ErrorNotOnChannel442(*userIt->second, *vecIt);
+				mResponse.ErrorNotOnChannel442(*userIt->second, *vecIt);
 			}
 			else
 			{
-				mErrManager.ErrorNosuchChannel403(*userIt->second, *vecIt);
+				mResponse.ErrorNosuchChannel403(*userIt->second, *vecIt);
 			}
 		}
 	}

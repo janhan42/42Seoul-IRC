@@ -18,13 +18,13 @@ void Command::Topic(int fd, std::vector<std::string> commandVec)
 	class User& user = *mServer.GetUserList().find(fd)->second;
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(user, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(user, commandVec[1]);
 		return;
 	}
 	Channel* channel = mServer.FindChannel(commandVec[1]);
 	if (channel == NULL)
 	{
-		mErrManager.ErrorNosuchChannel403(user, commandVec[1]);
+		mResponse.ErrorNosuchChannel403(user, commandVec[1]);
 		return;
 	}
 	std::vector<int> channelUserFdList = channel->GetUserFdList();
@@ -36,14 +36,14 @@ void Command::Topic(int fd, std::vector<std::string> commandVec)
 	}
 	if (iter == channelUserFdList.end()) // User Not on Channel
 	{
-		mErrManager.ErrorNotOnChannel442(user, commandVec[1]);
+		mResponse.ErrorNotOnChannel442(user, commandVec[1]);
 		return;
 	}
 	if (channel->CheckMode(TOPIC)) // Channel Mode +t
 	{
 		if (channel->CheckOperator(fd) == false)
 		{
-			mErrManager.ErrorChanOprivsNeeded482(user, commandVec[1]);
+			mResponse.ErrorChanOprivsNeeded482(user, commandVec[1]);
 			return;
 		}
 	}
@@ -51,7 +51,7 @@ void Command::Topic(int fd, std::vector<std::string> commandVec)
 	{
 		if (channel->GetTopic().length() == 0)
 		{
-			mErrManager.ErrorNoTopic331(user, commandVec[1]);
+			mResponse.ErrorNoTopic331(user, commandVec[1]);
 			return;
 		}
 		user.AppendUserSendBuf("332 " + user.GetNickName() + " " + commandVec[1] + " :" + channel->GetTopic() + "\r\n");

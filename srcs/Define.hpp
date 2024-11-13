@@ -1,7 +1,8 @@
 #ifndef ERRDEFINE_HPP
 # define ERRDEFINE_HPP
 
-#define BUF_SIZE 1024
+# define BUF_SIZE 1024
+# define SERVERNAME "SIRC"
 
 /* PASS */
 # define ERR_NEEDMOREPARAMS "Not enough parameters\r\n"

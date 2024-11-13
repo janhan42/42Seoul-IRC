@@ -2,6 +2,17 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
+/**
+ * @file Server.hpp
+ * @author jang hun han (janhan@student.42Seoul.kr)
+ * @brief Server hpp 파일
+ * @version 0.1
+ * @date 2024-11-13
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #include <string>
 #include <map>
 #include <netinet/in.h>
@@ -27,9 +38,9 @@ class Server
 
 		User										*mBot;
 		void										Init(void);
-		void										 DeleteUserFromServer(int fd);
-		void SendBufferToUser();
-		void Run(void);
+		void										DeleteUserFromServer(int fd);
+		void										SendBufferToUser();
+		void										Run(void);
 
 		//Getter
 		std::map<int, User*>&						GetUserList(void);
@@ -43,7 +54,8 @@ class Server
 		void										RemoveChannel(std::string channelName);
 		void										AppendNewChannel(std::string& channelName, int fd);
 
-	private: // func
+
+	private: // Init func
 		unsigned short int							SetPortNum(const std::string& port);
 		std::string									SetPassword(const std::string& password);
 		void										SetServerSock(void);
@@ -53,6 +65,7 @@ class Server
 		void										SetServerKqueue(void);
 		void										SetBot(void);
 
+	private: // ohter func
 		int											RecvMessage(int fd);
 		void										AddUser(int fd, User* newUser);
 		void										AcceptUser(void);

@@ -8,13 +8,13 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 	class User*& user = mServer.GetUserList().find(fd)->second;
 	if (commandVec.size() < 2)
 	{
-		mErrManager.ErrorNeedMoreParams461(*user, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);
 		return;
 	}
 	Channel* channel = mServer.FindChannel(commandVec[1]);
 	if (user->GetNickName() != commandVec[1] && channel == NULL) // channel not exists
 	{
-		mErrManager.ErrorNosuchChannel403(*user, commandVec[1]);
+		mResponse.ErrorNosuchChannel403(*user, commandVec[1]);
 		return;
 	}
 	if (channel != NULL && commandVec.size() == 2) // show channel-mode
@@ -33,7 +33,7 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 	}
 	if (channel != NULL && !channel->CheckOperator(fd)) // if not channel-operator
 	{
-		mErrManager.ErrorChanOprivsNeeded482(*user, commandVec[1]);
+		mResponse.ErrorChanOprivsNeeded482(*user, commandVec[1]);
 		return;
 	}
 	std::string mode = commandVec[2];
@@ -148,7 +148,7 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 			std::map<int, class User*>::iterator target = mServer.FindUser(commandVec[modeArgIndex]);
 			if (target == mServer.GetUserList().end())	// users not exists
 			{
-				mErrManager.ErrorNosuchNick401(*user, commandVec[modeArgIndex]);
+				mResponse.ErrorNosuchNick401(*user, commandVec[modeArgIndex]);
 				return;
 			}
 			else	// users exists
@@ -159,7 +159,7 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 				}
 				if (!channel->CheckUserInChannel(target->second->GetUserFd()))	// users not exist in channel
 				{
-					mErrManager.ErrorUserNotInChannel441(*user, commandVec[modeArgIndex], commandVec[1]);
+					mResponse.ErrorUserNotInChannel441(*user, commandVec[modeArgIndex], commandVec[1]);
 					return;
 				}
 				else if (sign == '+') // give operator-authority

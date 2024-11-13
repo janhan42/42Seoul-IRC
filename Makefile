@@ -6,7 +6,7 @@
 #    By: janhan <janhan@student.42seoul.kr>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/24 15:49:02 by janhan            #+#    #+#              #
-#    Updated: 2024/11/13 08:34:54 by janhan           ###   ########.fr        #
+#    Updated: 2024/11/13 14:16:29 by janhan           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ UTILS		=	IsSpecial.cpp				\
 OBJS_UTILS	=	$(addprefix $(UTILS_DIR), $(UTILS:.cpp=.o))
 
 ERROR_DIR	=	./srcs/ErrorUtils/
-ERRORS		=	ErrorManager.cpp
+ERRORS		=	ResponseManager.cpp
 OBJS_ERROR	=	$(addprefix $(ERROR_DIR), $(ERRORS:.cpp=.o))
 
 CMDS_DIR	=	./srcs/Commands/
