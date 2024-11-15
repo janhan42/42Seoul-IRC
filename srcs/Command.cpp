@@ -189,9 +189,8 @@ void Command::NameListMsg(int fd, std::string channelName)
 		X ("*", 0x2A)- 개인 채널( "+p"이전에는 널리 사용되지 않았음).
 		공개 채널만 지원
 	 */
-	// TODO:
-	user->AppendUserSendBuf("353 " + user->GetNickName() + " = " + channelName + " :" + message + "\r\n");
-	user->AppendUserSendBuf("366 " + user->GetNickName() + " " + channelName + " :End of NAMES list.\r\n");
+	mResponse.RPL_NamReply353(*user, channelName, message);
+	mResponse.RPL_EndOfNames366(*user, channelName);
 }
 
 std::string Command::ChannelMessage(int index, std::vector<std::string> commandVec)

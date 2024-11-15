@@ -5,6 +5,8 @@
 #include <string>
 #include <stack>
 
+class Command;
+
 class Bot
 {
 	public:
@@ -12,11 +14,8 @@ class Bot
 		~Bot();
 
 		/* functions */
-		const std::string						Introduce(void);;
-		const std::string						GetHelpBuckShot(void);
-		const std::string						GetHelpAccept(void);
-		const std::string						GetHelpReject(void);
-		const std::string						GetHelpGame(void);
+		const std::string						Introduce(void);
+		void									HelpMsgtoChannel(Command* command, std::string channel);
 
 		// BuckShot
 		class User*								GetFirstUser(void);

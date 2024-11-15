@@ -98,7 +98,12 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 				{
 					std::string message = commandVec[2];
 					if (commandVec.size() > 3)
-						message += " " + commandVec[3];
+					{
+						for (size_t i = 3; i < commandVec.size(); i++)
+						{
+							message = message + " " + commandVec[i];
+						}
+					}
 					MsgToAllChannel(fd, *vecIt, "KICK", message);
 					channel->RemoveUserFdList(target->second->GetUserFd());
 					channel->RemoveOperatorFd(target->second->GetUserFd()); // 오퍼레이터일수도 있어서 추가

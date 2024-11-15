@@ -114,6 +114,13 @@ bool	Channel::CheckKey(std::string key)
 	return (false);
 }
 
+/**
+ * @brief
+ * 채널에 유저가 있는지 확인후 bool값을 리턴하는 함수
+ * @param fd
+ * @return true
+ * @return false
+ */
 bool	Channel::CheckUserInChannel(int fd)
 {
 	std::vector<int>::iterator it = FindMyUserIt(fd);

@@ -12,35 +12,18 @@ Bot::Bot()
 Bot::~Bot()
 {}
 
+void Bot::HelpMsgtoChannel(Command* command, std::string channel)
+{
+	command->MsgToAllChannel(-1, channel, "PRIVMSG", " @bot buckshot <target-user>: target-user에게 BuckShot게임을 신청합니다.\r\n");
+	command->MsgToAllChannel(-1, channel, "PRIVMSG", " @bot accept: 게임을 수락합니다.\r\n");
+	command->MsgToAllChannel(-1, channel, "PRIVMSG", " @bot reject: 게임을 거절합니다.\r\n");
+	command->MsgToAllChannel(-1, channel, "PRIVMSG", " @bot me(자신에게), other(상대방에게)쏩니다, gg(항복을 할수 있습니다).\r\n");
+}
+
 const std::string Bot::Introduce()
 {
 	return "@bot help 로 BOT에 대한 설명을 볼수 있습니다.\r\n";
 }
-
-const std::string	Bot::GetHelpBuckShot()
-{
-	std::string result = " @bot buckshot <target-user>: target-user에게 BuckShot게임을 신청합니다.\r\n";
-	return (result);
-}
-
-const std::string Bot::GetHelpAccept()
-{
-	std::string result = " @bot accept: 게임을 수락합니다.\r\n";
-	return (result);
-}
-
-const std::string Bot::GetHelpReject()
-{
-	std::string result = " @bot reject: 게임을 거절합니다.\r\n";
-	return (result);
-}
-
-const std::string Bot::GetHelpGame()
-{
-	std::string result = " @bot me(자신에게), other(상대방에게)쏩니다, gg(항복을 할수 있습니다).\r\n";
-	return (result);
-}
-
 
 // Game
 class User*	Bot::GetFirstUser(void)

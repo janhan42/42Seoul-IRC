@@ -34,15 +34,19 @@ void ResponseManager::RPLISupport005(User& user)
 	user.AppendUserSendBuf(":SIRC 005 " + user.GetNickName() + " :MAXNICKLEN=9 MAXCHANNELLEN=200 :are supported by this server\r\n");
 }
 
-void ResponseManager::RPLNoMotd422(User& user)
-{
-	user.AppendUserSendBuf(":SIRC 422  " + user.GetNickName() + " :MOTD File is missing\r\n");
-}
-
-
 void ResponseManager::ErrorNoTopic331(User& user, std::string channel)
 {
 	user.AppendUserSendBuf("331 " + user.GetNickName() + " " + channel + " :" + RPL_NOTOPIC);
+}
+
+void ResponseManager::RPL_NamReply353(User& user, std::string channel, std::string meassage)
+{
+	user.AppendUserSendBuf("353 " + user.GetNickName() + " = " + channel + " :" + meassage + "\r\n");
+}
+
+void ResponseManager::RPL_EndOfNames366(User& user, std::string channel)
+{
+	user.AppendUserSendBuf("366 " + user.GetNickName() + " " + channel + " " + RPL_ENDOFNAMES);
 }
 
 /* No Such Error */
@@ -61,6 +65,11 @@ void ResponseManager::ErrorNosuchChannel403(User& user, std::string channel)
 void ResponseManager::ErrorNoTextToSend412(User& user)
 {
 	user.AppendUserSendBuf("412 " + user.GetNickName() + " :" + ERR_NOTEXTTOSEND);
+}
+
+void ResponseManager::RPLNoMotd422(User& user)
+{
+	user.AppendUserSendBuf(":SIRC 422  " + user.GetNickName() + " :MOTD File is missing\r\n");
 }
 
 void ResponseManager::ErrorNoNickNameGiven431(User& user)

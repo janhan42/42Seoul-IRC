@@ -2,6 +2,7 @@
 #include "../Server.hpp"
 #include "../User.hpp"
 
+
 /*
 	- RESPONSE LIST -
 	RPL_INVITING (341)

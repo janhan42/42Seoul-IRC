@@ -20,6 +20,8 @@ class ResponseManager
 		void RPLISupport005(User& user);
 
 		void ErrorNoTopic331(User& user, std::string channel);
+		void RPL_NamReply353(User& user, std::string channel, std::string meassage);
+		void RPL_EndOfNames366(User& user, std::string channel);
 		/* No Such Error */
 		void ErrorNosuchNick401(User& user, std::string nickName);
 		void ErrorNosuchChannel403(User& user, std::string channel);;

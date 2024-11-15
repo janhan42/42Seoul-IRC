@@ -4,6 +4,9 @@
 # define BUF_SIZE 1024
 # define SERVERNAME "SIRC"
 
+/* RPL */
+# define RPL_ENDOFNAMES ":End of /NAMES list\r\n"
+
 /* PASS */
 # define ERR_NEEDMOREPARAMS "Not enough parameters\r\n"
 # define ERR_ALREADYREGISTERED "You may not reregister\r\n"
