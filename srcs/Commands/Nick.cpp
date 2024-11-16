@@ -50,7 +50,7 @@ void Command::Nick(int fd, std::vector<std::string> commandVec)
 		mResponse.ErrorNoNickNameGiven431(*user);
 		return ;
 	}
-	if (!CheckNickNameValidate(commandVec[1]))
+	if (!CheckNickNameValid(commandVec[1]))
 	{
 		mResponse.ErrorErronusNickName432(*user, commandVec[1]);
 		user->AppendUserSendBuf("/NICK <nickname> First Letter is not digit and length is under 10.\r\n");
@@ -77,7 +77,7 @@ void Command::Nick(int fd, std::vector<std::string> commandVec)
 	user->SetNickRegist(true);
 }
 
-bool Command::CheckNickNameValidate(std::string nickName)
+bool Command::CheckNickNameValid(std::string nickName)
 {
 	if (nickName.length() == 0 || nickName.length() > 9)
 		return (false);
@@ -91,9 +91,9 @@ bool Command::CheckNickNameValidate(std::string nickName)
 	return (true);
 }
 
-bool Command::CheckNickNameDuplicate(std::string nickName, std::map<int, class User*>& userList)
+bool Command::CheckNickNameDuplicate(std::string nickName, UserMap& userList)
 {
-	std::map<int, class User*>::iterator it = userList.begin();
+	UserMap::iterator it = userList.begin();
 	for (; it != userList.end(); it++)
 	{
 		std::string userNickName = it->second->GetNickName();

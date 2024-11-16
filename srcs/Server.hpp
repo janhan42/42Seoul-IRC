@@ -26,6 +26,9 @@ class User;
 class Channel;
 class Command;
 
+typedef std::map<int, class User*>			UserMap; 
+typedef std::map<std::string, Channel*>	ChannelMap;
+
 class Server
 {
 	public:
@@ -38,10 +41,10 @@ class Server
 		void										Run(void);
 
 		//Getter
-		std::map<int, User*>&						GetUserList(void);
+		UserMap&									GetUserList(void);
 		std::string									GetPassWord(void);
 		std::string									GetMessage(int fd);
-		std::map<std::string, Channel *>&			GetChannelList(void);
+		ChannelMap&									GetChannelList(void);
 		int											GetKqFd(void);
 		//Ohters
 		Channel*									FindChannel(std::string channelName);
@@ -86,8 +89,8 @@ class Server
 		int											mUserSock;
 		struct sockaddr_in							mUserAddr;
 		socklen_t									mUserAddrLen;
-		std::map<int, User*>						mUserList;
-		std::map<std::string, Channel*>				mChannelList;
+		UserMap										mUserList;
+		ChannelMap									mChannelList;
 		std::string									mMessage[BUF_SIZE];
 		Command*									mCommand;
 

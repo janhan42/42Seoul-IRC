@@ -25,13 +25,13 @@ Server::Server(const std::string& port, const std::string& password)
 Server::~Server()
 {
 	close(mServerSock);
-	std::map<int, User*>::iterator iter = mUserList.begin();
+	UserMap::iterator iter = mUserList.begin();
 	for (; iter != mUserList.end(); iter++)
 	{
 		close(iter->first);
 		delete iter->second;
 	}
-	std::map<std::string, Channel*>::iterator channelIter = mChannelList.begin();
+	ChannelMap::iterator channelIter = mChannelList.begin();
 	for (; channelIter != mChannelList.end(); channelIter++)
 	{
 		delete channelIter->second;
@@ -95,7 +95,7 @@ void Server::Run()
  * 서버에 접속해있는 유저 리스트를 반환하는 함수
  * @return std::map<int, User*>&
  */
-std::map<int, User*>&	Server::GetUserList()
+UserMap&	Server::GetUserList()
 {
 	return (mUserList);
 }
@@ -150,7 +150,7 @@ int	Server::GetKqFd()
  */
 Channel*	Server::FindChannel(std::string channelName)
 {
-	std::map<std::string, Channel*>::iterator It = mChannelList.find(channelName);
+	ChannelMap::iterator It = mChannelList.find(channelName);
 	if (It == mChannelList.end())
 		return (NULL);
 	return (It->second);
@@ -175,7 +175,7 @@ Channel*	Server::FindChannel(std::string channelName)
 
 User*	Server::FindUser(std::string& name)
 {
-	std::map<int, User*>::iterator it = mUserList.begin();
+	UserMap::iterator it = mUserList.begin();
 	for (; it != mUserList.end(); it++)
 	{
 		if (it->second->GetNickName() == name)
@@ -186,7 +186,7 @@ User*	Server::FindUser(std::string& name)
 
 User*	Server::FindUser(int fd)
 {
-	std::map<int, User*>::iterator it = mUserList.find(fd);
+	UserMap::iterator it = mUserList.find(fd);
 	if (it == mUserList.end())
 		return (NULL);
 	return (it->second);
@@ -252,11 +252,11 @@ void Server::HandleReadEvent(int fd)
  */
 void Server::SendBufferToUser()
 {
-	std::map<int, User*>::iterator it = mUserList.begin();
+	UserMap::iterator it = mUserList.begin();
 	for (; it != mUserList.end(); it++)
 	{
-		User*	user = it->second;
 		int		user_fd = it->first;
+		User*	user = it->second;
 		
 		if (!user->GetUserSendBuf().empty() && user_fd != -1)
 		{

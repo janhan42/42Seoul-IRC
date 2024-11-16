@@ -195,7 +195,7 @@ void Command::NameListMsg(int fd, std::string channelName)
 	}
 	//class User*& user = mServer.GetUserList().find(fd)->second;
 	class User* user = mServer.FindUser(fd);
-	/*
+	/* e
 		O ("=", 0x3D)- 공개 채널.
 		X ("@", 0x40)- 비밀 채널( 비밀 채널 모드 "+s" ).
 		X ("*", 0x2A)- 개인 채널( "+p"이전에는 널리 사용되지 않았음).

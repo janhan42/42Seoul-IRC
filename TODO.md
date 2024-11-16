@@ -61,21 +61,21 @@ u# IRC Check List
 ___
 ## Bot
 
-server->GetUserList().find(fd)->second 로 되어있는거
+## Refactor
 
-FindUser(int fd) 함수 하나 만들고
+- [x] Server 클래스에 FindUser 함수 두개 만들어서 필요한 부분 전부 교체함
 
-server->FindUser(fd); 로 전부 수정하기
+- [ ] 읽기 어려운 iterator 읽기 쉽게 변경중
 
-istringstream 쓰는 부분 split함수 로 바꾸기
+- [ ] istringstream 쓰는 부분 split함수 로 바꾸기
 
-이제 bot 클래스가 생겼으니까 fd -1인 유저는 안넣어도 되는거 아닌가?
+- [ ] 이제 bot 클래스가 생겼으니까 fd -1인 유저는 안넣어도 되는거 아닌가?
+	-> 채널 접속시나 names 했을 때 유저 리스트 보내줄 때 봇 안넣어도 되면 
+		삭제해도 될 것 같음
 
-- 스트링을 strcmp(str.c_str(), "string") == 0 이런식으로 쓰는거
-	그냥 str == "string" 이렇게 고쳐보기
-	- Pass 
-	- PRIVMSG
+- [x] strcmp 랑 string 비교연산 섞여있는 부분 stirng 비교연산으로 통일함
+	- Pass.cpp, Privmsg.cpp
 
-@bot buckshot 하고 뒤에 이름 안적었을때 일단 메세지 가게 해놓았음
+- [x] @bot buckshot 하고 뒤에 이름 안적었을때 일단 메세지 가게 해놓았음
 
-Command::ChannelPART 함수 사용안해서 주석처리함
+- [x] Command::ChannelPART 함수 사용안해서 주석처리함

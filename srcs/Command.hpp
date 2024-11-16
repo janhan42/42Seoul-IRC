@@ -38,7 +38,7 @@ class Command
 		void			BotCommand(int fd, std::vector<std::string> commandVeco);
 		void			TopicMsg(int fd, std::string channelName);
 		bool			CheckNickNameDuplicate(std::string name, std::map<int, class User*>& userList);
-		bool			CheckNickNameValidate(std::string name);
+		bool			CheckNickNameValid(std::string name);
 		bool			CheckRealName(std::string name);
 		bool			CheckBotCommand(std::string command);
 
