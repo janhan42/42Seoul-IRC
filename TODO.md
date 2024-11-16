@@ -1,5 +1,15 @@
 u# IRC Check List
 
+# CRASH!!!!!
+
+- [x] /ping hello 하면 터지지는 않는데 pong이 안감
+	- Recv Send: PRIVMSG hello :PING 1731785308 736278 이런식으로 privmsg로 들어와서 privmsg처럼 처리함
+- [x] 근데 /ping fuck 하면 세그폴트남
+- [x] /msg janhan hi 해도 터짐
+- [x] 밑에 적힌거처럼 구현은 안해도 무시하게는 해야될거같은데
+- [x] 고침 같은 user변수가 두개라서 터지는거였음
+- [x] 이제 /msg로 1대1대화도 잘됨
+
 ## ISSUE
 - [x] 같은 닉네임이 서버에 접속해 있으면 접속이 안됨 -> 이게 맞는 행동인지 확인후 처리를 해야할듯 -> 맞는거임 프로토콜 픽스 했음
 - [x] 기본 닉네임으로 채널에 들어간뒤에 /NICK을 사용한뒤 새로운 유저가 기본닉네임으로 이상 현상으로 접속한뒤 기존 첫번째 유저가 exit한뒤 두번째 유저가 eixt하면 badfree 발생 -> NickCollision 처리 해놨음
@@ -83,10 +93,17 @@ ___
 - [x] 서버에서 init 을 따로 분리한건 생성자 실패했는지를 execption으로 밖에 확인하지 못해서 빼놓은건데, execption 쓸거면 메인에서 호출 안한고 생성자에 넣어도 될듯
 	- init이 실패하면 catch로 가서 프로그램 종료됨
 
-- [ ] 서버 사용하지 않는 멤버변수, 멤버함수 정리
-	- [ ] GetKqFd 함수 사용하지 않음
+- [x] 서버 사용하지 않는 멤버변수, 멤버함수 정리
+	- [x] GetKqFd 함수 사용하지 않음
 	- [x] mbrunning변수 필요없음
 	- [x] mEventCount 변수 굳이 멤버로 둘 필요 없을 것 같음
 	- [x] mUserSock 변수 accept user 함수 내부에서만 쓰기 때문에 멤버로 둘 필요 없음
 	- [x] mUserAddr이랑 mUserAddrLen 역시 일회용처럼 쓰이기 때문에 멤버변수로 둘 필요 없음
 	- [x] mServerEvent도 굳이 멤버로 둘 필요 없어보임
+
+- [ ] RecvMessage함수 한글자씩 읽는거 너무 느리지 않을까 싶어서 새로 만들어 볼까 했는데 다 뜯어고쳐야되네... 일단 보류
+
+- [x] mMessage 벡터가 1024개나 가지고 있길래 max_user 만들고 100으로 함
+	- 유저fd는 5부터 생기니까 max_user+5로함
+
+- [x] 442에러 체크 부분 IsInChannel 함수로 변경 가능한거 변경

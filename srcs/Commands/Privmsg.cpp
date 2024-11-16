@@ -40,7 +40,7 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 	std::istringstream iss(commandVec[1]);
 	while (getline(iss, buffer, ','))
 		vec.push_back(buffer);
-	std::vector<std::string>::iterator vecIt = vec.begin();
+	std::vector<std::string>::iterator vecIt = vec.begin(); // 이거 반복문 왜돔?
 	for(; vecIt != vec.end(); vecIt++)
 	{
 		if ((*vecIt)[0] == '#' || (*vecIt)[0] == '&') // Send To Channel
@@ -61,16 +61,22 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 				mResponse.ErrorNosuchChannel403(*user, *vecIt);
 			}
 		}
-		else
+		else // Privmsg 다음 단어가 채널이 아닐 때
 		{
-			class User* user = mServer.FindUser(*vecIt);
 			if (*vecIt == SERVERNAME) // /PING SIRC처리
+			{
 				return ;
-			if (user != NULL)
+			}
+			if (commandVec[2] == ":\x01PING") // 유저가 임의로 ping 보낸건 그냥 무시
+			{
+				return;
+			}
+			class User* target_user = mServer.FindUser(*vecIt);
+			if (target_user != NULL)
 			{
 				std::string messages = ChannelMessage(2, commandVec);
 
-				user->AppendUserSendBuf(":" + user->GetNickName() + " PRIVMSG " + user->GetNickName() + " :" + messages + "\r\n");
+				target_user->AppendUserSendBuf(":" + user->GetNickName() + " PRIVMSG " + target_user->GetNickName() + " :" + messages + "\r\n");
 			}
 			else
 			{

@@ -422,6 +422,22 @@ int Server::RecvMessage(int fd)
 	}
 	return (ret);
 }
+// int Server::RecvMessage(int fd)
+// {
+// 	char buf[1024];
+// 	ssize_t read_len;
+// 	int ret = 0;
+//
+// 	mMessage[fd] = mRestOfMessage[fd];
+// 	//
+// 	// 일단 읽을 수 있는거 전부 mMessage에 때려박음
+// 	while ((read_len = recv(fd, buf, sizeof(buf) - 1, 0)) > 0)
+// 	{
+// 		buf[read_len] = '\0';
+// 		ret += read_len;
+// 		mMessage[fd] += buf;
+// 	}
+// }
 
 /**
  * @brief

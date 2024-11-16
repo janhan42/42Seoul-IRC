@@ -91,7 +91,7 @@ class Server
 		// socklen_t									mUserAddrLen;
 		UserMap										mUserList;
 		ChannelMap									mChannelList;
-		std::string									mMessage[BUF_SIZE];
+		std::string									mMessage[MAX_USER + 5];
 		Command*									mCommand;
 
 	private: // delete OCCF

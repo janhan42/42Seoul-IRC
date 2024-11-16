@@ -30,20 +30,23 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 	std::vector<std::string>::iterator vecIt = vec.begin();
 	for (; vecIt != vec.end(); vecIt++)
 	{
-		std::vector<std::string>::iterator channelIt = user->FindChannel(*vecIt);
-		if (channelIt != user->GetChannelList().end())
+		// std::vector<std::string>::iterator channelIt = user->FindChannel(*vecIt);
+		// if (channelIt != user->GetChannelList().end())
+		if (user->IsInChannel(*vecIt) == true)
 		{
-			Channel* channel = mServer.FindChannel(*channelIt);
-			MsgToAllChannel(fd, *vecIt, "PART", ChannelMessage(2, commandVec));
+			Channel* channel = mServer.FindChannel(*vecIt);
 			channel->RemoveUserFdList(fd);
 			channel->RemoveOperatorFd(fd);
-			user->RemoveChannel(*channelIt);
+			user->RemoveChannel(*vecIt);
+			// TODO: fd -1인 유저클래스 봇 삭제할거면 여기 수정해야함
 			if (channel->GetUserFdList().size() <= 1) // if last-user in channel: remove channel
 			{
 				std::cout << "채널에 fd 갯수 : " << channel->GetUserFdList().size() << std::endl;
 				mServer.RemoveChannel(channel->GetChannelName());
 				delete channel;
 			}
+			else // 아무도 없으면 굳이 보낼 필요 없을 것 같아서 else에 넣음
+				MsgToAllChannel(fd, *vecIt, "PART", ChannelMessage(2, commandVec));
 		}
 		else	// Error
 		{

@@ -7,6 +7,8 @@
 	ERR_NEEDMOREPARAMS (461)
 	ERR_NOORIGIN (409)
  */
+
+// 핑 메세지가 오면 pong 메세지를 돌려주는 함
 void Command::Ping(int fd, std::vector<std::string> commandVec)
 {
 	/* PING <token> */
