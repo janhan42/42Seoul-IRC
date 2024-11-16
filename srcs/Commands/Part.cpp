@@ -39,6 +39,7 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 		if (user->IsInChannel(*vecIt) == true)
 		{
 			Channel* channel = mServer.FindChannel(*vecIt);
+			MsgToAllChannel(fd, *vecIt, "PART", ChannelMessage(2, commandVec));
 			channel->RemoveUserFdList(fd);
 			channel->RemoveOperatorFd(fd);
 			user->RemoveChannel(*vecIt);
@@ -49,8 +50,6 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 				mServer.RemoveChannel(channel->GetChannelName());
 				delete channel;
 			}
-			else // 아무도 없으면 굳이 보낼 필요 없을 것 같아서 else에 넣음
-				MsgToAllChannel(fd, *vecIt, "PART", ChannelMessage(2, commandVec));
 		}
 		else	// Error
 		{
