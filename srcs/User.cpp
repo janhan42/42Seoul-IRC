@@ -172,6 +172,7 @@ void	User::MakeUserToBot()
 	SetRegist(true);
 }
 
+// 인자로 들어온 채널이름을 유저의 mChannelList에서 삭제
 void User::RemoveChannel(std::string channelName)
 {
 	std::vector<std::string>::iterator It = FindChannel(channelName);
@@ -179,6 +180,9 @@ void User::RemoveChannel(std::string channelName)
 		mChannelList.erase(It);
 }
 
+// 유저가 접속중인 채널 중에 인자로 주어진 이름의 채널이 있는지 찾는 함수
+// iterator 를 리턴하는데 있으면 찾은 자리, 없으면 end() 를 리턴
+// 위에 RemoveChannel함수에서 사용할 수 있게 제작됨
 std::vector<std::string>::iterator	User::FindChannel(std::string channelName)
 {
 	std::vector<std::string>::iterator It = mChannelList.begin();
@@ -190,6 +194,7 @@ std::vector<std::string>::iterator	User::FindChannel(std::string channelName)
 	return (It);
 }
 
+// 유저의 channelName 채널 접속 여부 리턴
 bool User::IsInChannel(const std::string channelName)
 {
 	if (this->FindChannel(channelName) == mChannelList.end())

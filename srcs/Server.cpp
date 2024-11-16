@@ -173,6 +173,10 @@ Channel*	Server::FindChannel(std::string channelName)
 // 	return (it);
 // }
 
+/*
+ * 서버의 UserMap에서 이름으로 유저를 찾고 유저 포인터 반환
+ * 없으면 널포인터 반환
+ */
 User*	Server::FindUser(std::string& name)
 {
 	UserMap::iterator it = mUserList.begin();
@@ -184,6 +188,10 @@ User*	Server::FindUser(std::string& name)
 	return (NULL);
 }
 
+/*
+ * 서버의 UserMap에서 fd로 유저를 찾고 유저 포인터 반환
+ * 없으면 널포인터 반환
+ */
 User*	Server::FindUser(int fd)
 {
 	UserMap::iterator it = mUserList.find(fd);
@@ -237,6 +245,11 @@ void Server::DeleteUserFromServer(int fd)
 	}
 }
 
+/**
+ * @brief
+ * read 가능 이벤트가 발생했을 때 유저를 삭제할지 커맨들을 실행할지
+ * 분기하는 함수
+ */
 void Server::HandleReadEvent(int fd)
 {
 	int recvLen = RecvMessage(fd);

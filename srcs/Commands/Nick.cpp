@@ -13,6 +13,12 @@
 	ERR_NICKNAMEINUSE (433) o
 	ERR_NICKCOLLISION (436) (다른 서버에 대한 처리라서 안함)
  */
+
+//  첫 닉네임을 설정하거나 닉네임을 바꾸는 함수
+//  pass 명령어로 암호를 전달하지 않았으면 유저가 삭제되고 리턴됨
+//  해당 닉네임이 유효한지, 중복되지 않는지 검사하고
+//  검사를 통과하면 닉네임이 바뀌었다는 메세지를 유저가 접속 해있는 채널들 모두에게 전달함
+//  TODO: if (commandVec[1] == "_") 이거 뭔지 모르겠음 아래 while(1) 이거도
 void Command::Nick(int fd, std::vector<std::string> commandVec)
 {
 	/* NICK <nickname> */
@@ -77,6 +83,8 @@ void Command::Nick(int fd, std::vector<std::string> commandVec)
 	user->SetNickRegist(true);
 }
 
+// 바꾸려고 하는 닉네임의 길이와 첫글자에 숫자가 들어가는지, 
+// 허용하지 않는 문자가 들어가지 않았는지 체크해주는 함수
 bool Command::CheckNickNameValid(std::string nickName)
 {
 	if (nickName.length() == 0 || nickName.length() > 9)
@@ -91,6 +99,8 @@ bool Command::CheckNickNameValid(std::string nickName)
 	return (true);
 }
 
+// 닉네임 중복여부를 체크해주는 함수
+// 대소문자를 구분하지 않고 체크함 (JANHAN == janHAN == janhan)
 bool Command::CheckNickNameDuplicate(std::string nickName, UserMap& userList)
 {
 	UserMap::iterator it = userList.begin();

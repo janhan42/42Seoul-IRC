@@ -3,6 +3,10 @@
 #include "../Server.hpp"
 #include "../User.hpp"
 
+// 등록을 시도하는 유저의 유저네임, 호스트네임, 서버주소, 풀네임을 전달받는 함수
+// 접속을 시도하는 컴퓨터 설정을 따라감 ex) mac에 로그인한 이름 등
+// 이미 등록되어있지는 않은지, pass 명령어를 통해 맞는 암호를 입력했는지 등을 체크하고
+// 유저 객체에 해당 내용을 저장 후 등록을 마친다
 void Command::User(int fd, std::vector<std::string> commandVec)
 {
 	/* User <username> <hostname> <servername> <:realname> */

@@ -6,6 +6,7 @@
 #include "Server.hpp"
 #include "Command.hpp"
 #include "User.hpp"
+#include <iostream>
 
 Command::Command(Server& Server)
 : mServer(Server)
@@ -16,6 +17,10 @@ Command::~Command()
 {
 }
 
+// Server 클래스에서 메세지가 잘 끝났는지 확인 후 여기로 보냄
+// 메세지를 잘라서 해당 함수로 전달함
+// 아직 등록이 안된 유저인 경우는 정해진 순서에 따라 등록할 수 있도록
+// RegistNewUser 함수로 보냄
 void Command::Run(int fd)
 {
 	std::istringstream iss(mServer.GetMessage(fd));
@@ -60,6 +65,12 @@ void Command::Run(int fd)
 	}
 }
 
+// 새로 연결된 유저는 프로토콜에 맞춰 pass nick user 명령령어를 주고 받아야함
+//
+// user 명령어가 끝난 시점에 GetIsRegist 함수가 거짓을 반환하는 경우
+// 서버에 등록이 되면 안되기 때문에 451을 보내고 유저를 서버에서 삭제함
+//
+// 정상적으로 등록이 되면 프로토콜에 맞춰서 001~005, 442 응답을 전송 후 종료
 void Command::RegistNewUser(int fd, class User* user, std::vector<std::string>& commandVec)
 {
 	if (commandVec[0] == "PASS")
@@ -114,7 +125,7 @@ void Command::MsgToAllChannel(int fd, std::string channelName, std::string comma
 	while (channelUserIt != channelUserList.end())
 	{
 		//class User*& targetUser = mServer.GetUserList().find(*channelUserIt)->second; // 채널에 있는 모든 유저를 순회하며 조회
-		class User* targetUser = mServer.FindUser(fd); // 채널에 있는 모든 유저를 순회하며 조회
+		class User* targetUser = mServer.FindUser(*channelUserIt); // 채널에 있는 모든 유저를 순회하며 조회
 		if (command == "PRIVMSG" && fd == *channelUserIt) // 현재 channelUserIt이 자기 자신이면
 		{
 			channelUserIt++;
@@ -147,7 +158,7 @@ void Command::NickMsgToAllChannel(int fd, std::string channelName, std::string o
 	while (channelUserIt != channelUserList.end())
 	{
 		//class User*& targetUser = mServer.GetUserList().find(*channelUserIt)->second;
-		class User* targetUser = mServer.FindUser(fd);
+		class User* targetUser = mServer.FindUser(*channelUserIt);
 		if (fd == *channelUserIt) //  현재 channelUserIt이 자기 자신이면
 		{
 			channelUserIt++;
@@ -158,6 +169,7 @@ void Command::NickMsgToAllChannel(int fd, std::string channelName, std::string o
 	}
 }
 
+// 유저 닉네임과 풀네임, 서버이름을 정해진 규칙에 맞춰서 만든 후 리턴
 std::string Command::MakeFullName(int fd)
 {
 	// std::map<int, class User* >& userList = mServer.GetUserList();
@@ -168,6 +180,9 @@ std::string Command::MakeFullName(int fd)
 	return (temp);
 }
 
+// 채널 내부에 있는 유저들의 이름을 공백으로 구분된 문자열로 만들어서
+// fd 유저의 버퍼에 추가해주는 함수
+// 체널 오퍼레이터는 앞에 @가 붙음
 void Command::NameListMsg(int fd, std::string channelName)
 {
 	// std::map<std::string, Channel* >& channelList = mServer.GetChannelList();
@@ -205,6 +220,13 @@ void Command::NameListMsg(int fd, std::string channelName)
 	mResponse.RPL_EndOfNames366(*user, channelName);
 }
 
+// 스페이스바로 전부 쪼개놨던 string vector를 다시 붙여주는 함수
+// PRIVMSG(or /msg) <channel/nickname> <messages...>
+// 이런 식으로 들어왔을 때 messages 도 전부 스페이스바로 쪼개져서 벡터에 들어있는데
+// 이건 이제 합쳐서 보내야 하기 때문에 해당 함수로 합쳐버림
+// 콜론은 이 함수를 호출하는 부분에 보통 들어가있기 때문에 제거해주고
+// message length가 0인 경우는 part 명령어 <채널이름> 뒤에 아무것도 안오면
+// NO REASON을 추가해주기 위함
 std::string Command::ChannelMessage(int index, std::vector<std::string> commandVec)
 {
 	std::string message = "";
@@ -221,6 +243,7 @@ std::string Command::ChannelMessage(int index, std::vector<std::string> commandV
 	return (message);
 }
 
+// PRIVMSG 명령어가 들어오면 채널에 있는 다른유저들 전부에게 해당 메세지 내용을 전달해주는 함수
 void Command::ChannelPrivmsg(std::string message, class User& user, Channel* chennal)
 {
 	std::vector<int> fdList = chennal->GetUserFdList();
@@ -236,6 +259,7 @@ void Command::ChannelPrivmsg(std::string message, class User& user, Channel* che
 	}
 }
 
+// 안쓰는 함수인듯 주석처리해도 컴파일잘됨
 // void Command::ChannelPART(int fd, std::string channelName, std::vector<std::string> commandVec)
 // {
 // 	// std::map<int, class User* >& userList = mServer.GetUserList();

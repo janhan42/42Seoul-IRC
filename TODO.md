@@ -65,7 +65,7 @@ ___
 
 - [x] Server 클래스에 FindUser 함수 두개 만들어서 필요한 부분 전부 교체함
 
-- [ ] 읽기 어려운 iterator 읽기 쉽게 변경중
+- [x] 읽기 어려운 iterator 읽기 쉽게 변경중
 
 - [ ] istringstream 쓰는 부분 split함수 로 바꾸기
 
@@ -79,3 +79,7 @@ ___
 - [x] @bot buckshot 하고 뒤에 이름 안적었을때 일단 메세지 가게 해놓았음
 
 - [x] Command::ChannelPART 함수 사용안해서 주석처리함
+
+- [ ] 서버에서 mbrunning 변수 필요없을거같음
+	- 어차피 init() 안에 있는 함수들은 오류 나면 예외 던져서 종료되기 때문에
+	- 삭제할 예정
