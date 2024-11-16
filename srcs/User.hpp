@@ -21,7 +21,7 @@ class User
 		bool								GetPassRegist(void);
 		bool								GetNickRegist(void);
 		bool								GetUserRegist(void);
-		bool								GetCapEnd(void);
+		//bool								GetCapEnd(void);
 		int									GetUserFd(void);
 		std::string							GetUserSendBuf(void);
 		std::vector<std::string>&			GetChannelList(void);
@@ -33,7 +33,7 @@ class User
 		void								SetNickRegist(bool state);
 		void								SetUserRegist(bool state);
 		void								SetRegist(bool state);
-		void								SetCapEnd(bool state);
+		//void								SetCapEnd(bool state);
 		// Append
 		void								AppendUserSendBuf(std::string userRecvBuffer);
 		void								AppendChannelList(std::string channelName);
@@ -59,7 +59,7 @@ class User
 		bool								mbIsRegistPass;
 		bool								mbIsRegistNick;
 		bool								mbIsRegistUser;
-		bool								mbIsCapEnd;
+		//bool								mbIsCapEnd;
 		// others
 		std::string							mUserSendBuf;
 		std::vector<std::string>			mChannelList;

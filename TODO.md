@@ -107,3 +107,9 @@ ___
 	- 유저fd는 5부터 생기니까 max_user+5로함
 
 - [x] 442에러 체크 부분 IsInChannel 함수로 변경 가능한거 변경
+
+- [ ] User 클래스 정리
+	- mIsCapEnd 멤버변수 안씀
+	- mRealName 처음 등록할때 받아오긴하는데 그뒤로 안씀
+		- realname 이 필요한 명령어는 구현 대상이 아니긴함
+

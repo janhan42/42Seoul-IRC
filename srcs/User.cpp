@@ -7,7 +7,7 @@ User::User(int fd)
 	mbIsRegistPass = false;
 	mbIsRegistNick = false;
 	mbIsRegistUser = false;
-	mbIsCapEnd = false;
+	//mbIsCapEnd = false;
 }
 
 User::~User()
@@ -21,7 +21,7 @@ User::~User()
 	ClearChannelList();
 	ClearUserSendBuf();
 	SetRegist(false);
-	mbIsCapEnd = false;
+	//mbIsCapEnd = false;
 }
 
 /* Getter */
@@ -71,10 +71,10 @@ bool	User::GetUserRegist()
 	return (mbIsRegistUser);
 }
 
-bool	User::GetCapEnd()
-{
-	return (mbIsCapEnd);
-}
+// bool	User::GetCapEnd()
+// {
+// 	return (mbIsCapEnd);
+// }
 
 int		User::GetUserFd()
 {
@@ -128,10 +128,10 @@ void	User::SetRegist(bool state)
 	mbIsRegistUser = state;
 }
 
-void	User::SetCapEnd(bool state)
-{
-	mbIsCapEnd = state;
-}
+// void	User::SetCapEnd(bool state)
+// {
+// 	mbIsCapEnd = state;
+// }
 
 
 /* Append */
