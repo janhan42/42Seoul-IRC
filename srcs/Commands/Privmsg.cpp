@@ -118,7 +118,7 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		{
 			std::string response = "상대방의 닉네임을 입력해주세요.";
 			MsgToAllChannel(BOT, channel->GetChannelName(), "PRIVMSG", response);
-			mResponse.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+			mResponse.ErrorNeedMoreParams461(*mServer.FindUser(fd), commandVec[1]);
 			return;
 		}
 		bot->ValidTarget(fd, &mServer, channel, this, commandVec);

@@ -15,7 +15,8 @@
 void Command::Invite(int fd, std::vector<std::string> commandVec)
 {
 	/* INVITE <nickname> <channel> */
-	class User*& user = mServer.GetUserList().find(fd)->second;
+	//class User*& user = mServer.GetUserList().find(fd)->second;
+	class User* user = mServer.FindUser(fd);
 	if (commandVec.size() < 3)
 	{
 		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);

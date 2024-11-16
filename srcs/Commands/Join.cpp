@@ -29,7 +29,7 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 	*/
 	if (commandVec.size() < 2)
 	{
-		mResponse.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*mServer.FindUser(fd), commandVec[1]);
 		return;
 	}
 	std::vector<std::string> joinChannel = split(commandVec[1], ',');
@@ -41,8 +41,9 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 		joinKey = split(commandVec[2], ',');
 		keyIt = joinKey.begin();
 	}
-	std::map<int, class User*>& userList = mServer.GetUserList();
-	class User*& user = userList.find(fd)->second;
+	// std::map<int, class User*>& userList = mServer.GetUserList();
+	// class User*& user = userList.find(fd)->second;
+	class User* user = mServer.FindUser(fd);
 	while(iter != joinChannel.end())
 	{
 		if ((*iter)[0] != '#' && (*iter)[0] != '&')
@@ -53,12 +54,13 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 				keyIt++;
 			continue;
 		}
-		std::map<std::string, Channel*>& channelList = mServer.GetChannelList();
-		std::map<std::string, Channel*>::iterator channelIt = channelList.find(*iter);
-		if (channelIt != channelList.end()) // channel exists
+		// std::map<std::string, Channel*>& channelList = mServer.GetChannelList();
+		// std::map<std::string, Channel*>::iterator channelIt = channelList.find(*iter);
+		Channel* targetChannel = mServer.FindChannel(*iter);
+		if (targetChannel != NULL) // channel exists
 		{
 			/* conditions: if users can join to channel */
-			Channel* channel = channelIt->second;
+			Channel* channel = targetChannel;
 			if (channel->CheckUserInChannel(fd)) // aready in channel
 			{
 				iter++;
@@ -99,8 +101,8 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 					continue;
 				}
 			}
-			std::string channelName = channelIt->second->GetChannelName();
-			channelIt->second->AppendUserFdList(fd);
+			std::string channelName = *iter;
+			targetChannel->AppendUserFdList(fd);
 			user->AppendChannelList(channelName);							// join user to channel
 			MsgToAllChannel(fd, channelName, "JOIN", "");	// send join-message to users(in channel)
 			TopicMsg(fd, channelName);
@@ -108,11 +110,12 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 		else // channel not exists (new channel)
 		{
 			mServer.AppendNewChannel(*iter, fd);					// create new channel
-			mServer.FindChannel(*iter)->AppendUserFdList(-1);	// join user to channel
-			mServer.FindChannel(*iter)->AppendUserFdList(fd);		// join user to channel
+			Channel* newChannel = mServer.FindChannel(*iter);
+			newChannel->AppendUserFdList(-1);	// join user to channel
+			newChannel->AppendUserFdList(fd);		// join user to channel
 			user->AppendChannelList(*iter);
 			MsgToAllChannel(fd, *iter, "JOIN", "");
-			mServer.FindChannel(*iter)->AddOperatorFd(fd);
+			newChannel->AddOperatorFd(fd);
 		}
 		NameListMsg(fd, *iter); // 353 RPL_NAMREPLAY, 366 RPL_ENDOFNAMES
 		MsgToAllChannel(-1, *iter, "PRIVMSG", mServer.FindChannel(*iter)->GetBot()->Introduce());
@@ -124,14 +127,16 @@ void Command::Join(int fd, std::vector<std::string> commandVec)
 
 void Command::TopicMsg(int fd, std::string channelName)
 {
-	std::map<std::string, Channel* >& channelList = mServer.GetChannelList();
-	Channel* channel = channelList.find(channelName)->second;
+	// std::map<std::string, Channel* >& channelList = mServer.GetChannelList();
+	// Channel* channel = channelList.find(channelName)->second;
+	Channel* channel = mServer.FindChannel(channelName);
 	std::string topic = channel->GetTopic();
 
 	if (topic.length() == 0)
 		return;
 
 	topic = topic.substr(1, topic.length() - 1);
-	class User*& user = mServer.GetUserList().find(fd)->second;
+	//class User*& user = mServer.GetUserList().find(fd)->second;
+	class User* user = mServer.FindUser(fd);
 	user->AppendUserSendBuf("332 " + user->GetNickName() + " " + channelName + " :" + topic + "\r\n");
 }

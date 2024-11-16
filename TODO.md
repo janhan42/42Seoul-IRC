@@ -77,3 +77,5 @@ istringstream 쓰는 부분 split함수 로 바꾸기
 	- PRIVMSG
 
 @bot buckshot 하고 뒤에 이름 안적었을때 일단 메세지 가게 해놓았음
+
+Command::ChannelPART 함수 사용안해서 주석처리함

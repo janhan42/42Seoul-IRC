@@ -221,15 +221,16 @@ void	Server::AppendNewChannel(std::string& channelName, int fd)
 void Server::DeleteUserFromServer(int fd)
 {
 	std::cout << "fd [" << fd << "]connection lost" << std::endl;
-	std::map<int, User*>::iterator userIt =
-		mUserList.find(fd);
-	if (userIt != mUserList.end())	// 접속 해제 유저 처리
+	// std::map<int, User*>::iterator userIt =
+	// 	mUserList.find(fd);
+	class User* user = FindUser(fd);
+	if (user!= NULL)// 접속 해제 유저 처리
 	{
 		struct kevent evSet;
-		EV_SET(&evSet, userIt->second->GetUserFd(), EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+		EV_SET(&evSet, user->GetUserFd(), EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
 		mMessage[fd].clear();
-		delete userIt->second;
+		delete user;
 		mUserList.erase(fd);
 		close(fd);
 		std::cout << "User Deleted [" << fd << "]" << std::endl;
@@ -461,7 +462,7 @@ bool	Server::CheckMessageEnds(int fd)
  */
 void Server::DoCommand(int fd)
 {
-	std::cout << "Docommand NICK : [" << mUserList.find(fd)->second->GetNickName() << "]" << std::endl;
+	std::cout << "Docommand NICK : [" << FindUser(fd)->GetNickName() << "]" << std::endl;
 	std::cout << "Recv Send: " << mMessage[fd] << std::endl;
 	mCommand->Run(fd);
 	mMessage[fd] = "";

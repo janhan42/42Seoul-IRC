@@ -19,8 +19,9 @@ Command::~Command()
 void Command::Run(int fd)
 {
 	std::istringstream iss(mServer.GetMessage(fd));
-	std::map<int, class User *>& userList = mServer.GetUserList();
-	std::map<int, class User *>::iterator userIt = userList.find(fd);
+	// std::map<int, class User *>& userList = mServer.GetUserList();
+	// std::map<int, class User *>::iterator userIt = userList.find(fd);
+	class User* user = mServer.FindUser(fd);
 	std::vector<std::string> commandVec;
 	std::string buffer;
 	while (getline(iss, buffer, ' '))
@@ -28,8 +29,8 @@ void Command::Run(int fd)
 		std::size_t endPos = buffer.find_last_not_of("\r\n");
 		commandVec.push_back(buffer.substr(0, endPos + 1));
 	}
-	if (userIt != userList.end() && !userIt->second->GetIsRegist()) // new User Join Server
-		RegistNewUser(fd, userList, userIt, commandVec);
+	if (user!= NULL && !user->GetIsRegist()) // new User Join Server
+		RegistNewUser(fd, user, commandVec);
 	else
 	{
 		if (commandVec[0] == "PING")
@@ -59,7 +60,7 @@ void Command::Run(int fd)
 	}
 }
 
-void Command::RegistNewUser(int fd, std::map<int, class User *>& userList, std::map<int, class User *>::iterator& user, std::vector<std::string>& commandVec)
+void Command::RegistNewUser(int fd, class User* user, std::vector<std::string>& commandVec)
 {
 	if (commandVec[0] == "PASS")
 		Pass(fd, commandVec);
@@ -68,11 +69,11 @@ void Command::RegistNewUser(int fd, std::map<int, class User *>& userList, std::
 	else if (commandVec[0] == "USER")
 	{
 		User(fd, commandVec);
-		if (user->second->GetIsRegist() == false)
+		if (user->GetIsRegist() == false)
 		{
-			// user->second->AppendUserSendBuf(commandVec[1] + ": " + ERR_NOTREGISTERED);
-			mResponse.ErrorNotRegistered451(*user->second);
-			send(fd, user->second->GetUserSendBuf().c_str(), user->second->GetUserSendBuf().length(), 0);
+			// user->AppendUserSendBuf(commandVec[1] + ": " + ERR_NOTREGISTERED);
+			mResponse.ErrorNotRegistered451(*user);
+			send(fd, user->GetUserSendBuf().c_str(), user->GetUserSendBuf().length(), 0);
 			// delete user->second;
 			// userList.erase(fd);
 			//close(fd);
@@ -80,17 +81,14 @@ void Command::RegistNewUser(int fd, std::map<int, class User *>& userList, std::
 			return;
 		}
 	}
-	if (user != userList.end())
+	if (user->GetIsRegist())
 	{
-		if (user->second->GetIsRegist())
-		{
-			mResponse.RPLWelcome001(*user->second, MakeFullName(fd));
-			mResponse.RPLYourHost002(*user->second);
-			mResponse.RPLCreated003(*user->second);
-			mResponse.RPLMyInfo004(*user->second);
-			mResponse.RPLISupport005(*user->second);
-			mResponse.RPLNoMotd422(*user->second);
-		}
+		mResponse.RPLWelcome001(*user, MakeFullName(fd));
+		mResponse.RPLYourHost002(*user);
+		mResponse.RPLCreated003(*user);
+		mResponse.RPLMyInfo004(*user);
+		mResponse.RPLISupport005(*user);
+		mResponse.RPLNoMotd422(*user);
 	}
 }
 
@@ -104,15 +102,19 @@ void Command::RegistNewUser(int fd, std::map<int, class User *>& userList, std::
  */
 void Command::MsgToAllChannel(int fd, std::string channelName, std::string command, std::string msg)
 {
-	std::map<std::string, Channel *>& channelList = mServer.GetChannelList();
-	if (channelList.find(channelName) == channelList.end()) // not exist channel
+	// std::map<std::string, Channel *>& channelList = mServer.GetChannelList();
+	// if (channelList.find(channelName) == channelList.end()) // not exist channel
+	// 	return;
+	// Channel* channel = channelList.find(channelName)->second;
+	Channel* channel = mServer.FindChannel(channelName);
+	if (channel == NULL) // does not exist
 		return;
-	Channel* channel = channelList.find(channelName)->second;
 	std::vector<int> channelUserList = channel->GetUserFdList();
 	std::vector<int>::iterator channelUserIt = channelUserList.begin();
 	while (channelUserIt != channelUserList.end())
 	{
-		class User*& targetUser = mServer.GetUserList().find(*channelUserIt)->second; // 채널에 있는 모든 유저를 순회하며 조회
+		//class User*& targetUser = mServer.GetUserList().find(*channelUserIt)->second; // 채널에 있는 모든 유저를 순회하며 조회
+		class User* targetUser = mServer.FindUser(fd); // 채널에 있는 모든 유저를 순회하며 조회
 		if (command == "PRIVMSG" && fd == *channelUserIt) // 현재 channelUserIt이 자기 자신이면
 		{
 			channelUserIt++;
@@ -133,15 +135,19 @@ void Command::MsgToAllChannel(int fd, std::string channelName, std::string comma
  */
 void Command::NickMsgToAllChannel(int fd, std::string channelName, std::string oldNickName, std::string NewNick)
 {
-	std::map<std::string, Channel *>& channelList = mServer.GetChannelList();
-	if (channelList.find(channelName) == channelList.end())
+	// std::map<std::string, Channel *>& channelList = mServer.GetChannelList();
+	// if (channelList.find(channelName) == channelList.end())
+	// 	return;
+	// Channel* channel = channelList.find(channelName)->second;
+	Channel* channel = mServer.FindChannel(channelName);
+	if (channel == NULL) // does not exist
 		return;
-	Channel* channel = channelList.find(channelName)->second;
 	std::vector<int> channelUserList = channel->GetUserFdList();
 	std::vector<int>::iterator channelUserIt = channelUserList.begin();
 	while (channelUserIt != channelUserList.end())
 	{
-		class User*& targetUser = mServer.GetUserList().find(*channelUserIt)->second;
+		//class User*& targetUser = mServer.GetUserList().find(*channelUserIt)->second;
+		class User* targetUser = mServer.FindUser(fd);
 		if (fd == *channelUserIt) //  현재 channelUserIt이 자기 자신이면
 		{
 			channelUserIt++;
@@ -154,25 +160,30 @@ void Command::NickMsgToAllChannel(int fd, std::string channelName, std::string o
 
 std::string Command::MakeFullName(int fd)
 {
-	std::map<int, class User* >& userList = mServer.GetUserList();
-	std::map<int, class User* >::iterator userIt = userList.find(fd);
-	class User*& user = userIt->second;
+	// std::map<int, class User* >& userList = mServer.GetUserList();
+	// std::map<int, class User* >::iterator userIt = userList.find(fd);
+	// class User*& user = userIt->second;
+	class User* user = mServer.FindUser(fd);
 	std::string temp = (":" + user->GetNickName() + "!" + user->GetUserName() + "@" + user->GetServerName());
 	return (temp);
 }
 
 void Command::NameListMsg(int fd, std::string channelName)
 {
-	std::map<std::string, Channel* >& channelList = mServer.GetChannelList();
-	if (channelList.find(channelName) == channelList.end())
+	// std::map<std::string, Channel* >& channelList = mServer.GetChannelList();
+	// if (channelList.find(channelName) == channelList.end())
+	// 	return;
+	// Channel* channel = channelList.find(channelName)->second;
+	Channel* channel = mServer.FindChannel(channelName);
+	if (channel == NULL) // does not exist
 		return;
-	Channel* channel = channelList.find(channelName)->second;
 	std::vector<int> userFdList = channel->GetUserFdList();
 	std::vector<int>::iterator iter = userFdList.begin();
 	std::string message;
 	while (iter != userFdList.end())
 	{
-		class User*& user = mServer.GetUserList().find(*iter)->second;
+		//class User*& user = mServer.GetUserList().find(*iter)->second;
+		class User* user = mServer.FindUser(*iter);
 		if (channel->CheckOperator(user->GetUserFd()))
 		{
 			message += "@";
@@ -182,7 +193,8 @@ void Command::NameListMsg(int fd, std::string channelName)
 			message += " ";
 		iter++;
 	}
-	class User*& user = mServer.GetUserList().find(fd)->second;
+	//class User*& user = mServer.GetUserList().find(fd)->second;
+	class User* user = mServer.FindUser(fd);
 	/*
 		O ("=", 0x3D)- 공개 채널.
 		X ("@", 0x40)- 비밀 채널( 비밀 채널 모드 "+s" ).
@@ -217,27 +229,30 @@ void Command::ChannelPrivmsg(std::string message, class User& user, Channel* che
 	{
 		if (*fdIter != user.GetUserFd())
 		{
-			class User*& target = mServer.GetUserList().find(*fdIter)->second;
+			//class User*& target = mServer.GetUserList().find(*fdIter)->second;
+			class User* target = mServer.FindUser(*fdIter);
 			target->AppendUserSendBuf(":" + user.GetNickName() + " PRIVMSG " + chennal->GetChannelName() + " :" + message + "\r\n");
 		}
 	}
 }
 
-void Command::ChannelPART(int fd, std::string channelName, std::vector<std::string> commandVec)
-{
-	std::map<int, class User* >& userList = mServer.GetUserList();
-	std::map<int, class User* >::iterator userIt = userList.find(fd);
-	Channel* channel = mServer.FindChannel(channelName);
-	std::vector<int> fdList = channel->GetUserFdList();
-	std::vector<int>::iterator fdIter = fdList.begin();
-	std::string message = ChannelMessage(1, commandVec);
-	for(; fdIter != fdList.end(); fdIter++)
-	{
-		if (*fdIter != fd)
-		{
-			class User*& target = mServer.GetUserList().find(*fdIter)->second;
-			target->AppendUserSendBuf(":" + target->GetNickName() + "!" + target->GetUserName() + "@" + target->GetServerName() + userIt->second->GetNickName() + " PART " + channel->GetChannelName() + " " + message + "\r\n");
-		}
-	}
-}
+// void Command::ChannelPART(int fd, std::string channelName, std::vector<std::string> commandVec)
+// {
+// 	// std::map<int, class User* >& userList = mServer.GetUserList();
+// 	// std::map<int, class User* >::iterator userIt = userList.find(fd);
+// 	class User* user = mServer.FindUser(fd);
+// 	Channel* channel = mServer.FindChannel(channelName);
+// 	std::vector<int> fdList = channel->GetUserFdList();
+// 	std::vector<int>::iterator fdIter = fdList.begin();
+// 	std::string message = ChannelMessage(1, commandVec);
+// 	for(; fdIter != fdList.end(); fdIter++)
+// 	{
+// 		if (*fdIter != fd)
+// 		{
+// 			//class User*& target = mServer.GetUserList().find(*fdIter)->second;
+// 			class User* target = mServer.FindUser(*fdIter);
+// 			target->AppendUserSendBuf(":" + target->GetNickName() + "!" + target->GetUserName() + "@" + target->GetServerName() + user->GetNickName() + " PART " + channel->GetChannelName() + " " + message + "\r\n");
+// 		}
+// 	}
+// }
 

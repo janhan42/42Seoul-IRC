@@ -36,7 +36,7 @@ void Bot::ValidTarget(int fd, Server* server, Channel* channel, Command* command
 		command->MsgToAllChannel(BOT, channel->GetChannelName(), "PRIVMSG", response);
 		return;
 	}
-	SetFirstUser(server->GetUserList().find(fd)->second);
+	SetFirstUser(server->FindUser(fd));
 	SetSecondUser(targetUser);
 	command->MsgToAllChannel(BOT, channel->GetChannelName(), "PRIVMSG", std::string("유저 [" + GetFirstUser()->GetNickName() + "]가 유저[" + GetSecondUser()->GetNickName() + "] 에게 게임을 신청했습니다."));
 	SetReady(true);

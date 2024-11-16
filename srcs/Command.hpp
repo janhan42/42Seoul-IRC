@@ -45,14 +45,15 @@ class Command
 		/* Uitls in Uils.cpp */
 		std::string		ChannelMessage(int messageIndex, std::vector<std::string> commandVec);
 		void			ChannelPrivmsg(std::string, class User&, Channel*);
-		void			ChannelPART(int fd, std::string cannelName, std::vector<std::string> commandVec);
+		//void			ChannelPART(int fd, std::string cannelName, std::vector<std::string> commandVec);
 		void			MsgToAllChannel(int fd, std::string channelName, std::string command, std::string msg);
 		void			NickMsgToAllChannel(int fd, std::string channelName, std::string command, std::string msg);
 		std::string		MakeFullName(int fd);
 		void			NameListMsg(int fd, std::string);
 
 	private: // private function
-		void			RegistNewUser(int fd, std::map<int, class User *>& userList, std::map<int, class User *>::iterator& iter, std::vector<std::string>& commandVec);
+		//void			RegistNewUser(int fd, std::map<int, class User *>& userList, std::map<int, class User *>::iterator& iter, std::vector<std::string>& commandVec);
+		void			RegistNewUser(int fd, class User* user, std::vector<std::string>& commandVec);
 
 	private: // variables
 		Server&			mServer;
