@@ -13,11 +13,13 @@
 void Command::Part(int fd, std::vector<std::string> commandVec)
 {
 	/* PART <channel> <nickname> (<reasons, ...>) */
-	std::map<int, class User*> userList = mServer.GetUserList();
-	std::map<int, class User*>::iterator userIt = userList.find(fd);
+	// std::map<int, class User*> userList = mServer.GetUserList();
+	// std::map<int, class User*>::iterator userIt = userList.find(fd);
+
+	class User* user = mServer.FindUser(fd);
 	if (commandVec.size() < 2)
 	{
-		mResponse.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);
 		return;
 	}
 	std::istringstream iss(commandVec[1]);
@@ -28,14 +30,14 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 	std::vector<std::string>::iterator vecIt = vec.begin();
 	for (; vecIt != vec.end(); vecIt++)
 	{
-		std::vector<std::string>::iterator channelIt = userIt->second->FindChannel(*vecIt);
-		if (channelIt != userIt->second->GetChannelList().end())
+		std::vector<std::string>::iterator channelIt = user->FindChannel(*vecIt);
+		if (channelIt != user->GetChannelList().end())
 		{
 			Channel* channel = mServer.FindChannel(*channelIt);
 			MsgToAllChannel(fd, *vecIt, "PART", ChannelMessage(2, commandVec));
 			channel->RemoveUserFdList(fd);
 			channel->RemoveOperatorFd(fd);
-			userIt->second->RemoveChannel(*channelIt);
+			user->RemoveChannel(*channelIt);
 			if (channel->GetUserFdList().size() <= 1) // if last-user in channel: remove channel
 			{
 				std::cout << "채널에 fd 갯수 : " << channel->GetUserFdList().size() << std::endl;
@@ -47,11 +49,11 @@ void Command::Part(int fd, std::vector<std::string> commandVec)
 		{
 			if (mServer.FindChannel(*vecIt))
 			{
-				mResponse.ErrorNotOnChannel442(*userIt->second, *vecIt);
+				mResponse.ErrorNotOnChannel442(*user, *vecIt);
 			}
 			else
 			{
-				mResponse.ErrorNosuchChannel403(*userIt->second, *vecIt);
+				mResponse.ErrorNosuchChannel403(*user, *vecIt);
 			}
 		}
 	}

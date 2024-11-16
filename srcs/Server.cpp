@@ -184,6 +184,14 @@ User*	Server::FindUser(std::string& name)
 	return (NULL);
 }
 
+User*	Server::FindUser(int fd)
+{
+	std::map<int, User*>::iterator it = mUserList.find(fd);
+	if (it == mUserList.end())
+		return (NULL);
+	return (it->second);
+}
+
 /**
  * @brief
  * 채널 이름을 기반으로 리스트에서 지우는 함수
@@ -207,7 +215,7 @@ void	Server::AppendNewChannel(std::string& channelName, int fd)
 
 /**
  * @brief
- * 나가는 유저에 대한 처리를 통합적으로 해주는 함수
+ * 유저를 서버에서 삭제하고 유저 관련 이벤트를 삭제
  * @param fd
  */
 void Server::DeleteUserFromServer(int fd)
@@ -220,7 +228,7 @@ void Server::DeleteUserFromServer(int fd)
 		struct kevent evSet;
 		EV_SET(&evSet, userIt->second->GetUserFd(), EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
-		mMessage[userIt->first].clear();
+		mMessage[fd].clear();
 		delete userIt->second;
 		mUserList.erase(fd);
 		close(fd);
@@ -243,20 +251,22 @@ void Server::HandleReadEvent(int fd)
  */
 void Server::SendBufferToUser()
 {
-	std::map<int, User*>::iterator It = mUserList.begin();
-	for (; It != mUserList.end(); It++)
+	std::map<int, User*>::iterator it = mUserList.begin();
+	for (; it != mUserList.end(); it++)
 	{
-		User* usr = It->second;
-		if (!usr->GetUserSendBuf().empty() && usr->GetUserFd() != -1)
+		User*	user = it->second;
+		int		user_fd = it->first;
+		
+		if (!user->GetUserSendBuf().empty() && user_fd != -1)
 		{
 			/* TESTOUTPUT */
-			std::cout << "Server Send : " << usr->GetUserSendBuf() << std::endl;
+			std::cout << "Server Send : " << user->GetUserSendBuf() << std::endl;
 			/* END */
-			int sent_byte = send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(), usr->GetUserSendBuf().length(), 0);
+			int sent_byte = send(user_fd, user->GetUserSendBuf().c_str(), user->GetUserSendBuf().length(), 0);
 			if (sent_byte > 0)	// 전송 성공하면
-				usr->ClearUserSendBuf(sent_byte);
+				user->ClearUserSendBuf(sent_byte);
 			else
-				std::cout << "send error on fd [" << usr->GetUserFd() << "]" << std::endl;
+				std::cout << "send error on fd [" << user_fd << "]" << std::endl;
 		}
 	}
 }

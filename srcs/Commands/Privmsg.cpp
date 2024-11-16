@@ -21,18 +21,20 @@
 void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 {
 	/* PRIVMSG(or /msg) <channel/nickname> <messages...> */
-	std::map<int, class User*>& userList = mServer.GetUserList();
-	std::map<int, class User*>::iterator userIt = userList.find(fd);
+	// std::map<int, class User*>& userList = mServer.GetUserList();
+	// std::map<int, class User*>::iterator userIt = userList.find(fd);
+	class User* user = mServer.FindUser(fd);
+
 	std::string buffer;
 	std::vector<std::string> vec;
 	if (commandVec.size() < 2)
 	{
-		mResponse.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);
 		return;
 	}
 	if (commandVec[2].empty()) // <message>가 empty일때
 	{
-		mResponse.ErrorNoTextToSend412(*userIt->second);
+		mResponse.ErrorNoTextToSend412(*user);
 		return;
 	}
 	std::istringstream iss(commandVec[1]);
@@ -52,11 +54,11 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 					return ;
 				}
 				std::string messages = ChannelMessage(2, commandVec);
-				ChannelPrivmsg(messages, *userIt->second, channel);
+				ChannelPrivmsg(messages, *user, channel);
 			}
 			else // if Channel not exists
 			{
-				mResponse.ErrorNosuchChannel403(*userIt->second, *vecIt);
+				mResponse.ErrorNosuchChannel403(*user, *vecIt);
 			}
 		}
 		else
@@ -68,20 +70,21 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 			{
 				std::string messages = ChannelMessage(2, commandVec);
 
-				user->AppendUserSendBuf(":" + userIt->second->GetNickName() + " PRIVMSG " + user->GetNickName() + " :" + messages + "\r\n");
+				user->AppendUserSendBuf(":" + user->GetNickName() + " PRIVMSG " + user->GetNickName() + " :" + messages + "\r\n");
 			}
 			else
 			{
-				mResponse.ErrorNosuchNick401(*userIt->second, *vecIt);
+				mResponse.ErrorNosuchNick401(*user, *vecIt);
 				return ;
 			}
 		}
 	}
 }
 
-bool Command::CheckBotCommand(std::string comamnd)
+bool Command::CheckBotCommand(std::string command)
 {
-	if (!strcmp(comamnd.c_str(), ":@bot"))
+	//if (!strcmp(comamnd.c_str(), ":@bot"))
+	if (command == ":@bot")
 		return (true);
 	return (false);
 }
@@ -96,11 +99,13 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		return;
 	}
 	std::string command = commandVec[3];
-	if (strcmp(command.c_str(), "help") == 0) // 들어온 명령어 가 help면
+	//if (strcmp(command.c_str(), "help") == 0) // 들어온 명령어 가 help면
+	if (command == "help")
 	{
 		bot->HelpMsgtoChannel(this, channel->GetChannelName());
 	}
-	else if (strcmp(command.c_str(), "buckshot") == 0) // 들어온 명령어가 buckshot이면
+	//else if (strcmp(command.c_str(), "buckshot") == 0) // 들어온 명령어가 buckshot이면
+	else if (command == "buckshot")
 	{
 		// PRIVMSG <channel Name> @bot buckshot <target>
 		if (bot->GameOn() == true || bot->GetReady() == true) // 게임 중이거나 수락 대기중이라면
@@ -111,6 +116,8 @@ void Command::BotCommand(int fd, std::vector<std::string> commandVec)
 		}
 		if (commandVec.size() < 5) // PRIVMSG <channel Name> @bot buckshot arg개수 안맞음
 		{
+			std::string response = "상대방의 닉네임을 입력해주세요.";
+			MsgToAllChannel(BOT, channel->GetChannelName(), "PRIVMSG", response);
 			mResponse.ErrorNeedMoreParams461(*mServer.GetUserList().find(fd)->second, commandVec[1]);
 			return;
 		}

@@ -61,3 +61,19 @@ u# IRC Check List
 ___
 ## Bot
 
+server->GetUserList().find(fd)->second 로 되어있는거
+
+FindUser(int fd) 함수 하나 만들고
+
+server->FindUser(fd); 로 전부 수정하기
+
+istringstream 쓰는 부분 split함수 로 바꾸기
+
+이제 bot 클래스가 생겼으니까 fd -1인 유저는 안넣어도 되는거 아닌가?
+
+- 스트링을 strcmp(str.c_str(), "string") == 0 이런식으로 쓰는거
+	그냥 str == "string" 이렇게 고쳐보기
+	- Pass 
+	- PRIVMSG
+
+@bot buckshot 하고 뒤에 이름 안적었을때 일단 메세지 가게 해놓았음

@@ -292,7 +292,7 @@ void Bot::SettingGame()
 const std::string Bot::SettingChamber()
 {
 	srand((unsigned int)time(NULL));
-	std::stringstream ss;
+	std::stringstream ss; // <- 이거 어디씀?
 	std::string result;
 	int ammoCount = 5;
 	int fakeround = 0;

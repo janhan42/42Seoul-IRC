@@ -47,7 +47,7 @@ class User
 		void								MakeUserToBot(void);
 		void								RemoveChannel(std::string channelName);
 		std::vector<std::string>::iterator	FindChannel(std::string channelName);
-		bool								AmIInChannel(const std::string channelName);
+		bool								IsInChannel(const std::string channelName);
 	private:
 		// User Infomations
 		std::string							mNickName;

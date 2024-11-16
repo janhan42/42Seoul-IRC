@@ -47,6 +47,7 @@ class Server
 		Channel*									FindChannel(std::string channelName);
 		//std::map<int, User*>::iterator				FindUser(std::string userName);
 		User*										FindUser(std::string& userName);
+		User*										FindUser(int fd);
 		void										RemoveChannel(std::string channelName);
 		void										AppendNewChannel(std::string& channelName, int fd);
 		void										SendBufferToUser();

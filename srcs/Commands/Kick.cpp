@@ -26,26 +26,28 @@
 void Command::Kick(int fd, std::vector<std::string> commandVec)
 {
 	/* KICK <channel> <nickname> */
-	std::map<int, class User*>& userList = mServer.GetUserList();
-	std::map<int, class User*>::iterator userIt = userList.find(fd);
+	// std::map<int, class User*>& userList = mServer.GetUserList();
+	// std::map<int, class User*>::iterator userIt = userList.find(fd);
+	// class User* user = userIt->second;
+	class User* user = mServer.FindUser(fd);
 
 	/* TEST OUTPUT */
 	int i = 0;
 	for (std::vector<std::string>::iterator it = commandVec.begin(); it != commandVec.end(); it++)
 	{
-		std::cout << "commandVec[" + std::to_string(i) + "] : " << commandVec[i] << std::endl;
+		std::cout << "commandVec[" << i << "] : " << commandVec[i] << std::endl;
 		i++;
 	}
 	/* END */
 
 	if (commandVec.size() < 3)
 	{
-		mResponse.ErrorNeedMoreParams461(*userIt->second, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);
 		return;
 	}
-	if (userIt->second->AmIInChannel(commandVec[1]) == false)
+	if (user->IsInChannel(commandVec[1]) == false)
 	{
-		mResponse.ErrorNotOnChannel442(*userIt->second, commandVec[1]);
+		mResponse.ErrorNotOnChannel442(*user, commandVec[1]);
 		return;
 	}
 	std::istringstream iss(commandVec[1]);
@@ -67,7 +69,7 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 	Channel* channel = mServer.FindChannel(*vecIt);
 	if (channel && channel->CheckOperator(fd) == false)
 	{
-		mResponse.ErrorChanOprivsNeeded482(*userIt->second, *vecIt);
+		mResponse.ErrorChanOprivsNeeded482(*user, *vecIt);
 		return;
 	}
 	for (; vecIt != vec.end(); vecIt++)
@@ -76,14 +78,14 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 		std::cout << "Find Channel : " << *vecIt << std::endl; // TEST OUTPUT
 		if (channel == NULL) // channel not exists
 		{
-			mResponse.ErrorNosuchChannel403(*userIt->second, *vecIt);
+			mResponse.ErrorNosuchChannel403(*user, *vecIt);
 		}
 		else
 		{
 			class User* target = mServer.FindUser(commandVec[2]);
 			if (target == NULL) // user not exists
 			{
-				mResponse.ErrorUserNotInChannel441(*userIt->second, commandVec[2], *vecIt);
+				mResponse.ErrorUserNotInChannel441(*user, commandVec[2], *vecIt);
 				return;
 			}
 			if (target->GetUserFd() == -1) // if user == bot : ignore
@@ -92,7 +94,7 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 			{
 				if (!channel->CheckUserInChannel(target->GetUserFd())) // user not exists "in channel"
 				{
-					mResponse.ErrorUserNotInChannel441(*userIt->second, commandVec[2], *vecIt);
+					mResponse.ErrorUserNotInChannel441(*user, commandVec[2], *vecIt);
 				}
 				else // kick user from channel
 				{

@@ -190,7 +190,7 @@ std::vector<std::string>::iterator	User::FindChannel(std::string channelName)
 	return (It);
 }
 
-bool User::AmIInChannel(const std::string channelName)
+bool User::IsInChannel(const std::string channelName)
 {
 	if (this->FindChannel(channelName) == mChannelList.end())
 		return (false);

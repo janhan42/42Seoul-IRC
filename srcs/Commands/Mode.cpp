@@ -5,7 +5,8 @@
 void Command::Mode(int fd, std::vector<std::string> commandVec)
 {
 	/* NODE <channel> <+/- i, t, k, l, o> (<mode-neede-value>) */
-	class User*& user = mServer.GetUserList().find(fd)->second;
+	//class User*& user = mServer.GetUserList().find(fd)->second;
+	class User* user = mServer.FindUser(fd);
 	if (commandVec.size() < 2)
 	{
 		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);
