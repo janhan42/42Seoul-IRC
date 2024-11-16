@@ -6,7 +6,7 @@ u# IRC Check List
 - [x] channel에 있다보면 mode b라는 명령어를 오퍼레이터가 아닌 유저가 쏘는데 이유가 뭔지 모르겠음 -> 무시 처리함
 - [x] @BOT BuckShot z 를 했을때 zinox가 찾아짐 풀 네임이 아닌데도 찾아짐 - logic 문제가 있음 -> 이름 컬러 시절때 로직 문제였음
 - [x] /mode +i 하고 나가면 방이 안없어짐
-- [ ] Privmsg Bot부분 리펙토링 예정....-> 시작
+- [x] Privmsg Bot부분 리펙토링 예정....-> 시작
 - [x] Error 프로토콜 대부분이 맞지 않음.... 다시 고치는중
 - [x] Regist 중에 실패했을때 Evlist에서 삭제 및 Regist Fail 로직 변경 예정
 ## Command

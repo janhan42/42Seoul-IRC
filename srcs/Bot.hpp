@@ -5,7 +5,9 @@
 #include <string>
 #include <stack>
 
+class Server;
 class Command;
+class Channel;
 
 class Bot
 {
@@ -18,6 +20,12 @@ class Bot
 		void									HelpMsgtoChannel(Command* command, std::string channel);
 
 		// BuckShot
+		void									ValidTarget(int fd, Server* server, Channel* channel, Command* command, std::vector<std::string> commandVec);
+		void									ResponseGameRequest(Channel* channel, Command* command, std::vector<std::string> commandVec);
+		void									GameControl(int fd, Channel* channel, Command* command, std::vector<std::string> commandVec);
+		void									HandleGameTurn(int fd, Command* command, Channel* channel,  std::vector<std::string> commandVec);
+		void									GameInfo(Command* command, Channel* channel);
+		void									CheckWinner(Command* command, Channel* channel);
 		class User*								GetFirstUser(void);
 		class User*								GetSecondUser(void);
 		const std::string						GetFirstHpInfo(void);

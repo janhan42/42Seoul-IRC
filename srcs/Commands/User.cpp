@@ -16,7 +16,6 @@ void Command::User(int fd, std::vector<std::string> commandVec)
 	if (!it->second->GetPassRegist())
 	{
 		mResponse.ErrorNotRegistered451(*it->second);
-		it->second->AppendUserSendBuf("\r\n");
 		send(fd, it->second->GetUserSendBuf().c_str(), it->second->GetUserSendBuf().length(), 0);
 		// delete it->second;
 		// userList.erase(fd);

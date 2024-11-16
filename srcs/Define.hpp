@@ -3,6 +3,8 @@
 
 # define BUF_SIZE 1024
 # define SERVERNAME "SIRC"
+# define BOT -1
+#define MAX_EVENT 10
 
 /* RPL */
 # define RPL_ENDOFNAMES ":End of /NAMES list\r\n"

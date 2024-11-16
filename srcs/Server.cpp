@@ -42,6 +42,11 @@ Server::~Server()
 	delete mBot;
 }
 
+
+/**
+ * @brief
+ * IRC 서버 구동을 위해 초기화 하는 함수
+ */
 void Server::Init()
 {
 	SetServerSock();
@@ -53,45 +58,10 @@ void Server::Init()
 	mbRunning = true;
 }
 
-void Server::DeleteUserFromServer(int fd)
-{
-	std::cout << "fd [" << fd << "]is quit connet" << std::endl;
-	std::map<int, User*>::iterator userIt =
-		mUserList.find(fd);
-	if (userIt != mUserList.end())	// 접속 해제 유저 처리
-	{
-		struct kevent evSet;
-		EV_SET(&evSet, userIt->second->GetUserFd(),
-				EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
-		mMessage[userIt->first].clear();
-		delete userIt->second;
-		mUserList.erase(fd);
-		close(fd);
-		std::cout << "User Deleted [" << fd << "]" << std::endl;
-	}
-}
-
-void Server::SendBufferToUser()
-{
-	std::map<int, User*>::iterator It = mUserList.begin();
-	for (; It != mUserList.end(); It++)
-	{
-		User* usr = It->second;
-		if (!usr->GetUserSendBuf().empty() && usr->GetUserFd() != -1)
-		{
-			/* TESTOUTPUT */
-			std::cout << "Server Send : " << usr->GetUserSendBuf() << std::endl;
-			/* END */
-			int sent_byte = send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(), usr->GetUserSendBuf().length(), 0);
-			if (sent_byte > 0)	// 전송 성공하면
-				usr->ClearUserSendBuf(sent_byte);
-			else
-				std::cout << "send error on fd [" << usr->GetUserFd() << "]" << std::endl;
-		}
-	}
-}
-
+/**
+ * @brief
+ * 서버의 메인 구동 함수
+ */
 void Server::Run()
 {
 	while (mbRunning)
@@ -124,32 +94,64 @@ void Server::Run()
 }
 
 /* Getter */
+/**
+ * @brief
+ * 서버에 접속해있는 유저 리스트를 반환하는 함수
+ * @return std::map<int, User*>&
+ */
 std::map<int, User*>&	Server::GetUserList()
 {
 	return (mUserList);
 }
 
+/**
+ * @brief
+ * 서버에 설정되어 있는 비밀번호를 반환하는 함수
+ * @return std::string
+ */
 std::string	Server::GetPassWord()
 {
 	return (mPassword);
 }
 
+/**
+ * @brief
+ * std::string 배열에서 자신의 Fd 메세지를 리턴하는 함수
+ * @param fd
+ * @return std::string
+ */
 std::string	Server::GetMessage(int fd)
 {
 	return (mMessage[fd]);
 }
 
+/**
+ * @brief
+ * 서버에 열려있는 채널 리스트를 반환하는 함수
+ * @return std::map<std::string, Channel *>&
+ */
 std::map<std::string, Channel *>&	Server::GetChannelList()
 {
 	return (mChannelList);
 }
 
+/**
+ * @brief
+ * 서버의 kqueue FD를 반환하는 함수
+ * @return int
+ */
 int	Server::GetKqFd()
 {
 	return (mKqFd);
 }
 
 /* Others */
+/**
+ * @brief
+ * 현재 서버에 열려있는 채널리스트에서 채널명을 기반으로 iterator를 찾는 함수
+ * @param channelName
+ * @return Channel*
+ */
 Channel*	Server::FindChannel(std::string channelName)
 {
 	std::map<std::string, Channel*>::iterator It = mChannelList.find(channelName);
@@ -158,6 +160,12 @@ Channel*	Server::FindChannel(std::string channelName)
 	return (It->second);
 }
 
+/**
+ * @brief
+ * 현재 서버에 접속해있는 유저 리스트에서 유저 이름을 기반으로 iterator를 찾는 함수
+ * @param userName
+ * @return std::map<int, User*>::iterator
+ */
 std::map<int, User*>::iterator	Server::FindUser(std::string userName)
 {
 	std::map<int, User*>::iterator it = mUserList.begin();
@@ -169,17 +177,81 @@ std::map<int, User*>::iterator	Server::FindUser(std::string userName)
 	return (it);
 }
 
+/**
+ * @brief
+ * 채널 이름을 기반으로 리스트에서 지우는 함수
+ * @param channelName
+ */
 void	Server::RemoveChannel(std::string channelName)
 {
 	mChannelList.erase(channelName);
 }
 
+/**
+ * @brief
+ * 채널을 새로 만들어서 채널리스트에 추가하는 함수
+ * @param channelName
+ * @param fd
+ */
 void	Server::AppendNewChannel(std::string& channelName, int fd)
 {
 	mChannelList.insert(std::make_pair(channelName, new Channel(channelName, fd)));
 }
 
+/**
+ * @brief
+ * 나가는 유저에 대한 처리를 통합적으로 해주는 함수
+ * @param fd
+ */
+void Server::DeleteUserFromServer(int fd)
+{
+	std::cout << "fd [" << fd << "]is quit connet" << std::endl;
+	std::map<int, User*>::iterator userIt =
+		mUserList.find(fd);
+	if (userIt != mUserList.end())	// 접속 해제 유저 처리
+	{
+		struct kevent evSet;
+		EV_SET(&evSet, userIt->second->GetUserFd(), EVFILT_READ | EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+		kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
+		mMessage[userIt->first].clear();
+		delete userIt->second;
+		mUserList.erase(fd);
+		close(fd);
+		std::cout << "User Deleted [" << fd << "]" << std::endl;
+	}
+}
+
+/**
+ * @brief
+ * 현재 유저의 SendBuf에 대한 send처리와 오류 및 클리어 처리를 하는 함수
+ */
+void Server::SendBufferToUser()
+{
+	std::map<int, User*>::iterator It = mUserList.begin();
+	for (; It != mUserList.end(); It++)
+	{
+		User* usr = It->second;
+		if (!usr->GetUserSendBuf().empty() && usr->GetUserFd() != -1)
+		{
+			/* TESTOUTPUT */
+			std::cout << "Server Send : " << usr->GetUserSendBuf() << std::endl;
+			/* END */
+			int sent_byte = send(usr->GetUserFd(), usr->GetUserSendBuf().c_str(), usr->GetUserSendBuf().length(), 0);
+			if (sent_byte > 0)	// 전송 성공하면
+				usr->ClearUserSendBuf(sent_byte);
+			else
+				std::cout << "send error on fd [" << usr->GetUserFd() << "]" << std::endl;
+		}
+	}
+}
+
 /* Init func */
+/**
+ * @brief
+ * 서버의 port를 Init하는 함수
+ * @param port
+ * @return unsigned short int
+ */
 unsigned short int Server::SetPortNum(const std::string& port)
 {
 	int ret;
@@ -196,6 +268,12 @@ unsigned short int Server::SetPortNum(const std::string& port)
 	return (static_cast<unsigned short int>(ret));
 }
 
+/**
+ * @brief
+ * 서버의 Password를 init하는 함수
+ * @param password
+ * @return std::string
+ */
 std::string Server::SetPassword(const std::string& password)
 {
 	int strIndex = 0;
@@ -206,6 +284,10 @@ std::string Server::SetPassword(const std::string& password)
 	return (password);
 }
 
+/**
+ * @brief
+ * 서버의 소켓을 Init하는 함수
+ */
 void Server::SetServerSock()
 {
 	int option = 1;
@@ -217,6 +299,10 @@ void Server::SetServerSock()
 		throw std::logic_error ("ERROR:: setsockopt() fail");
 }
 
+/**
+ * @brief
+ * 서버의 addr구조체를 init하는 함수
+ */
 void Server::SetServerAddr()
 {
 	memset(&mServerAddr, 0, sizeof(mServerAddr));
@@ -225,12 +311,20 @@ void Server::SetServerAddr()
 	mServerAddr.sin_port = htons(mPort);
 }
 
+/**
+ * @brief
+ * 서버의 소켓에 addr을 bind하는 함수
+ */
 void Server::SetServerBind()
 {
 	if (bind(mServerSock, (struct sockaddr *)&mServerAddr, sizeof(mServerAddr)) == -1)
 		throw std::logic_error("ERROR:: bind() error");
 }
 
+/**
+ * @brief
+ * 서버의 listen을 설정하는 함수
+ */
 void Server::SetServerListen()
 {
 	if (listen(mServerSock, 15) == -1)
@@ -240,6 +334,10 @@ void Server::SetServerListen()
 	// O_NONBLOCK:	set fd NONBLOCK
 }
 
+/**
+ * @brief
+ * 서버의 kqueue를 설정하는 함수
+ */
 void Server::SetServerKqueue()
 {
 	mKqFd = kqueue();
@@ -249,6 +347,10 @@ void Server::SetServerKqueue()
 	kevent(mKqFd, &mServerEvent, 1, NULL, 0, NULL);
 }
 
+/**
+ * @brief
+ * 서버가 가지고 있는 Bot을 설정하는 함수
+ */
 void Server::SetBot()
 {
 	mBot = new User(-1);
@@ -257,6 +359,12 @@ void Server::SetBot()
 }
 
 /* Ohter Func */
+/**
+ * @brief
+ * fd에서 들어온 메세지를 recv해서 mMessage 배열에 저장하는 함수
+ * @param fd
+ * @return int
+ */
 int Server::RecvMessage(int fd)
 {
 	char buf[2];
@@ -272,11 +380,21 @@ int Server::RecvMessage(int fd)
 	return (ret);
 }
 
+/**
+ * @brief
+ * 새로운 유저를 pair를 만들어서 저장하는 함수
+ * @param fd
+ * @param newUser
+ */
 void	Server::AddUser(int fd, User* newUser)
 {
 	mUserList.insert(std::make_pair(fd, newUser));
 }
 
+/**
+ * @brief
+ * 서버에 새로운 유저가 들어왔을때 유저생성을 통합적으로 하는 함수
+ */
 void Server::AcceptUser()
 {
 	User* newUser = NULL;
@@ -293,6 +411,13 @@ void Server::AcceptUser()
 	AddUser(mUserSock, newUser);
 }
 
+/**
+ * @brief
+ * 현재 User fd의 메세지가 완전히 들어왔는지 체크하는 함수
+ * @param fd
+ * @return true
+ * @return false
+ */
 bool	Server::CheckMessageEnds(int fd)
 {
 	if (mMessage[fd].length() == 1 && mMessage[fd][0] == '\n')
@@ -303,6 +428,11 @@ bool	Server::CheckMessageEnds(int fd)
 	return (false);
 }
 
+/**
+ * @brief
+ * 유저메세지를 기반으로 Command를 파싱 및 실행 처리를 하는 함수
+ * @param fd
+ */
 void Server::DoCommand(int fd)
 {
 	std::cout << "Docommand NICK : [" << mUserList.find(fd)->second->GetNickName() << "]" << std::endl;
@@ -310,3 +440,4 @@ void Server::DoCommand(int fd)
 	mCommand->Run(fd);
 	mMessage[fd] = "";
 }
+

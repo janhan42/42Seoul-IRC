@@ -18,12 +18,9 @@
 #include <netinet/in.h>
 #include <sys/_types/_socklen_t.h>
 #include <sys/event.h>
-
 #include "Channel.hpp"
 #include "Command.hpp"
-
-#define MAX_EVENT 10
-#define BUF_SIZE 1024
+#include "Define.hpp"
 
 class User;
 class Channel;
@@ -38,8 +35,6 @@ class Server
 
 		User										*mBot;
 		void										Init(void);
-		void										DeleteUserFromServer(int fd);
-		void										SendBufferToUser();
 		void										Run(void);
 
 		//Getter
@@ -53,6 +48,8 @@ class Server
 		std::map<int, User*>::iterator				FindUser(std::string userName);
 		void										RemoveChannel(std::string channelName);
 		void										AppendNewChannel(std::string& channelName, int fd);
+		void										SendBufferToUser();
+		void										DeleteUserFromServer(int fd);
 
 
 	private: // Init func
