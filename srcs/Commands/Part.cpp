@@ -10,6 +10,10 @@
 	ERR_NOSUCHCHANNEL (403)
 	ERR_NOTONCHANNEL (442)
  */
+// 채널을 나가는 함수
+// 유저가 인자로 들어온 채널에 있는지를 체크하고
+// 해당 채널에서 유저 삭제, 만약 남은사람 없으면 채널도 삭제
+// 남아있는 사람이 있으면 유저가 나갔다는 메세지를 나머지 사람들에게 보냄
 void Command::Part(int fd, std::vector<std::string> commandVec)
 {
 	/* PART <channel> <nickname> (<reasons, ...>) */

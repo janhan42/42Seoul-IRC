@@ -2,9 +2,12 @@
 #include "../User.hpp"
 #include <iostream>
 
+// 채널의 모드를 설정하는 함수
+// mode 뒤에 채널명까지만 오면 현재 채널의 모드를 전송
+// 해당 유저가 오퍼레이터고, 옵션이 이미 설정되어있지 않으면 해당 옵션을 설정함
 void Command::Mode(int fd, std::vector<std::string> commandVec)
 {
-	/* NODE <channel> <+/- i, t, k, l, o> (<mode-neede-value>) */
+	/* MODE <channel> <+/- i, t, k, l, o> (<mode-neede-value>) */
 	//class User*& user = mServer.GetUserList().find(fd)->second;
 	class User* user = mServer.FindUser(fd);
 	if (commandVec.size() < 2)

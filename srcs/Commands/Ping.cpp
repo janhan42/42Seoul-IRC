@@ -8,7 +8,9 @@
 	ERR_NOORIGIN (409)
  */
 
-// 핑 메세지가 오면 pong 메세지를 돌려주는 함
+// 핑 메세지가 오면 pong 메세지를 돌려주는 함수
+// 여기서는 클라이언트가 정기적으로 보내는 핑만 돌려줌
+// 유저가 임의로 /ping 명령어를 보내는 경우는 privmsg 에서 처리
 void Command::Ping(int fd, std::vector<std::string> commandVec)
 {
 	/* PING <token> */
