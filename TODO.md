@@ -71,6 +71,14 @@ u# IRC Check List
 ___
 ## Bot
 
+## File trnasfer
+
+file send:
+/dcc send <\nick name> <\file addres>
+
+file get:
+/dcc get -> request file send accept
+
 ## Refactor
 
 - [x] Server 클래스에 FindUser 함수 두개 만들어서 필요한 부분 전부 교체함
@@ -80,8 +88,9 @@ ___
 - [ ] istringstream 쓰는 부분 split함수 로 바꾸기
 
 - [ ] 이제 bot 클래스가 생겼으니까 fd -1인 유저는 안넣어도 되는거 아닌가?
-	-> 채널 접속시나 names 했을 때 유저 리스트 보내줄 때 봇 안넣어도 되면 
+	-> 채널 접속시나 names 했을 때 유저 리스트 보내줄 때 봇 안넣어도 되면
 		삭제해도 될 것 같음
+	->
 
 - [x] strcmp 랑 string 비교연산 섞여있는 부분 stirng 비교연산으로 통일함
 	- Pass.cpp, Privmsg.cpp
