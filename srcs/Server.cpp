@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <stdexcept>
+#include <sys/_types/_socklen_t.h>
 #include <sys/event.h>
 #include <sys/fcntl.h>
 #include <sys/resource.h>
@@ -17,9 +18,10 @@ Server::Server(const std::string& port, const std::string& password)
 {
 	mPort = SetPortNum(port);
 	mPassword = SetPassword(password);
-	mUserAddrLen = sizeof(mUserAddr);
+	//mUserAddrLen = sizeof(mUserAddr);
 	mCommand = new Command(*this);
-	mbRunning = false;
+	Init();
+	//mbRunning = false;
 }
 
 Server::~Server()
@@ -55,7 +57,7 @@ void Server::Init()
 	SetServerListen();
 	SetServerKqueue();
 	SetBot();
-	mbRunning = true;
+	//mbRunning = true;
 }
 
 /**
@@ -64,11 +66,11 @@ void Server::Init()
  */
 void Server::Run()
 {
-	while (mbRunning)
+	while (/*mbRunning*/true)
 	{
 		// 루프당 mEventList 초기화
 		memset(mUserEventList, 0, sizeof(mUserEventList));
-		mEventCount = kevent(mKqFd, NULL, 0, mUserEventList, MAX_EVENT, NULL);
+		int mEventCount = kevent(mKqFd, NULL, 0, mUserEventList, MAX_EVENT, NULL);
 		if (mEventCount < 0)
 			throw std::logic_error("ERROR:: Run():kevent() error");
 		for (int i = 0; i < mEventCount; i++)
@@ -136,10 +138,10 @@ std::map<std::string, Channel *>&	Server::GetChannelList()
  * 서버의 kqueue FD를 반환하는 함수
  * @return int
  */
-int	Server::GetKqFd()
-{
-	return (mKqFd);
-}
+// int	Server::GetKqFd()
+// {
+// 	return (mKqFd);
+// }
 
 /* Others */
 /**
@@ -383,8 +385,9 @@ void Server::SetServerKqueue()
 	mKqFd = kqueue();
 	if (mKqFd < 0)
 		throw std::logic_error("ERROR:: kqueue() error");
-	EV_SET(&mServerEvent, mServerSock, EVFILT_READ, EV_ADD, 0, 0, NULL);
-	kevent(mKqFd, &mServerEvent, 1, NULL, 0, NULL);
+	struct kevent evSet;
+	EV_SET(&evSet, mServerSock, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	kevent(mKqFd, &evSet, 1, NULL, 0, NULL);
 }
 
 /**
@@ -437,12 +440,13 @@ void	Server::AddUser(int fd, User* newUser)
  */
 void Server::AcceptUser()
 {
-	User* newUser = NULL;
-	mUserSock = accept(mServerSock, (struct sockaddr *)&mUserAddr, &mUserAddrLen);
+	struct sockaddr_in	userAddr;
+	socklen_t			userAddrLen = sizeof(userAddr);
+	int mUserSock = accept(mServerSock, (struct sockaddr *)&userAddr, &userAddrLen);
 	if (mUserSock < 0)
 		throw std::logic_error("ERROR:: AcceptUser accept() failed");
 	fcntl(mUserSock, F_SETFL, O_NONBLOCK);
-	newUser = new User(mUserSock);
+	User* newUser = new User(mUserSock);
 	if (newUser == NULL)
 		throw std::logic_error("ERROR:: AcceptUser new User failed");
 	struct kevent evSet;

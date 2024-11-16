@@ -53,6 +53,7 @@ class Command
 
 	private: // private function
 		//void			RegistNewUser(int fd, std::map<int, class User *>& userList, std::map<int, class User *>::iterator& iter, std::vector<std::string>& commandVec);
+		// 함수인자 수정함
 		void			RegistNewUser(int fd, class User* user, std::vector<std::string>& commandVec);
 
 	private: // variables

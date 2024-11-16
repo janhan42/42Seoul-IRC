@@ -22,7 +22,7 @@ int main(int ac, char** av)
 	try
 	{
 		Server server(av[1], av[2]);
-		server.Init();
+		//server.Init();
 		std::cout << "/connect -nocap 127.0.0.1 " << av[1] << " " << av[2] << std::endl;
 		server.Run();
 	}

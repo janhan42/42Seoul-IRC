@@ -80,6 +80,13 @@ ___
 
 - [x] Command::ChannelPART 함수 사용안해서 주석처리함
 
-- [ ] 서버에서 mbrunning 변수 필요없을거같음
-	- 어차피 init() 안에 있는 함수들은 오류 나면 예외 던져서 종료되기 때문에
-	- 삭제할 예정
+- [x] 서버에서 init 을 따로 분리한건 생성자 실패했는지를 execption으로 밖에 확인하지 못해서 빼놓은건데, execption 쓸거면 메인에서 호출 안한고 생성자에 넣어도 될듯
+	- init이 실패하면 catch로 가서 프로그램 종료됨
+
+- [ ] 서버 사용하지 않는 멤버변수, 멤버함수 정리
+	- [ ] GetKqFd 함수 사용하지 않음
+	- [x] mbrunning변수 필요없음
+	- [x] mEventCount 변수 굳이 멤버로 둘 필요 없을 것 같음
+	- [x] mUserSock 변수 accept user 함수 내부에서만 쓰기 때문에 멤버로 둘 필요 없음
+	- [x] mUserAddr이랑 mUserAddrLen 역시 일회용처럼 쓰이기 때문에 멤버변수로 둘 필요 없음
+	- [x] mServerEvent도 굳이 멤버로 둘 필요 없어보임

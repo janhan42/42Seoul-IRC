@@ -45,7 +45,7 @@ class Server
 		std::string									GetPassWord(void);
 		std::string									GetMessage(int fd);
 		ChannelMap&									GetChannelList(void);
-		int											GetKqFd(void);
+		//int											GetKqFd(void);
 		//Ohters
 		Channel*									FindChannel(std::string channelName);
 		//std::map<int, User*>::iterator				FindUser(std::string userName);
@@ -80,15 +80,15 @@ class Server
 		unsigned short int							mPort;				// Server 포트
 		int											mServerSock;		// Server 소켓
 		struct sockaddr_in							mServerAddr;		// Server Addr
-		struct kevent								mServerEvent;		// 통합 이벤트 구조체
-		bool										mbRunning;			// Init 성공시 작동 여부
+		//struct kevent								mServerEvent;		// 통합 이벤트 구조체
+		//bool										mbRunning;			// Init 성공시 작동 여부
 
 		struct kevent								mUserEventList[MAX_EVENT];	// 서버 작동중 kevent list
 		int											mKqFd;
-		int											mEventCount;
-		int											mUserSock;
-		struct sockaddr_in							mUserAddr;
-		socklen_t									mUserAddrLen;
+		//int											mEventCount;
+		// int											mUserSock;
+		// struct sockaddr_in							mUserAddr;
+		// socklen_t									mUserAddrLen;
 		UserMap										mUserList;
 		ChannelMap									mChannelList;
 		std::string									mMessage[BUF_SIZE];
