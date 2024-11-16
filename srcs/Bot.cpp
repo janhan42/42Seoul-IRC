@@ -25,9 +25,9 @@ void Bot::HelpMsgtoChannel(Command* command, std::string channel)
 void Bot::ValidTarget(int fd, Server* server, Channel* channel, Command* command, std::vector<std::string> commandVec)
 {
 	std::vector<int>::iterator channelInUser;
-	std::map<int, class User*>::iterator targetUser = server->FindUser(commandVec[4]); // <target> 을 서버에서 한번 찾음
-	if (targetUser != server->GetUserList().end()) // 서버에 있고 채널에 있는지 확인
-		channelInUser = channel->FindMyUserIt(targetUser->second->GetUserFd());
+	class User* targetUser = server->FindUser(commandVec[4]); // <target> 을 서버에서 한번 찾음
+	if (targetUser != NULL) // 서버에 있고 채널에 있는지 확인
+		channelInUser = channel->FindMyUserIt(targetUser->GetUserFd());
 	else
 		channelInUser = channel->GetUserFdList().end();
 	if (channelInUser == channel->GetUserFdList().end()) // User not in channel
@@ -37,7 +37,7 @@ void Bot::ValidTarget(int fd, Server* server, Channel* channel, Command* command
 		return;
 	}
 	SetFirstUser(server->GetUserList().find(fd)->second);
-	SetSecondUser(targetUser->second);
+	SetSecondUser(targetUser);
 	command->MsgToAllChannel(BOT, channel->GetChannelName(), "PRIVMSG", std::string("유저 [" + GetFirstUser()->GetNickName() + "]가 유저[" + GetSecondUser()->GetNickName() + "] 에게 게임을 신청했습니다."));
 	SetReady(true);
 }

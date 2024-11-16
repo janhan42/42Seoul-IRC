@@ -145,33 +145,33 @@ void Command::Mode(int fd, std::vector<std::string> commandVec)
 			{
 				continue;
 			}
-			std::map<int, class User*>::iterator target = mServer.FindUser(commandVec[modeArgIndex]);
-			if (target == mServer.GetUserList().end())	// users not exists
+			class User* target = mServer.FindUser(commandVec[modeArgIndex]);
+			if (target == NULL)	// users not exists
 			{
 				mResponse.ErrorNosuchNick401(*user, commandVec[modeArgIndex]);
 				return;
 			}
 			else	// users exists
 			{
-				if (user->GetNickName() == target->second->GetNickName())
+				if (user->GetNickName() == target->GetNickName())
 				{
 					return;
 				}
-				if (!channel->CheckUserInChannel(target->second->GetUserFd()))	// users not exist in channel
+				if (!channel->CheckUserInChannel(target->GetUserFd()))	// users not exist in channel
 				{
 					mResponse.ErrorUserNotInChannel441(*user, commandVec[modeArgIndex], commandVec[1]);
 					return;
 				}
 				else if (sign == '+') // give operator-authority
 				{
-					channel->AddOperatorFd(target->second->GetUserFd());
+					channel->AddOperatorFd(target->GetUserFd());
 					isSetMode = true;
 					modeArgList.push_back(commandVec[modeArgIndex]);
 					modeArgIndex++;
 				}
 				else if (sign == '-') // remove operator-authority
 				{
-					channel->RemoveOperatorFd(target->second->GetUserFd());
+					channel->RemoveOperatorFd(target->GetUserFd());
 					isSetMode = true;
 					modeArgList.push_back(commandVec[modeArgIndex]);
 					modeArgIndex++;

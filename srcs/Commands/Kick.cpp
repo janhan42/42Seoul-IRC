@@ -80,17 +80,17 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 		}
 		else
 		{
-			std::map<int, class User*>::iterator target = mServer.FindUser(commandVec[2]);
-			if (target == mServer.GetUserList().end()) // user not exists
+			class User* target = mServer.FindUser(commandVec[2]);
+			if (target == NULL) // user not exists
 			{
 				mResponse.ErrorUserNotInChannel441(*userIt->second, commandVec[2], *vecIt);
 				return;
 			}
-			if (target->second->GetUserFd() == -1) // if user == bot : ignore
+			if (target->GetUserFd() == -1) // if user == bot : ignore
 				return;
 			else
 			{
-				if (!channel->CheckUserInChannel(target->second->GetUserFd())) // user not exists "in channel"
+				if (!channel->CheckUserInChannel(target->GetUserFd())) // user not exists "in channel"
 				{
 					mResponse.ErrorUserNotInChannel441(*userIt->second, commandVec[2], *vecIt);
 				}
@@ -105,9 +105,9 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 						}
 					}
 					MsgToAllChannel(fd, *vecIt, "KICK", message);
-					channel->RemoveUserFdList(target->second->GetUserFd());
-					channel->RemoveOperatorFd(target->second->GetUserFd()); // 오퍼레이터일수도 있어서 추가
-					target->second->RemoveChannel(*vecIt);
+					channel->RemoveUserFdList(target->GetUserFd());
+					channel->RemoveOperatorFd(target->GetUserFd()); // 오퍼레이터일수도 있어서 추가
+					target->RemoveChannel(*vecIt);
 					if (channel->GetUserFdList().size() <= 1)// if no user in channel
 					{
 						mServer.RemoveChannel(channel->GetChannelName());

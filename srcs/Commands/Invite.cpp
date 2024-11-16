@@ -21,9 +21,9 @@ void Command::Invite(int fd, std::vector<std::string> commandVec)
 		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);
 		return;
 	}
-	std::map<int, class User* >::iterator target = mServer.FindUser(commandVec[1]);
+	class User* target = mServer.FindUser(commandVec[1]);
 	// TODO: INVITE 응답중에 401 처리에 대한 얘기가 없음
-	if (target == mServer.GetUserList().end())
+	if (target == NULL)
 	{
 		mResponse.ErrorNosuchNick401(*user, commandVec[1]);
 		return;
@@ -44,12 +44,12 @@ void Command::Invite(int fd, std::vector<std::string> commandVec)
 		mResponse.ErrorChanOprivsNeeded482(*user, commandVec[2]);
 		return;
 	}
-	if (channel->CheckUserInChannel(target->second->GetUserFd()) == true)
+	if (channel->CheckUserInChannel(target->GetUserFd()) == true)
 	{
 		mResponse.ErrorUserOnChannel443(*user, commandVec[1], commandVec[2]);
 		return;
 	}
 	user->AppendUserSendBuf("341 " + user->GetNickName() + " " + commandVec[1] + " " + commandVec[2] + "\r\n");
-	target->second->AppendUserSendBuf(MakeFullName(fd) + " INVITE " + target->second->GetNickName() + " " + commandVec[2] + "\r\n");
-	channel->AppendInviteFdList(target->second->GetUserFd());
+	target->AppendUserSendBuf(MakeFullName(fd) + " INVITE " + target->GetNickName() + " " + commandVec[2] + "\r\n");
+	channel->AppendInviteFdList(target->GetUserFd());
 }

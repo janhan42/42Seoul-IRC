@@ -81,11 +81,7 @@ void Server::Run()
 			}
 			else if (mUserEventList[i].filter & EVFILT_READ)
 			{
-				mStrLen = RecvMessage(mUserEventList[i].ident);
-				if (mStrLen <= 0) // from outside signal(ctrl+C, ...)
-					DeleteUserFromServer(mUserEventList[i].ident);
-				if (CheckMessageEnds(mUserEventList[i].ident)) // CRLF 체크
-					DoCommand(mUserEventList[i].ident);
+				HandleReadEvent(mUserEventList[i].ident);
 			}
 			// Send Message
 			SendBufferToUser();
@@ -166,15 +162,26 @@ Channel*	Server::FindChannel(std::string channelName)
  * @param userName
  * @return std::map<int, User*>::iterator
  */
-std::map<int, User*>::iterator	Server::FindUser(std::string userName)
+// std::map<int, User*>::iterator	Server::FindUser(std::string userName)
+// {
+// 	std::map<int, User*>::iterator it = mUserList.begin();
+// 	for (; it != mUserList.end(); it++)
+// 	{
+// 		if (it->second->GetNickName() == userName)
+// 			return (it);
+// 	}
+// 	return (it);
+// }
+
+User*	Server::FindUser(std::string& name)
 {
 	std::map<int, User*>::iterator it = mUserList.begin();
 	for (; it != mUserList.end(); it++)
 	{
-		if (it->second->GetNickName() == userName)
-			return (it);
+		if (it->second->GetNickName() == name)
+			return (it->second);
 	}
-	return (it);
+	return (NULL);
 }
 
 /**
@@ -205,7 +212,7 @@ void	Server::AppendNewChannel(std::string& channelName, int fd)
  */
 void Server::DeleteUserFromServer(int fd)
 {
-	std::cout << "fd [" << fd << "]is quit connet" << std::endl;
+	std::cout << "fd [" << fd << "]connection lost" << std::endl;
 	std::map<int, User*>::iterator userIt =
 		mUserList.find(fd);
 	if (userIt != mUserList.end())	// 접속 해제 유저 처리
@@ -219,6 +226,15 @@ void Server::DeleteUserFromServer(int fd)
 		close(fd);
 		std::cout << "User Deleted [" << fd << "]" << std::endl;
 	}
+}
+
+void Server::HandleReadEvent(int fd)
+{
+	int recvLen = RecvMessage(fd);
+	if (recvLen <= 0) // from outside signal(ctrl+c, ...)
+		DeleteUserFromServer(fd);
+	else if (CheckMessageEnds(fd))
+		DoCommand(fd);
 }
 
 /**

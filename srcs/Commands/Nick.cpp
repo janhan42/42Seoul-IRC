@@ -32,9 +32,9 @@ void Command::Nick(int fd, std::vector<std::string> commandVec)
 	{
 		while (1)
 		{
-			std::map<int, class User*>::iterator userIt = mServer.FindUser(commandVec[1]);
-			if (userIt != mServer.GetUserList().end())
-				commandVec[1] = userIt->second->GetNickName() + "_";
+			class User* userIt = mServer.FindUser(commandVec[1]);
+			if (userIt != NULL)
+				commandVec[1] = userIt->GetNickName() + "_";
 			else
 				break;
 		}

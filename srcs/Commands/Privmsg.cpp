@@ -61,14 +61,14 @@ void Command::Privmsg(int fd, std::vector<std::string> commandVec)
 		}
 		else
 		{
-			std::map<int, class User*>::iterator user = mServer.FindUser(*vecIt);
+			class User* user = mServer.FindUser(*vecIt);
 			if (*vecIt == SERVERNAME) // /PING SIRC처리
 				return ;
-			if (user != mServer.GetUserList().end())
+			if (user != NULL)
 			{
 				std::string messages = ChannelMessage(2, commandVec);
 
-				user->second->AppendUserSendBuf(":" + userIt->second->GetNickName() + " PRIVMSG " + user->second->GetNickName() + " :" + messages + "\r\n");
+				user->AppendUserSendBuf(":" + userIt->second->GetNickName() + " PRIVMSG " + user->GetNickName() + " :" + messages + "\r\n");
 			}
 			else
 			{
