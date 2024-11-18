@@ -85,12 +85,12 @@ file get:
 
 - [x] 읽기 어려운 iterator 읽기 쉽게 변경중
 
-- [ ] istringstream 쓰는 부분 split함수 로 바꾸기
+- [x] istringstream 쓰는 부분 split함수 로 바꾸기 -> 그냥 둡시다
 
-- [ ] 이제 bot 클래스가 생겼으니까 fd -1인 유저는 안넣어도 되는거 아닌가?
+- [x] 이제 bot 클래스가 생겼으니까 fd -1인 유저는 안넣어도 되는거 아닌가?
 	-> 채널 접속시나 names 했을 때 유저 리스트 보내줄 때 봇 안넣어도 되면
 		삭제해도 될 것 같음
-	->
+	-> 봇이 채널에 유저 처럼 있는 게 맞는것 같아서 그냥 두겠습니다
 
 - [x] strcmp 랑 string 비교연산 섞여있는 부분 stirng 비교연산으로 통일함
 	- Pass.cpp, Privmsg.cpp
@@ -110,16 +110,16 @@ file get:
 	- [x] mUserAddr이랑 mUserAddrLen 역시 일회용처럼 쓰이기 때문에 멤버변수로 둘 필요 없음
 	- [x] mServerEvent도 굳이 멤버로 둘 필요 없어보임
 
-- [ ] RecvMessage함수 한글자씩 읽는거 너무 느리지 않을까 싶어서 새로 만들어 볼까 했는데 다 뜯어고쳐야되네... 일단 보류
+- [x] RecvMessage함수 한글자씩 읽는거 너무 느리지 않을까 싶어서 새로 만들어 볼까 했는데 다 뜯어고쳐야되네... 일단 보류
 
 - [x] mMessage 벡터가 1024개나 가지고 있길래 max_user 만들고 100으로 함
 	- 유저fd는 5부터 생기니까 max_user+5로함
 
 - [x] 442에러 체크 부분 IsInChannel 함수로 변경 가능한거 변경
 
-- [ ] User 클래스 정리
-	- mIsCapEnd 멤버변수 안씀
-	- mRealName 처음 등록할때 받아오긴하는데 그뒤로 안씀
-		- realname 이 필요한 명령어는 구현 대상이 아니긴함
+- [x] User 클래스 정리
+	- mIsCapEnd 멤버변수 안씀 -> 지우는게 맞음
+	- mRealName 처음 등록할때 받아오긴하는데 그뒤로 안씀 -> 안쓴다고 빼면 안됨
+	- realname 이 필요한 명령어는 구현 대상이 아니긴함
 
 
