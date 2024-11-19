@@ -6,14 +6,14 @@
 #    By: janhan <janhan@student.42seoul.kr>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/24 15:49:02 by janhan            #+#    #+#              #
-#    Updated: 2024/11/13 14:16:29 by janhan           ###   ########.fr        #
+#    Updated: 2024/11/19 08:28:18 by janhan           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			=		ircserv
 
 CXX				=		c++
-CXXFLAGS		=		-g -Wall -Wextra -Werror -std=c++98
+CXXFLAGS		=		-Wall -Wextra -Werror -std=c++98
 
 SRCS_DIR	= ./srcs/
 SRCS		=	User.cpp					\
@@ -48,7 +48,6 @@ CMDS		=	Invite.cpp					\
 				User.cpp
 OBJS_CMDS	=	$(addprefix $(CMDS_DIR), $(CMDS:.cpp=.o))
 OBJS		=	$(OBJS_SRCS) $(OBJS_UTILS) $(OBJS_CMDS) $(OBJS_ERROR)
-# OBJS		=	$(SRCS:.cpp=.o)
 
 all : $(NAME)
 

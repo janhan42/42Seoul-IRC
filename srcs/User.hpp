@@ -21,7 +21,6 @@ class User
 		bool								GetPassRegist(void);
 		bool								GetNickRegist(void);
 		bool								GetUserRegist(void);
-		//bool								GetCapEnd(void);
 		int									GetUserFd(void);
 		std::string							GetUserSendBuf(void);
 		std::vector<std::string>&			GetChannelList(void);
@@ -33,7 +32,7 @@ class User
 		void								SetNickRegist(bool state);
 		void								SetUserRegist(bool state);
 		void								SetRegist(bool state);
-		//void								SetCapEnd(bool state);
+
 		// Append
 		void								AppendUserSendBuf(std::string userRecvBuffer);
 		void								AppendChannelList(std::string channelName);
@@ -48,6 +47,8 @@ class User
 		void								RemoveChannel(std::string channelName);
 		std::vector<std::string>::iterator	FindChannel(std::string channelName);
 		bool								IsInChannel(const std::string channelName);
+
+
 	private:
 		// User Infomations
 		std::string							mNickName;
@@ -55,16 +56,20 @@ class User
 		std::string							mHostName;
 		std::string							mServerName;
 		std::string							mRealName;
+
 		// regits flags
 		bool								mbIsRegistPass;
 		bool								mbIsRegistNick;
 		bool								mbIsRegistUser;
-		//bool								mbIsCapEnd;
+
 		// others
 		std::string							mUserSendBuf;
 		std::vector<std::string>			mChannelList;
 		int									mUserFd;
+
+
 	private: // delete OCCF
+		User(const User& rhs);
 		User& operator=(const User& rhs);
 };
 #endif

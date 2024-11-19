@@ -1,4 +1,4 @@
-u# IRC Check List
+# IRC Check List
 
 # CRASH!!!!!
 

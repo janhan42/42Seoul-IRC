@@ -18,10 +18,7 @@ Server::Server(const std::string& port, const std::string& password)
 {
 	mPort = SetPortNum(port);
 	mPassword = SetPassword(password);
-	//mUserAddrLen = sizeof(mUserAddr);
 	mCommand = new Command(*this);
-	Init();
-	//mbRunning = false;
 }
 
 Server::~Server()
@@ -57,7 +54,6 @@ void Server::Init()
 	SetServerListen();
 	SetServerKqueue();
 	SetBot();
-	//mbRunning = true;
 }
 
 /**
@@ -66,7 +62,7 @@ void Server::Init()
  */
 void Server::Run()
 {
-	while (/*mbRunning*/true)
+	while (true)
 	{
 		// 루프당 mEventList 초기화
 		memset(mUserEventList, 0, sizeof(mUserEventList));
@@ -133,15 +129,6 @@ std::map<std::string, Channel *>&	Server::GetChannelList()
 	return (mChannelList);
 }
 
-/**
- * @brief
- * 서버의 kqueue FD를 반환하는 함수
- * @return int
- */
-// int	Server::GetKqFd()
-// {
-// 	return (mKqFd);
-// }
 
 /* Others */
 /**
@@ -157,23 +144,6 @@ Channel*	Server::FindChannel(std::string channelName)
 		return (NULL);
 	return (It->second);
 }
-
-/**
- * @brief
- * 현재 서버에 접속해있는 유저 리스트에서 유저 이름을 기반으로 iterator를 찾는 함수
- * @param userName
- * @return std::map<int, User*>::iterator
- */
-// std::map<int, User*>::iterator	Server::FindUser(std::string userName)
-// {
-// 	std::map<int, User*>::iterator it = mUserList.begin();
-// 	for (; it != mUserList.end(); it++)
-// 	{
-// 		if (it->second->GetNickName() == userName)
-// 			return (it);
-// 	}
-// 	return (it);
-// }
 
 /*
  * 서버의 UserMap에서 이름으로 유저를 찾고 유저 포인터 반환
@@ -230,9 +200,7 @@ void	Server::AppendNewChannel(std::string& channelName, int fd)
  */
 void Server::DeleteUserFromServer(int fd)
 {
-	std::cout << "fd [" << fd << "]connection lost" << std::endl;
-	// std::map<int, User*>::iterator userIt =
-	// 	mUserList.find(fd);
+	std::cout << "fd [" << fd << "] connection lost" << std::endl;
 	class User* user = FindUser(fd);
 	if (user!= NULL)// 접속 해제 유저 처리
 	{
@@ -272,7 +240,7 @@ void Server::SendBufferToUser()
 	{
 		int		user_fd = it->first;
 		User*	user = it->second;
-		
+
 		if (!user->GetUserSendBuf().empty() && user_fd != -1)
 		{
 			/* TESTOUTPUT */
@@ -422,22 +390,6 @@ int Server::RecvMessage(int fd)
 	}
 	return (ret);
 }
-// int Server::RecvMessage(int fd)
-// {
-// 	char buf[1024];
-// 	ssize_t read_len;
-// 	int ret = 0;
-//
-// 	mMessage[fd] = mRestOfMessage[fd];
-// 	//
-// 	// 일단 읽을 수 있는거 전부 mMessage에 때려박음
-// 	while ((read_len = recv(fd, buf, sizeof(buf) - 1, 0)) > 0)
-// 	{
-// 		buf[read_len] = '\0';
-// 		ret += read_len;
-// 		mMessage[fd] += buf;
-// 	}
-// }
 
 /**
  * @brief
