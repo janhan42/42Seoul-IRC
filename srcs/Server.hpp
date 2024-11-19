@@ -26,7 +26,7 @@ class User;
 class Channel;
 class Command;
 
-typedef std::map<int, class User*>			UserMap; 
+typedef std::map<int, class User*>			UserMap;
 typedef std::map<std::string, Channel*>	ChannelMap;
 
 class Server
@@ -45,10 +45,9 @@ class Server
 		std::string									GetPassWord(void);
 		std::string									GetMessage(int fd);
 		ChannelMap&									GetChannelList(void);
-		//int											GetKqFd(void);
+
 		//Ohters
 		Channel*									FindChannel(std::string channelName);
-		//std::map<int, User*>::iterator				FindUser(std::string userName);
 		User*										FindUser(std::string& userName);
 		User*										FindUser(int fd);
 		void										RemoveChannel(std::string channelName);
@@ -76,19 +75,12 @@ class Server
 		void										HandleReadEvent(int fd);
 
 	private: // member variables
-		std::string									mPassword;			// Server 패스워드
-		unsigned short int							mPort;				// Server 포트
-		int											mServerSock;		// Server 소켓
-		struct sockaddr_in							mServerAddr;		// Server Addr
-		//struct kevent								mServerEvent;		// 통합 이벤트 구조체
-		//bool										mbRunning;			// Init 성공시 작동 여부
-
+		std::string									mPassword;					// Server 패스워드
+		unsigned short int							mPort;						// Server 포트
+		int											mServerSock;				// Server 소켓
+		struct sockaddr_in							mServerAddr;				// Server Addr
 		struct kevent								mUserEventList[MAX_EVENT];	// 서버 작동중 kevent list
 		int											mKqFd;
-		//int											mEventCount;
-		// int											mUserSock;
-		// struct sockaddr_in							mUserAddr;
-		// socklen_t									mUserAddrLen;
 		UserMap										mUserList;
 		ChannelMap									mChannelList;
 		std::string									mMessage[MAX_USER + 5];

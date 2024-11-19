@@ -49,7 +49,7 @@ class Channel
 		void								AppendInviteFdList(int fd);
 
 
-	private:
+	private: // variable
 		Bot*								mBot;
 		std::vector<int>					mOperatorFdList;
 		std::string							mChannelName;
@@ -59,7 +59,8 @@ class Channel
 		std::string							mKey;
 		unsigned char						mMode;
 		unsigned int						mLimit;
-	private:
+
+	private: // delete OCCF
 		Channel();
 		Channel(const Channel& rhs);
 		Channel& operator=(const Channel& rhs);

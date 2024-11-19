@@ -13,48 +13,39 @@
 	ERR_USERNOTINCHANNEL (441)
 	ERR_NOTONCHANNEL (442)
  */
-
-/*
-	TODO: /kick #test janhan,sangshin,min을 했을떄
-	KICK #test janhan,sangshin,min
-	KICK #test janhan
-	KICK #test sangshin
-	KICK #test min
-	이렇게 3번 입력이 들어옴 Irssi 클라이언트에서 처리를 따로 해줌 밑에 로직을 다시 만들어야할듯
-*/
-
-// 유저를 채널에서 내보내는 명령어
-// 채널 오퍼레이터만 가능
-// 채널 안에 타겟 유저가 있으면 해당 유저를 포함한 채널 내 사람들에게 kick 되었다는 메세지를 보내고
-// 채널에서 해당 유저 삭제
-// 채널 뒤에 메세지가 오면 코멘트로 kick 메세지 뒤에 : 붙이고 전달
+/**
+ * @brief
+ * 사용자를 채널에서 강퇴하는 함수
+ *
+ * 1. 클라이언트가 /KICK 명령어를 보내면, 해당 채널에서 사용자를 강퇴합니다.
+ * 2. 사용자가 해당 채널에 없거나, 권한이 부족한 경우 에러 메시지를 전송합니다.
+ * 3. 사용자가 채널에 있으면, 강퇴 메시지를 보내고 사용자를 채널에서 제거합니다.
+ *
+ * @param fd 사용자 파일 디스크립터
+ * @param commandVec IRC 명령어와 파라미터가 담긴 벡터
+ */
 void Command::Kick(int fd, std::vector<std::string> commandVec)
 {
 	/* KICK <channel> <nickname> */
-	// std::map<int, class User*>& userList = mServer.GetUserList();
-	// std::map<int, class User*>::iterator userIt = userList.find(fd);
-	// class User* user = userIt->second;
+
+	// 사용자 객체를 파일 디스크립터로부터 찾음
 	class User* user = mServer.FindUser(fd);
 
-	/* TEST OUTPUT */
-	int i = 0;
-	for (std::vector<std::string>::iterator it = commandVec.begin(); it != commandVec.end(); it++)
-	{
-		std::cout << "commandVec[" << i << "] : " << commandVec[i] << std::endl;
-		i++;
-	}
-	/* END */
-
+	// 파라미터가 부족한 경우
 	if (commandVec.size() < 3)
 	{
-		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);
+		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);  // 부족한 파라미터에 대한 에러 응답
 		return;
 	}
+
+	// 사용자가 채널에 없으면
 	if (user->IsInChannel(commandVec[1]) == false)
 	{
-		mResponse.ErrorNotOnChannel442(*user, commandVec[1]);
+		mResponse.ErrorNotOnChannel442(*user, commandVec[1]);  // 채널에 없음 에러
 		return;
 	}
+
+	// 대상 사용자 목록을 ','로 구분하여 파싱
 	std::istringstream iss(commandVec[1]);
 	std::string buffer;
 	std::vector<std::string> vec;
@@ -62,47 +53,48 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 		vec.push_back(buffer);
 	std::vector<std::string>::iterator vecIt = vec.begin();
 
-	/* TEST OUTPUT */
-	i = 0;
-	for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++)
-	{
-		std::cout <<  "VecIt[" << std::to_string(i) << "] : " << *it << std::endl;
-		i++;
-	}
-	/* END */
-
+	// 채널을 찾고, 채널의 오퍼레이터가 아닌 경우
 	Channel* channel = mServer.FindChannel(*vecIt);
 	if (channel && channel->CheckOperator(fd) == false)
 	{
-		mResponse.ErrorChanOprivsNeeded482(*user, *vecIt);
+		mResponse.ErrorChanOprivsNeeded482(*user, *vecIt);  // 채널 오퍼레이터 권한 부족
 		return;
 	}
+
+	// 대상 사용자 리스트에 대해 반복하여 처리
 	for (; vecIt != vec.end(); vecIt++)
 	{
 		Channel* channel = mServer.FindChannel(*vecIt);
 		std::cout << "Find Channel : " << *vecIt << std::endl; // TEST OUTPUT
-		if (channel == NULL) // channel not exists
+
+		// 채널이 존재하지 않으면
+		if (channel == NULL)
 		{
-			mResponse.ErrorNosuchChannel403(*user, *vecIt);
+			mResponse.ErrorNosuchChannel403(*user, *vecIt);  // 채널 없음 에러
 		}
 		else
 		{
+			// 강퇴할 사용자 찾기
 			class User* target = mServer.FindUser(commandVec[2]);
-			if (target == NULL) // user not exists
+			if (target == NULL) // 사용자가 존재하지 않으면
 			{
-				mResponse.ErrorUserNotInChannel441(*user, commandVec[2], *vecIt);
+				mResponse.ErrorUserNotInChannel441(*user, commandVec[2], *vecIt);  // 사용자가 채널에 없음
 				return;
 			}
-			if (target->GetUserFd() == -1) // if user == bot : ignore
+
+			// 봇인 경우 강퇴하지 않음
+			if (target->GetUserFd() == -1)
 				return;
 			else
 			{
-				if (!channel->CheckUserInChannel(target->GetUserFd())) // user not exists "in channel"
+				// 사용자가 채널에 없다면
+				if (!channel->CheckUserInChannel(target->GetUserFd()))
 				{
-					mResponse.ErrorUserNotInChannel441(*user, commandVec[2], *vecIt);
+					mResponse.ErrorUserNotInChannel441(*user, commandVec[2], *vecIt);  // 사용자가 채널에 없음
 				}
-				else // kick user from channel
+				else // 채널에서 사용자 강퇴
 				{
+					// 강퇴 메시지 설정
 					std::string message = commandVec[2];
 					if (commandVec.size() > 3)
 					{
@@ -111,18 +103,23 @@ void Command::Kick(int fd, std::vector<std::string> commandVec)
 							message = message + " " + commandVec[i];
 						}
 					}
+
+					// 모든 채널에 강퇴 메시지 전송
 					MsgToAllChannel(fd, *vecIt, "KICK", message);
+
+					// 사용자를 채널에서 제거
 					channel->RemoveUserFdList(target->GetUserFd());
-					channel->RemoveOperatorFd(target->GetUserFd()); // 오퍼레이터일수도 있어서 추가
+					channel->RemoveOperatorFd(target->GetUserFd()); // 오퍼레이터 권한도 제거
 					target->RemoveChannel(*vecIt);
-					if (channel->GetUserFdList().size() <= 1)// if no user in channel
+
+					// 채널에 더 이상 사용자가 없으면 채널 삭제
+					if (channel->GetUserFdList().size() <= 1)
 					{
-						mServer.RemoveChannel(channel->GetChannelName());
-						delete channel;
+						mServer.RemoveChannel(channel->GetChannelName());  // 채널 삭제
+						delete channel;  // 채널 객체 삭제
 					}
 				}
 			}
 		}
 	}
 }
-

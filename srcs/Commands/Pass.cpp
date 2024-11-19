@@ -11,41 +11,49 @@
 	ERR_PASSWDMISMATCH (464)
  */
 
-// 유저가 pass 명령어로 전달한 암호와 서버의 암호가 일치하는지 확인하는 함수
-// 암호가 틀렸을 경우 유저 서버에서 삭제한다
-// pass 뒤에 암호가 오지 않는 경우는 없다고 봐도 되는게,
-// 접속시에 암호를 입력하지 않으면 nick 명령어부터 들어오기 때문에
-// nick 함수에서 GetPassRegist 체크를 통과못하고 유저 삭제됨
-//
-// 어쨌든 pass를 통과해야 nick 명령어를 받을 수 있도록 설계됨
+/**
+ * @brief
+ * /PASS 명령어를 처리하는 함수
+ *
+ * 1. 클라이언트가 /PASS 명령어를 보내면, 해당 패스워드가 서버의 패스워드와 일치하는지 확인합니다.
+ * 2. 패스워드가 일치하면, 사용자에 대해 패스워드 등록을 완료하고, 이후 명령을 받을 수 있도록 합니다.
+ * 3. 패스워드가 일치하지 않으면, 에러 메시지를 전송하고, 해당 사용자를 서버에서 제거합니다.
+ *
+ * @param fd 사용자의 파일 디스크립터
+ * @param commandVec /PASS 명령어에 대한 파라미터 리스트
+ */
 void Command::Pass(int fd, std::vector<std::string> commandVec)
 {
-	/* PASS <password> */
-	// std::map<int, class User*>& userList = mServer.GetUserList();
-	// std::map<int, class User*>::iterator it = userList.find(fd);
-
+	// 사용자 객체를 서버에서 찾음
 	class User* user = mServer.FindUser(fd);
+	// 서버에서 설정된 패스워드 가져오기
 	std::string password = mServer.GetPassWord();
+
+	// 패스워드가 이미 등록된 경우 에러 메시지 전송
 	if (user->GetPassRegist())
 	{
 		mResponse.ErrorAlreadyRegistRed462(*user);
 		return ;
 	}
+
+	// 패스워드가 제공되지 않으면 에러 메시지 전송
 	if (commandVec.size() < 2)
 	{
 		mResponse.ErrorNeedMoreParams461(*user, commandVec[1]);
 		return ;
 	}
-	//if (strcmp(commandVec[1].c_str(), password.c_str()) != 0)
+
+	// 제공된 패스워드가 서버 패스워드와 일치하지 않으면 에러 처리
 	if (commandVec[1] != password)
 	{
 		mResponse.ErrorPasswdMisMatch464(*user);
+		// 사용자에게 오류 메시지 전송
 		send(fd, user->GetUserSendBuf().c_str(), user->GetUserSendBuf().length(), 0);
-		// delete it->second;
-		// userList.erase(fd);
-		// close(fd);
+		// 사용자 세션 종료
 		mServer.DeleteUserFromServer(fd);
 		return ;
 	}
+
+	// 패스워드가 일치하면 패스워드 등록을 완료하고 이후 명령을 받을 수 있도록 설정
 	user->SetPassRegist(true);
 }
