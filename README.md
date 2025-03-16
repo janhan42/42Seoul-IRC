@@ -1,70 +1,69 @@
-# Inception 프로젝트 - README
+# IRC 프로젝트 - README
 
 ## 📌 프로젝트 개요
-**Inception** 프로젝트는 Docker를 활용하여 컨테이너 기반의 **멀티 서비스 인프라**를 구축하는 과제입니다. 이를 통해 가상화 및 컨테이너 기술에 대한 이해를 높이고, 시스템 설계 및 배포 자동화 경험을 쌓는 것을 목표로 합니다.
+이 프로젝트는 **Internet Relay Chat (IRC) 서버**를 구현하는 과제입니다. IRC는 다중 사용자 채팅 시스템으로, 사용자는 채널을 생성하고 메시지를 주고받을 수 있습니다. 해당 프로젝트는 기본적인 IRC 서버의 기능을 구현하며, 클라이언트와의 통신을 처리하는 네트워크 프로그래밍 실습을 포함합니다.
 
 ## 🛠️ 기술 스택
-- **Docker & Docker Compose**
-- **Nginx** (Reverse Proxy, Load Balancing)
-- **WordPress** (CMS)
-- **MariaDB** (Database)
-- **PHP-FPM** (PHP 실행 환경)
-- **Debian**
+- **언어:** C++
+- **네트워크:** BSD Sockets
+- **프로토콜:** RFC 2812 (IRC 프로토콜)
+- **운영 체제:** Linux / macOS
+- **컴파일러:** c++ -std=c++98
 
-## 🎯 요구사항
-1. **Docker Compose를 활용하여 인프라 구성**
-   - 각각의 서비스(웹 서버, 데이터베이스, 애플리케이션 서버 등)를 별도의 컨테이너로 배포
+## 🎯 주요 기능
+1. **클라이언트 접속 및 인증**
+   - 닉네임 및 사용자 정보 등록
+   - PING/PONG 메시지를 통한 연결 유지
 
-2. **보안 강화**
-   - 각 컨테이너는 비루트(Non-root) 사용자로 실행
-   - SSL을 적용하여 HTTPS 통신 지원
+2. **채널 관리**
+   - 채널 생성 및 참가
+   - 채널 운영자 권한 부여 및 관리
+   - 사용자 강퇴 및 차단 기능
 
-3. **데이터 지속성 (Persistence)**
-   - MariaDB, WordPress 등의 데이터를 유지하기 위해 **볼륨(Volumes)** 사용
+3. **메시지 전송**
+   - 개인 메시지 (PRIVMSG)
+   - 채널 메시지
+   - NOTICE 메시지 지원
 
-4. **네트워크 분리**
-   - 외부 접근이 필요한 서비스(Nginx)와 내부 서비스(MariaDB, WordPress 등)를 분리하여 네트워크 보안 강화
+4. **기타 기능**
+   - KICK, BAN, MODE 등 기본적인 IRC 명령어 처리
+   - 서버 내 사용자 목록 조회
 
 ## 📂 프로젝트 구조
 ```
-📦 inception
- ┣ 📂 srcs                # 소스 코드 및 설정 파일
- ┃ ┣ 📂 nginx             # Nginx 설정
- ┃ ┣ 📂 wordpress         # WordPress 설정
- ┃ ┣ 📂 mariadb           # MariaDB 설정
- ┃ ┣ 📜 docker-compose.yml  # Docker Compose 구성 파일
- ┃ ┣ 📜 .env                # 환경 변수 파일
- ┣ 📜 Makefile            # Makefile
- ┣ 📜 README.md           # 프로젝트 설명서
+📦 IRC_Project
+ ┣ 📂 src                # 소스 코드
+ ┃ ┣ 📜 main.cpp         # 서버 진입점
+ ┃ ┣ 📜 server.cpp       # 서버 로직 처리
+ ┃ ┣ 📜 client.cpp       # 클라이언트 정보 관리
+ ┃ ┣ 📜 channel.cpp      # 채널 관리 기능
+ ┃ ┣ 📜 commands.cpp     # IRC 명령어 처리 진입점
+ ┃ ┣ 📜 Commands         # 명령어 파일
+ ┣ 📜 Makefile           # 빌드 스크립트
+ ┣ 📜 README.md          # 프로젝트 설명서
 ```
 
 ## 🚀 실행 방법
 ### 1. 프로젝트 클론
-```bash
-git clone
-cd inception
-```
 
-### 2. Docker Compose 빌드 및 실행
+### 2. 빌드
 ```bash
 make
 ```
 
-### 3. 컨테이너 상태 확인
+### 3. 실행
 ```bash
-docker ps
+./ircserv <포트번호> <패스워드>
 ```
 
-### 4. 서비스 접속
-- **WordPress 접속:** `https://127.0.0.1.com`
-
-## 🧹 정리 및 종료
+### 4. 클라이언트 접속 (irrsi 사용)
 ```bash
-make fclean
+/connect -nocap 127.0.0.1 <포트번호> <패스워드>
 ```
 
-## 🔍 주요 기능
-- Nginx를 통한 Reverse Proxy 설정 및 SSL 지원
-- WordPress 설치 및 데이터 지속성을 위한 MariaDB 연동
-- Redis를 활용한 성능 최적화
-- Docker Compose를 활용한 손쉬운 서비스 배포
+## 🧪 테스트 방법
+1. 클라이언트를 여러 개 실행하여 서버에 접속
+2. 닉네임 및 사용자 정보 설정 (`NICK`, `USER` 명령어 사용)
+3. 채널 생성 및 참가 (`JOIN #channel`)
+4. 메시지 전송 (`PRIVMSG #channel :Hello`)
+5. 관리 기능 테스트 (`KICK`, `BAN` 등)
